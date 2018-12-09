@@ -6,8 +6,7 @@
 </template>
 
 <script>
-import PubSub from '@/lib/pubsub'
-import router from './router'
+// import PubSub from '@/lib/pubsub'
 
 export default {
   name: 'App'

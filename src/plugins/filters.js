@@ -28,7 +28,7 @@ function truncate( str = '', len = 30, sfx = '...' ){
 }
 
 export default {
-  install( Vue, options ){
+  install( Vue ){
     Vue.filter('capitalize', _capitalize)
     Vue.filter('titleCase', titleCase)
     Vue.filter('filter', _filter)

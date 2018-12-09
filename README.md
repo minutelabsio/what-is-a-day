@@ -1,18 +1,29 @@
-# What is a Day
+# day2
 
-> Built by the MinuteLabs.io team
-
-## Build Setup
-
-``` bash
-# install dependencies
+## Project setup
+```
 yarn install
-
-# serve with hot reload at localhost:8080
-yarn dev
-
-# build for production with minification
-yarn build
 ```
 
-For a detailed explanation on how things work, check out the [vuejs guide](http://vuejs-templates.github.io/webpack/).
+### Compiles and hot-reloads for development
+```
+yarn run serve
+```
+
+### Compiles and minifies for production
+```
+yarn run build
+```
+
+### Run your tests
+```
+yarn run test
+```
+
+### Lints and fixes files
+```
+yarn run lint
+```
+
+### Customize configuration
+See [Configuration Reference](https://cli.vuejs.org/config/).

@@ -4,8 +4,8 @@
 </template>
 
 <script>
-import Promise from 'bluebird'
-import PubSub from '@/lib/pubsub'
+// import Promise from 'bluebird'
+// import PubSub from '@/lib/pubsub'
 
 export default {
   name: 'home'
