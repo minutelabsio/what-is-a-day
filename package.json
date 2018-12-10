@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "serve": "vue-cli-service serve",
+    "dev": "vue-cli-service serve",
     "build": "vue-cli-service build",
     "lint": "vue-cli-service lint"
   },
@@ -14,7 +14,10 @@
     "buefy": "^0.7.1",
     "bulma": "^0.7.1",
     "element-ui": "^2.4.11",
+    "howler": "^2.0.15",
     "lodash": "^4.17.10",
+    "moment": "^2.22.2",
+    "moment-duration-format": "^2.2.2",
     "vue": "^2.5.17",
     "vue-router": "^3.0.2"
   },

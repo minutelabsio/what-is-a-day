@@ -1,7 +1,8 @@
 import Vue from 'vue'
-import App from './app'
-import router from './router'
-import Filters from './plugins/filters'
+import App from '@/app'
+import router from '@/router'
+import Filters from '@/plugins/filters'
+import Gestures from '@/plugins/gestures'
 import Buefy from 'buefy'
 // import ElementUI from 'element-ui'
 import 'element-ui/lib/theme-chalk/index.css'
@@ -18,6 +19,7 @@ Vue.use(Buefy, {
 
 // Vue.use(ElementComponents)
 Vue.use(Filters)
+Vue.use(Gestures)
 
 Vue.config.productionTip = false
 

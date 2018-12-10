@@ -1,6 +1,10 @@
+import moment from 'moment'
+import momentDurationFormatSetup from 'moment-duration-format'
 import _capitalize from 'lodash/capitalize'
 import _find from 'lodash/find'
 import _filter from 'lodash/filter'
+
+momentDurationFormatSetup(moment)
 
 function titleCase( str ){
   return str.split(' ').map( w => _capitalize(w) ).join(' ')
@@ -22,6 +26,13 @@ function shortNumber( n ){
   return (n / cfg.range[0]).toFixed( cfg.decimals ) + cfg.suffix
 }
 
+function duration( n, format = 'hh:mm:ss' ){
+  let m = moment.duration( n )
+  return m.format( format, {
+    stopTrim: 'm'
+  } )
+}
+
 function truncate( str = '', len = 30, sfx = '...' ){
   if ( str.length < len ){ return str }
   return str.substr( 0, len - sfx.length ) + sfx
@@ -34,5 +45,6 @@ export default {
     Vue.filter('filter', _filter)
     Vue.filter('shortNumber', shortNumber)
     Vue.filter('truncate', truncate)
+    Vue.filter('duration', duration)
   }
 }
