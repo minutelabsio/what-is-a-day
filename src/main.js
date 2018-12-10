@@ -3,15 +3,20 @@ import App from './app'
 import router from './router'
 import Filters from './plugins/filters'
 import Buefy from 'buefy'
+// import ElementUI from 'element-ui'
+import 'element-ui/lib/theme-chalk/index.css'
 
 // require styles
 import './styles/main.scss'
+
+// import ElementComponents from '@/plugins/element-components'
 
 Vue.use(Buefy, {
   defaultContainerElement: '#app .below-nav'
   // , defaultIconPack: 'fas'
 })
 
+// Vue.use(ElementComponents)
 Vue.use(Filters)
 
 Vue.config.productionTip = false

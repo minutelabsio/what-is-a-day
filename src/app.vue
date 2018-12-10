@@ -1,8 +1,7 @@
-<template>
-  <div id="app">
-    <slot/>
-    <router-view/>
-  </div>
+<template lang="pug">
+#app
+  slot
+  router-view
 </template>
 
 <script>
@@ -17,4 +16,6 @@ export default {
 
 <style lang="sass" scoped>
 @import '@/styles/_variables.scss'
+#app
+  min-height: 100vh
 </style>

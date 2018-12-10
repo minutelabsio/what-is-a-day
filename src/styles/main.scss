@@ -6,12 +6,16 @@
 @import "~bulma/bulma";
 @import "~buefy/src/scss/buefy";
 
+* > * {
+  box-sizing: border-box;
+}
 html {
   height: 100%;
 }
 body {
   min-height: 100%;
   background: white;
+  margin: 0;
 }
 
 .heading,
@@ -56,6 +60,13 @@ body {
 
 .clickable {
   cursor: pointer;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .scrollbars {

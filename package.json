@@ -10,8 +10,10 @@
   "dependencies": {
     "axios": "^0.18.0",
     "axios-cache-adapter": "^2.0.0",
+    "babel-plugin-component": "^1.1.1",
     "buefy": "^0.7.1",
     "bulma": "^0.7.1",
+    "element-ui": "^2.4.11",
     "lodash": "^4.17.10",
     "vue": "^2.5.17",
     "vue-router": "^3.0.2"
