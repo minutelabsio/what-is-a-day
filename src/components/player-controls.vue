@@ -9,14 +9,15 @@
           b-icon(icon="chevron-up", size="is-small")
         b-dropdown-item(v-for="(item, index) in playlist", :key="item.title", @click="playlistIndex = index")
           | {{ itemType }} {{ index + 1 }}: {{ item.title }}
-    .time {{ time | duration }}
+    .time-total {{ totalTime | duration }}
+    .time-elapsed {{ time | duration }}
 
   .controls
-    .btn.clickable
+    .btn.clickable(@click="previous", :class="{ disabled: playlistIndex <= 0 }")
       b-icon(icon="skip-previous", size="is-large")
     .btn.clickable(@click="togglePlay")
       .playpause
-    .btn.clickable
+    .btn.clickable(@click="next", :class="{ disabled: playlistIndex >= (playlist.length - 1) }")
       b-icon(icon="skip-next", size="is-large")
     //- .right
     //-   .playlist-nav
@@ -49,7 +50,7 @@ export default {
     , playlistIndex: 0
     , scrubbing: false
   })
-  , mounted(){
+  , created(){
     Howler.volume( 1 )
     let stop = false
     const updateTime = () => {
@@ -67,10 +68,16 @@ export default {
 
     updateTime()
   }
+  , destroyed(){
+    if ( this.howls ){
+      this.howls.forEach( h => h.unload() )
+    }
+  }
   , watch: {
     howl: {
       handler( newHowl, oldHowl ){
         if ( oldHowl ){
+          oldHowl.pause()
           // remove all events
           oldHowl.off()
         }
@@ -79,10 +86,11 @@ export default {
           this.setTotalTime()
         } else {
           newHowl.on('load', this.setTotalTime.bind(this))
-          newHowl.on('play', () => { this.paused = false })
-          newHowl.on('pause', () => { this.paused = true })
-          newHowl.on('end', () => { this.paused = true })
         }
+
+        newHowl.on('play', () => { this.paused = false })
+        newHowl.on('pause', () => { this.paused = true })
+        newHowl.on('end', () => { this.paused = true })
       }
       , immediate: true
     }
@@ -90,14 +98,6 @@ export default {
       if (oldHowls){
         oldHowls.forEach( h => h.unload() )
       }
-    }
-  }
-  , created(){
-
-  }
-  , destroyed(){
-    if ( this.howls ){
-      this.howls.forEach( h => h.unload() )
     }
   }
   , computed: {
@@ -124,9 +124,9 @@ export default {
     togglePlay(){
       if ( !this.howl ){ return }
       if ( !this.paused ){
-        this.howl.pause()
+        this.pause()
       } else {
-        this.howl.play()
+        this.play()
       }
     }
     , setTotalTime(){
@@ -142,6 +142,21 @@ export default {
       this.howl.seek( this.time / 1000 )
       this.howl.fade( 0, vol, 100 )
     }, 200)
+
+    , pause(){
+      this.howl.pause()
+    }
+    , play(){
+      this.howl.play()
+    }
+    , previous(){
+      if ( this.playlistIndex <= 0 ){ return }
+      this.playlistIndex--
+    }
+    , next(){
+      if ( this.playlistIndex >= (this.playlist.length - 1) ){ return }
+      this.playlistIndex++
+    }
   }
 }
 </script>
@@ -161,16 +176,21 @@ export default {
   flex-grow: 1
   flex-wrap: nowrap
   .toc
-    margin-top: 8px
+    margin-top: 16px
+    margin-bottom: -6px
     max-width: 100%
     align-self: center
-  .time
+  .time-total,
+  .time-elapsed
     position: absolute
     top: 9px
     right: 3px
     text-align: right
     font-family: $family-monospace
     font-size: 14px
+  .time-elapsed
+    right: auto
+    left: 3px
 .controls
   display: flex
   flex-direction: row
@@ -182,6 +202,11 @@ export default {
     &:active,
     &:hover
       color: $blue
+
+    &.disabled
+      color: inherit
+      opacity: 0.5
+      cursor: auto
     // border: 1px solid $grey-light
 .right
   display: flex
