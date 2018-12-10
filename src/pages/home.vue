@@ -2,7 +2,7 @@
 .app
   .main
   .panel-bottom
-    PlayerControls
+    PlayerControls(:playlist="playlist")
 </template>
 
 <script>
@@ -19,7 +19,22 @@ export default {
     PlayerControls
   }
   , data: () => ({
-
+    playlist: [
+      {
+        title: 'The Equation of Time'
+        , files: [
+          'https://labs.minutelabs.io/Equation-of-Time/library/media/equation-of-time.mp3'
+          , 'https://labs.minutelabs.io/Equation-of-Time/library/media/equation-of-time.ogg'
+        ]
+      }
+      , {
+        title: 'Stellar Time vs. Solar Time'
+        , files: [
+          'https://labs.minutelabs.io/Equation-of-Time/library/media/stellar-v-solar.mp3'
+          , 'https://labs.minutelabs.io/Equation-of-Time/library/media/stellar-v-solar.ogg'
+        ]
+      }
+    ]
   })
   , methods: {
   }

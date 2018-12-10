@@ -18,6 +18,7 @@
     "lodash": "^4.17.10",
     "moment": "^2.22.2",
     "moment-duration-format": "^2.2.2",
+    "play-audio": "^0.0.1-security",
     "vue": "^2.5.17",
     "vue-router": "^3.0.2"
   },
