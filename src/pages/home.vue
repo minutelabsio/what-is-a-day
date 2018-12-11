@@ -1,6 +1,7 @@
 <template lang="pug">
-Player.app(:playlist="playlist")
+Player.player(:playlist="playlist")
   .main
+    Demo
   .panel-bottom
     PlayerControls()
 </template>
@@ -10,6 +11,7 @@ Player.app(:playlist="playlist")
 // import PubSub from '@/lib/pubsub'
 import Player from '@/components/player'
 import PlayerControls from '@/components/player-controls'
+import Demo from '@/components/demo'
 
 export default {
   name: 'home'
@@ -19,6 +21,7 @@ export default {
   , components: {
     Player
     , PlayerControls
+    , Demo
   }
   , data: () => ({
     playlist: [
@@ -46,9 +49,12 @@ export default {
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped lang="sass">
 @import '@/styles/_variables.scss'
-.app
+.player
   display: flex
   flex-direction: column
   justify-content: flex-end
   height: 100vh
+
+.main
+  flex: 1
 </style>

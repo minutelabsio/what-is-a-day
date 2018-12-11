@@ -1,6 +1,5 @@
 <template lang="pug">
 #app
-  slot
   router-view
 </template>
 

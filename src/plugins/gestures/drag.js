@@ -46,6 +46,8 @@ export default {
         , first: true
         , clientX: coords.clientX
         , clientY: coords.clientY
+        , offsetX: 0
+        , offsetY: 0
         , layerX: coords.layerX
         , layerY: coords.layerY
         , event: evt
@@ -56,6 +58,8 @@ export default {
     function onPointerEnd(evt) {
       if (el !== draggedElem) return
       let coords = getCoords( evt, el )
+      var offsetX = coords.clientX - el.firstCoords.x
+      var offsetY = coords.clientY - el.firstCoords.y
       evt.preventDefault()
       el.lastCoords = null
       binding.value({
@@ -63,6 +67,8 @@ export default {
         , last: true
         , clientX: coords.clientX
         , clientY: coords.clientY
+        , offsetX
+        , offsetY
         , layerX: coords.layerX
         , layerY: coords.layerY
         , event: evt
