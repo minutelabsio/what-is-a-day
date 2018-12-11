@@ -11,8 +11,7 @@
 </template>
 
 <script>
-require('@/lib/frames')
-const Frames = window.Frames
+import Copilot from 'copilot'
 
 export default {
   name: 'Demo'
@@ -29,14 +28,14 @@ export default {
     , y0: 0
   })
   , created(){
-    let frames = this.frames = Frames({
+    let frames = this.frames = Copilot({
       x: {
         type: 0
-        // , interpolator: Frames.Interpolators.Angle
+        // , interpolator: Copilot.Interpolators.Angle
       }
       , y: {
         type: 0
-        // , interpolator: Frames.Interpolators.Angle
+        // , interpolator: Copilot.Interpolators.Angle
       }
     }, {
       defaultTransitionDuration: '3s'
@@ -48,7 +47,7 @@ export default {
       id: 'spin'
       , time: '15s'
       , duration: '15s'
-      , easing: Frames.Easing.Quadratic.In
+      , easing: Copilot.Easing.Quadratic.In
     })
 
     frames.add({
@@ -57,7 +56,7 @@ export default {
       id: 'up'
       , time: '20s'
       , duration: '10s'
-      , easing: Frames.Easing.Quadratic.InOut
+      , easing: Copilot.Easing.Quadratic.InOut
     })
 
     frames.add({
@@ -66,7 +65,7 @@ export default {
       id: 'origin'
       , time: '30s'
       , duration: '10s'
-      , easing: Frames.Easing.Quadratic.Out
+      , easing: Copilot.Easing.Quadratic.Out
     })
 
     frames.add({
@@ -75,10 +74,10 @@ export default {
     }, {
       time: '02:23'
       , duration: '01:50'
-      , easing: Frames.Easing.Linear.None
+      , easing: Copilot.Easing.Linear.None
     })
 
-    let smoother = Frames.Animation.Smoothener( frames, { duration: 100 } )
+    let smoother = Copilot.Animation.Smoothener( frames, { duration: 100 } )
 
     const onFrameUpdate = () => {
       var state = frames.state
@@ -114,7 +113,7 @@ export default {
   , methods: {
     onDrag( e ){
       let opts = {
-        easing: Frames.Easing.Elastic.Out
+        easing: Copilot.Easing.Elastic.Out
         , relaxDuration: 1000
         , relaxDelay: 10
         , freeze: true

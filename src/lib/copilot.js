@@ -4,9 +4,9 @@
 	else if(typeof define === 'function' && define.amd)
 		define([], factory);
 	else if(typeof exports === 'object')
-		exports["Frames"] = factory();
+		exports["Copilot"] = factory();
 	else
-		root["Frames"] = factory();
+		root["Copilot"] = factory();
 })(window, function() {
 return /******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
@@ -1168,7 +1168,6 @@ function () {
 }();
 
 exports.default = EventEmitter;
-module.exports = exports.default;
 
 /***/ }),
 
@@ -1269,21 +1268,20 @@ var _type = __webpack_require__(/*! @/type */ "./src/type.js");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var Frames = function Frames(schema, meta) {
+var Copilot = function Copilot(schema, meta) {
   return new _manager.default(schema, meta);
 };
 
-Frames.Util = _util.default;
-Frames.Easing = _easingFunctions.default;
-Frames.Interpolators = _interpolators.default;
-Frames.Player = _player.default;
-Frames.registerType = _type.registerType;
-Frames.Animation = {
+Copilot.Util = _util.default;
+Copilot.Easing = _easingFunctions.default;
+Copilot.Interpolators = _interpolators.default;
+Copilot.Player = _player.default;
+Copilot.registerType = _type.registerType;
+Copilot.Animation = {
   Smoothener: _smoothener.Smoothener
 };
-var _default = Frames;
+var _default = Copilot;
 exports.default = _default;
-module.exports = exports.default;
 
 /***/ }),
 
@@ -1345,7 +1343,6 @@ var Interpolators = {
 };
 var _default = Interpolators;
 exports.default = _default;
-module.exports = exports.default;
 
 /***/ }),
 
@@ -1623,7 +1620,6 @@ function (_EventEmitter) {
 }(_eventEmitter.default);
 
 exports.default = _default;
-module.exports = exports.default;
 
 /***/ }),
 
@@ -1839,8 +1835,6 @@ function (_EventEmitter) {
 function _default(config) {
   return new Player(config);
 }
-
-module.exports = exports.default;
 
 /***/ }),
 
@@ -2490,11 +2484,10 @@ util.getIntersectingPaths = function (o1, o2) {
 
 var _default = util;
 exports.default = _default;
-module.exports = exports.default;
 /* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! ./../../node_modules/process/browser.js */ "./node_modules/process/browser.js")))
 
 /***/ })
 
-/******/ });
+/******/ })["default"];
 });
-//# sourceMappingURL=frames.js.map
+//# sourceMappingURL=copilot.js.map
