@@ -1,10 +1,10 @@
-import moment from 'moment'
-import momentDurationFormatSetup from 'moment-duration-format'
+// import moment from 'moment'
+// import momentDurationFormatSetup from 'moment-duration-format'
 import _capitalize from 'lodash/capitalize'
 import _find from 'lodash/find'
 import _filter from 'lodash/filter'
 
-momentDurationFormatSetup(moment)
+// momentDurationFormatSetup(moment)
 
 function titleCase( str ){
   return str.split(' ').map( w => _capitalize(w) ).join(' ')
@@ -26,11 +26,24 @@ function shortNumber( n ){
   return (n / cfg.range[0]).toFixed( cfg.decimals ) + cfg.suffix
 }
 
-function duration( n, format = 'hh:mm:ss' ){
-  let m = moment.duration( n )
-  return m.format( format, {
-    stopTrim: 'm'
-  } )
+function duration( n ){
+  n = Math.round(n / 1000)
+  let hours   = Math.floor(n / 3600)
+  let minutes = Math.floor((n - (hours * 3600)) / 60)
+  let seconds = n - (hours * 3600) - (minutes * 60)
+  var fmt = ''
+
+  if ( hours !== 0 ){
+    if ( hours   < 10 ) { hours   = '0' + hours }
+    fmt = hours + ':'
+  }
+
+  if ( minutes < 10 ) { minutes = '0' + minutes }
+  if ( seconds < 10 ) { seconds = '0' + seconds }
+
+  fmt += `${minutes}:${seconds}`
+
+  return fmt
 }
 
 function truncate( str = '', len = 30, sfx = '...' ){

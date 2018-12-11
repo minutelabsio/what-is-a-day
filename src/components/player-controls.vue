@@ -1,161 +1,49 @@
 <template lang="pug">
-.player-controls(:class="{ paused: paused }")
-  AudioScrubber(:progress="progress", @scrub="onScrub", @scrubstart="scrubbing = true", @scrubend="scrubbing = false")
+.player-controls(:class="{ paused: player.paused }")
+  AudioScrubber(:progress="progress", @scrub="onScrub", @scrubstart="player.scrubbing = true", @scrubend="player.scrubbing = false")
   .info
     .toc
       b-dropdown(position="is-top-left")
         .button.is-white.is-fullwidth(slot="trigger")
-          span {{ nowPlaying.title }}
+          span {{ player.nowPlaying.title }}
           b-icon(icon="chevron-up", size="is-small")
-        b-dropdown-item(v-for="(item, index) in playlist", :key="item.title", @click="playlistIndex = index")
-          | {{ itemType }} {{ index + 1 }}: {{ item.title }}
-    .time-total {{ totalTime | duration }}
-    .time-elapsed {{ time | duration }}
+        b-dropdown-item(v-for="(item, index) in player.playlist", :key="item.title", @click="player.setTrack(index)")
+          | {{ player.itemType }} {{ index + 1 }}: {{ item.title }}
+    .time-total {{ player.totalTime | duration }}
+    .time-elapsed {{ player.time | duration }}
 
   .controls
-    .btn.clickable(@click="previous", :class="{ disabled: playlistIndex <= 0 }")
+    .btn.clickable(@click="player.previous", :class="{ disabled: player.playlistIndex <= 0 }")
       b-icon(icon="skip-previous", size="is-large")
-    .btn.clickable(@click="togglePlay")
+    .btn.clickable(@click="player.togglePlay")
       .playpause
-    .btn.clickable(@click="next", :class="{ disabled: playlistIndex >= (playlist.length - 1) }")
+    .btn.clickable(@click="player.next", :class="{ disabled: player.playlistIndex >= (player.playlist.length - 1) }")
       b-icon(icon="skip-next", size="is-large")
-    //- .right
-    //-   .playlist-nav
-    //-     .button.is-white.btn-back
-    //-       b-icon(icon="menu-left")
-    //-
 </template>
 
 <script>
-import { Howl, Howler } from 'howler'
-import _throttle from 'lodash/throttle'
 import AudioScrubber from '@/components/audio-scrubber'
 
 export default {
   name: 'PlayerControls'
+  , inject: [ 'player' ]
   , props: {
-    playlist: Array
-    , itemType: {
-      type: String
-      , default: 'Chapter'
-    }
+
   }
   , components: {
     AudioScrubber
   }
   , data: () => ({
-    time: 0
-    , totalTime: 0
-    , paused: true
-    , playlistIndex: 0
-    , scrubbing: false
   })
-  , created(){
-    Howler.volume( 1 )
-    let stop = false
-    const updateTime = () => {
-      if ( stop ){ return }
-      window.requestAnimationFrame( updateTime )
-
-      if (!this.howl || this.scrubbing){ return }
-      let time = this.howl.seek() * 1000
-      this.time = time || 0
-    }
-
-    this.$once('hook:beforeDestroy', () => {
-      stop = true
-    })
-
-    updateTime()
-  }
-  , destroyed(){
-    if ( this.howls ){
-      this.howls.forEach( h => h.unload() )
-    }
-  }
-  , watch: {
-    howl: {
-      handler( newHowl, oldHowl ){
-        if ( oldHowl ){
-          oldHowl.pause()
-          // remove all events
-          oldHowl.off()
-        }
-
-        if ( newHowl.state() === 'loaded' ){
-          this.setTotalTime()
-        } else {
-          newHowl.on('load', this.setTotalTime.bind(this))
-        }
-
-        newHowl.on('play', () => { this.paused = false })
-        newHowl.on('pause', () => { this.paused = true })
-        newHowl.on('end', () => { this.paused = true })
-      }
-      , immediate: true
-    }
-    , howls( newHowls, oldHowls ){
-      if (oldHowls){
-        oldHowls.forEach( h => h.unload() )
-      }
-    }
-  }
   , computed: {
     progress(){
-      return this.time / this.totalTime * 100
-    }
-    , nowPlaying(){
-      if (!this.playlist){ return { title: '' } }
-      return this.playlist[ this.playlistIndex ]
-    }
-    , howls(){
-      if (!this.playlist){ return [] }
-      return this.playlist.map( entry => {
-        return new Howl({
-          src: entry.files
-        })
-      })
-    }
-    , howl(){
-      return this.howls[ this.playlistIndex ].seek(0)
+      return this.player.time / this.player.totalTime * 100
     }
   }
   , methods: {
-    togglePlay(){
-      if ( !this.howl ){ return }
-      if ( !this.paused ){
-        this.pause()
-      } else {
-        this.play()
-      }
-    }
-    , setTotalTime(){
-      this.totalTime = this.howl.duration() * 1000
-    }
-    , onScrub( progress ){
-      this.time = progress * this.totalTime / 100
-      this.seekAudio()
-    }
-    , seekAudio: _throttle(function(){
-      let vol = this.howl.volume()
-      this.howl.volume( 0 )
-      this.howl.seek( this.time / 1000 )
-      this.howl.fade( 0, vol, 100 )
-    }, 200)
-
-    , pause(){
-      this.howl.pause()
-    }
-    , play(){
-      this.howl.play()
-    }
-    , previous(){
-      if ( this.playlistIndex <= 0 ){ return }
-      this.playlistIndex--
-    }
-    , next(){
-      if ( this.playlistIndex >= (this.playlist.length - 1) ){ return }
-      this.playlistIndex++
+    onScrub( progress ){
+      let time = progress * this.player.totalTime / 100
+      this.player.seek( time )
     }
   }
 }

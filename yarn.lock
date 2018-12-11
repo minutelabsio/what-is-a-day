@@ -6048,11 +6048,6 @@ pkg-dir@^3.0.0:
   dependencies:
     find-up "^3.0.0"
 
-play-audio@^0.0.1-security:
-  version "0.0.1-security"
-  resolved "https://registry.yarnpkg.com/play-audio/-/play-audio-0.0.1-security.tgz#529e1adffdc734f214e84b3d0d629144f2cd3a88"
-  integrity sha1-Up4a3/3HNPIU6Es9DWKRRPLNOog=
-
 pluralize@^7.0.0:
   version "7.0.0"
   resolved "https://registry.yarnpkg.com/pluralize/-/pluralize-7.0.0.tgz#298b89df8b93b0221dbf421ad2b1b1ea23fc6777"

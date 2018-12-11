@@ -1,13 +1,14 @@
 <template lang="pug">
-.app
+Player.app(:playlist="playlist")
   .main
   .panel-bottom
-    PlayerControls(:playlist="playlist")
+    PlayerControls()
 </template>
 
 <script>
 // import Promise from 'bluebird'
 // import PubSub from '@/lib/pubsub'
+import Player from '@/components/player'
 import PlayerControls from '@/components/player-controls'
 
 export default {
@@ -16,7 +17,8 @@ export default {
 
   }
   , components: {
-    PlayerControls
+    Player
+    , PlayerControls
   }
   , data: () => ({
     playlist: [
