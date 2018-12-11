@@ -6,6 +6,7 @@
 
 <script>
 // import PubSub from '@/lib/pubsub'
+import Copilot from 'copilot'
 import { Howl, Howler } from 'howler'
 import _throttle from 'lodash/throttle'
 
@@ -38,23 +39,24 @@ export default {
   , created(){
     Howler.volume( 1 )
 
-    let stop = false
-    const updateTime = () => {
-      if ( stop ){ return }
-      window.requestAnimationFrame( updateTime )
-      let now = Date.now()
-      this.$emit('frame', now)
+    let cleanup = Copilot.Syncher({
+      getPlaybackRate: () => this.howl && this.howl.rate()
+      , isPlaying: () => this.howl && this.howl.playing()
+      , getTime: () => this.howl && this.howl.seek() * 1000
+      , onFrame: ( time, now, { isPlaying } ) => {
+        this.$emit('frame', now)
 
-      if (!this.howl || this.scrubbing){ return }
-      let time = this.howl.seek() * 1000
-      this.time = time || 0
-    }
+        if ( !this.howl || this.scrubbing ){ return }
 
-    this.$once('hook:beforeDestroy', () => {
-      stop = true
+        if ( isPlaying ){
+          this.time = time
+        }
+      }
     })
 
-    updateTime()
+    this.$once('hook:beforeDestroy', () => {
+      cleanup()
+    })
   }
   , destroyed(){
     if ( this.howls ){

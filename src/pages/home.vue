@@ -1,5 +1,5 @@
 <template lang="pug">
-Player.player(:playlist="playlist")
+Player(:playlist="playlist")
   .main
     Demo
   .panel-bottom
@@ -53,8 +53,7 @@ export default {
   display: flex
   flex-direction: column
   justify-content: flex-end
-  height: 100vh
-
+  height: 100%
 .main
   flex: 1
 </style>

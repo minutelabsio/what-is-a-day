@@ -16,5 +16,9 @@ export default {
 <style lang="sass" scoped>
 @import '@/styles/_variables.scss'
 #app
-  min-height: 100vh
+  position: fixed
+  top: 0
+  left: 0
+  right: 0
+  bottom: 0
 </style>
