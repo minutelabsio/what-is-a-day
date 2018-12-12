@@ -19,6 +19,7 @@
     "lodash": "^4.17.10",
     "moment": "^2.22.2",
     "moment-duration-format": "^2.2.2",
+    "pixi.js": "^4.8.3",
     "vue": "^2.5.17",
     "vue-router": "^3.0.2"
   },

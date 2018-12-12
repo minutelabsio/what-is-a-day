@@ -21,6 +21,10 @@ export default {
       type: String
       , default: 'Chapter'
     }
+    , playIndex: {
+      type: Number
+      , default: 0
+    }
   }
   , provide(){
     return {
@@ -67,6 +71,7 @@ export default {
     howl: {
       handler( newHowl, oldHowl ){
         this.totalTime = -1
+        this.time = 0
 
         if ( oldHowl ){
           oldHowl.pause()
@@ -101,11 +106,11 @@ export default {
     }
     , howl(){
       if ( !this.howls.length ){ return null }
-      return this.howls[ this.playlistIndex ]
+      return this.howls[ this.playIndex ]
     }
     , nowPlaying(){
       if ( !this.playlist ){ return { title: '' } }
-      return this.playlist[ this.playlistIndex ]
+      return this.playlist[ this.playIndex ]
     }
     , loading(){
       return this.totalTime === -1
@@ -133,15 +138,18 @@ export default {
       this.howl.play()
     }
     , previous(){
-      if ( this.playlistIndex <= 0 ){ return }
-      this.playlistIndex--
+      this.setTrack( this.playIndex - 1 )
     }
     , next(){
-      if ( this.playlistIndex >= (this.playlist.length - 1) ){ return }
-      this.playlistIndex++
+      this.setTrack( this.playIndex + 1 )
     }
     , setTrack( index ){
-      this.playlistIndex = Math.max(Math.min(index, this.playlist.length - 1), 0)
+      if ( index < 0 ){ return }
+      if ( index >= this.playlist.length ){ return }
+
+      let name = this.playlist[ index ].routeName
+
+      this.$router.push({ name })
     }
     , seek( time ){
       this.time = time
