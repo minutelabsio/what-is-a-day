@@ -1,7 +1,7 @@
 <template lang="pug">
 Player.player(:playlist="playlist", :play-index="playIndex")
-  .main
-    router-view
+  .main(ref="main")
+    router-view(:view-width="viewWidth", :view-height="viewHeight")
   .panel-bottom
     PlayerControls()
 </template>
@@ -9,6 +9,7 @@ Player.player(:playlist="playlist", :play-index="playIndex")
 <script>
 // import Promise from 'bluebird'
 // import PubSub from '@/lib/pubsub'
+import _debounce from 'lodash/debounce'
 import Player from '@/components/player'
 import PlayerControls from '@/components/player-controls'
 
@@ -22,9 +23,19 @@ export default {
     , PlayerControls
   }
   , data: () => ({
+    viewWidth: 0
+    , viewHeight: 0
   })
   , created(){
+    const onResize = _debounce(() => this.getViewDimensions(), 100)
+    window.addEventListener( 'resize', onResize, { passive: true } )
 
+    this.$once('hook:beforeDestroy', () => {
+      window.removeEventListener( 'resize', onResize )
+    })
+  }
+  , mounted(){
+    this.getViewDimensions()
   }
   , computed: {
     playlist(){
@@ -41,6 +52,10 @@ export default {
     }
   }
   , methods: {
+    getViewDimensions(){
+      this.viewWidth = this.$refs.main.offsetWidth
+      this.viewHeight = this.$refs.main.offsetHeight
+    }
   }
 }
 </script>
