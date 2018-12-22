@@ -44,7 +44,6 @@ export default {
   , data: () => ({
   })
   , created(){
-    const scene = this.threeVue.scene
     const camera = this.threeVue.camera
 
     this.addTHREEObjectWatchers( this.object, threeProps )
@@ -69,7 +68,6 @@ export default {
   }
   , methods: {
     createObject(){
-      const scene = this.threeVue.scene
       const camera = this.threeVue.camera
 
       let geometry = new THREE.SphereGeometry( 1, 32, 32 )

@@ -82,7 +82,6 @@ export default {
   }
   , methods: {
     createObject(){
-      const scene = this.threeVue.scene
       const light = this.light = this.lightConstructor( this )
       light.position.fromArray(this.position)
       this.object = light

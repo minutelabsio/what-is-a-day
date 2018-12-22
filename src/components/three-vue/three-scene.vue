@@ -7,7 +7,8 @@
 import _pull from 'lodash/pull'
 import * as THREE from 'three'
 import THREEObjectMixin from './three-object.mixin'
-import TrackballControls from 'three-trackballcontrols'
+// import TrackballControls from 'three-trackballcontrols'
+const OrbitControls = require('three-orbit-controls')(THREE)
 
 const listeners = []
 
@@ -39,15 +40,33 @@ export default {
   , provide(){
     this.scene = new THREE.Scene()
     this.addTHREEObjectWatchers( this.scene, sceneProps )
+    this._camera = new THREE.PerspectiveCamera( 35, 1, 1, 1000 )
+    this._camera.position.z = 1
+
+    // controls
+    let controls = this.controls = new OrbitControls( this._camera )
+
+		controls.rotateSpeed = 0.5
+		controls.zoomSpeed = 1.2
+		controls.panSpeed = 0.8
+
+		controls.noZoom = false
+		controls.noPan = true
+
+		// controls.staticMoving = true
+    controls.enableDamping = true
+		controls.dampingFactor = 0.1
+
+    // end controls
 
     this.$watch('camera', ( val ) => {
-      this._camera = new THREE.PerspectiveCamera( 0, 0, 0, 0 )
       if ( val instanceof THREE.Camera ){
         this._camera.copy( val )
       } else {
         this._camera.fov = val.fov || 35
         this._camera.near = val.near || 1
         this._camera.far = val.far || 1000
+        this._camera.updateProjectionMatrix()
         this._camera.position.fromArray( val.position || [0, 0, 20] )
       }
       this.$emit('update:camera', this.camera)
@@ -58,22 +77,6 @@ export default {
 
     let axesHelper = new THREE.AxesHelper( 5 )
     this.scene.add( axesHelper )
-
-    // controls
-    let controls = this.controls = new TrackballControls( this._camera )
-
-		controls.rotateSpeed = 1.0
-		controls.zoomSpeed = 1.2
-		controls.panSpeed = 0.8
-
-		controls.noZoom = false
-		controls.noPan = false
-
-		controls.staticMoving = true
-		controls.dynamicDampingFactor = 0.3
-
-		controls.keys = [ 65, 83, 68 ]
-    // end controls
 
     return {
       threeVue: {
@@ -111,7 +114,7 @@ export default {
       this._camera.aspect = this.width / this.height
       this._camera.updateProjectionMatrix()
       this.renderer.setSize( this.width, this.height )
-      this.controls.handleResize()
+      // this.controls.handleResize()
     }, { immediate: true })
   }
   , mounted(){

@@ -11,7 +11,12 @@
 
     Earth3D(:position.sync="earthPos", :rotation.sync="earthRotation")
     Group(:position.sync="sunPos", :rotation.sync="sunRotation")
-      Light(type="spot", :intensity="0.8")
+      Light(type="spot", :intensity="0.1", :position="[1, 0, 0]")
+      Light(type="spot", :intensity="0.1", :position="[-1, 0, 0]")
+      Light(type="spot", :intensity="0.1", :position="[0, 1, 0]")
+      Light(type="spot", :intensity="0.1", :position="[0, -1, 0]")
+      Light(type="spot", :intensity="0.1", :position="[0, 0, 1]")
+      Light(type="spot", :intensity="0.1", :position="[0, 0, -1]")
       Sun3D()
 </template>
 
@@ -60,7 +65,7 @@ export default {
 
     , earthPos: [0, 0, 0]
     , earthRotation: [0, 0, 0]
-    , sunPos: [5, 0, 0]
+    , sunPos: [10, 0, 0]
     , sunRotation: [0, 0, 0]
   })
   , created(){
@@ -71,7 +76,7 @@ export default {
   , methods: {
     frame(){
       tmpSph.setFromVector3( this.sunPos )
-      tmpSph.theta += 0.001
+      tmpSph.theta += 0.01
       this.sunPos.setFromSpherical( tmpSph )
     }
   }
