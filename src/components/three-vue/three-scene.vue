@@ -29,17 +29,38 @@ export default {
   , props: {
     width: Number
     , height: Number
+    , camera: {
+      type: Object // intended for modification by parent
+      , default: () => ({ fov: 35, near: 1, far: 1000 })
+    }
 
     , ...sceneProps
   }
   , provide(){
     this.scene = new THREE.Scene()
     this.addTHREEObjectWatchers( this.scene, sceneProps )
-    this.camera = new THREE.PerspectiveCamera( 75, this.width / this.height, 0.1, 20000 )
+
+    this.$watch('camera', ( val ) => {
+      this._camera = new THREE.PerspectiveCamera( 0, 0, 0, 0 )
+      if ( val instanceof THREE.Camera ){
+        this._camera.copy( val )
+      } else {
+        this._camera.fov = val.fov || 35
+        this._camera.near = val.near || 1
+        this._camera.far = val.far || 1000
+        this._camera.position.fromArray( val.position || [0, 0, 20] )
+      }
+      this.$emit('update:camera', this.camera)
+    }, { immediate: true })
+
     this.renderer = new THREE.WebGLRenderer( { alpha: true } )
+    // this.renderer.toneMapping = THREE.ReinhardToneMapping
+
+    let axesHelper = new THREE.AxesHelper( 5 )
+    this.scene.add( axesHelper )
 
     // controls
-    let controls = this.controls = new TrackballControls( this.camera )
+    let controls = this.controls = new TrackballControls( this._camera )
 
 		controls.rotateSpeed = 1.0
 		controls.zoomSpeed = 1.2
@@ -57,7 +78,7 @@ export default {
     return {
       threeVue: {
         scene: this.scene
-        , camera: this.camera
+        , camera: this._camera
         , renderer: this.renderer
         , onFrame
         , removeFrameListener
@@ -70,26 +91,25 @@ export default {
   })
   , created(){
 
-    this.camera.position.z = 5
-
     const animate = () => {
       if ( this._isDestroyed ) { return }
       requestAnimationFrame( animate )
+
+      this.$emit('frame')
 
       for ( let fn of listeners ){
         fn()
       }
 
       this.controls.update()
-
-      this.renderer.render( this.scene, this.camera )
+      this.renderer.render( this.scene, this._camera )
     }
 
-    animate()
+    this.$on('hook:mounted', animate)
 
     this.$watch(() => this.width + this.height, () => {
-      this.camera.aspect = this.width / this.height
-      this.camera.updateProjectionMatrix()
+      this._camera.aspect = this.width / this.height
+      this._camera.updateProjectionMatrix()
       this.renderer.setSize( this.width, this.height )
       this.controls.handleResize()
     }, { immediate: true })

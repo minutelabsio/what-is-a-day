@@ -51,6 +51,9 @@ const watchableProps = {
     type: Number
     , default: 0xffffff
   }
+  , position: {
+    default: () => [ 0, 0, 0 ]
+  }
 }
 
 export default {
@@ -59,10 +62,6 @@ export default {
   , inject: [ 'threeVue' ]
   , props: {
     type: String
-    , position: {
-      type: Array
-      , default: () => [ 0, 0, 0 ]
-    }
 
     , ...watchableProps
   }
@@ -71,22 +70,9 @@ export default {
   , data: () => ({
   })
   , created(){
-    const scene = this.threeVue.scene
-    const light = this.light = this.lightConstructor( this )
-    light.position.fromArray(this.position)
-
-    scene.add( light )
-    this.$on('hook:beforeDestroy', () => {
-      scene.remove( light )
-    })
-
+    let light = this.object
     // watchers
     this.addTHREEObjectWatchers( light, watchableProps )
-  }
-  , watch: {
-    position(){
-      this.light.position.fromArray(this.position)
-    }
   }
   , computed: {
     lightConstructor(){
@@ -95,6 +81,12 @@ export default {
     }
   }
   , methods: {
+    createObject(){
+      const scene = this.threeVue.scene
+      const light = this.light = this.lightConstructor( this )
+      light.position.fromArray(this.position)
+      this.object = light
+    }
   }
   , render(){
     return null
