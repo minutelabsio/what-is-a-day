@@ -7895,6 +7895,16 @@ thread-loader@^1.2.0:
     loader-runner "^2.3.0"
     loader-utils "^1.1.0"
 
+three-trackballcontrols@^0.0.7:
+  version "0.0.7"
+  resolved "https://registry.yarnpkg.com/three-trackballcontrols/-/three-trackballcontrols-0.0.7.tgz#42cae1f6856d5f889eaae3a0e2fca9d214793e91"
+  integrity sha512-vWs5XkBnhFb5TkqiEHcvZf50FcOVlXTYL4OT4ydeFr0r7j5H6HYf6ODYnYr7todUECxNf/rbh8zSQKFb0NW83w==
+
+three@^0.99.0:
+  version "0.99.0"
+  resolved "https://registry.yarnpkg.com/three/-/three-0.99.0.tgz#65711fda7a16501da83948121437d824df1fea19"
+  integrity sha512-DmNNq6H6nRGaqxScJ8x7v5VjdtDZR72oTVwDdKbB2BYNFxCkAoo9vdFAznEsMu9YzTV2yFvbVs7qHRzvJZzTIg==
+
 throttle-debounce@^1.0.1:
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/throttle-debounce/-/throttle-debounce-1.1.0.tgz#51853da37be68a155cb6e827b3514a3c422e89cd"

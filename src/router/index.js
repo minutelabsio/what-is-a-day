@@ -1,7 +1,6 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 import PlayerUI from '@/pages/player-ui'
-import Demo from '@/components/demo'
 
 Vue.use(Router)
 
@@ -16,7 +15,7 @@ export default new Router({
         {
           path: 'demo'
           , name: 'demo'
-          , component: Demo
+          , component: () => import('@/components/chapters/axial-tilt')
           , meta: {
             title: 'The Equation of Time'
             , audio: [
@@ -28,7 +27,7 @@ export default new Router({
         , {
           path: 'demo2'
           , name: 'demo2'
-          , component: Demo
+          , component: () => import('@/components/demo')
           , meta: {
             title: 'Stellar Time vs. Solar Time'
             , audio: [

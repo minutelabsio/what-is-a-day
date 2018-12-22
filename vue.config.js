@@ -4,6 +4,9 @@ module.exports = {
     : '/'
   , configureWebpack: {
     resolve: { symlinks: false }
+    , node: {
+      __dirname: true
+    }
   }
   , css: {
     loaderOptions: {
