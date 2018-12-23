@@ -1,6 +1,5 @@
-<script>
 import * as THREE from 'three'
-import THREEObjectMixin from '@/components/three-vue/three-object.mixin'
+import THREEObjectMixin from '@/components/three-vue/v3-object.mixin'
 
 const threeProps = {
   position: {
@@ -12,8 +11,7 @@ const threeProps = {
 }
 
 export default {
-  name: 'Group'
-  , inject: [ 'threeVue' ]
+  name: 'v3-group'
   , mixins: [ THREEObjectMixin ]
   , props: {
     ...threeProps
@@ -23,14 +21,11 @@ export default {
   , data: () => ({
   })
   , created(){
-    this.addTHREEObjectWatchers( this.object, threeProps )
+    this.v3object = new THREE.Group()
+    this.addTHREEObjectWatchers( this.v3object, threeProps )
   }
   , computed: {
   }
   , methods: {
-    createObject(){
-      this.object = new THREE.Group()
-    }
   }
 }
-</script>

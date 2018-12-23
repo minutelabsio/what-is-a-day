@@ -5,38 +5,35 @@ import {
 } from 'three'
 
 export default {
-  created(){
-    if ( this.$options.name === 'ThreeScene' ){
-      return
-    }
-    if ( !this.threeVue ){
-      throw new Error('Can not find injected dependencies. Did you forget to inject?')
+  inject: [ 'threeVue' ]
+  , beforeMount(){
+    if ( !this.v3object ){
+      throw new Error('Please set component v3object property')
     }
 
-    const parent = this.$parent.object ? this.$parent.object : this.threeVue.scene
-    this.createObject()
-    parent.add( this.object )
+    const parent = this.$parent.v3object
+
+    if ( !parent ){ return }
+
+    parent.add( this.v3object )
     this.$on('hook:beforeDestroy', () => {
-      parent.remove( this.object )
+      parent.remove( this.v3object )
     })
   }
   , render(h){
     return h(
-      'div'
+      'template'
       , this.$slots.default
     )
   }
   , methods: {
-    createObject(){
-      throw new Error('Please implement createObject() method')
-    }
 
     // add frame listner
-    , onFrame( fn ){
-      this.threeVue.onFrame( fn )
+    beforeDraw( fn ){
+      this.threeVue.$on( 'beforeDraw', fn )
 
       this.$on('hook:beforeDestroy', () => {
-        this.threeVue.removeFrameListener( fn )
+        this.threeVue.$off( 'beforeDraw', fn )
       })
     }
 

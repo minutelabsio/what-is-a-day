@@ -1,6 +1,6 @@
 <script>
 import * as THREE from 'three'
-import THREEObjectMixin from '@/components/three-vue/three-object.mixin'
+import THREEObjectMixin from '@/components/three-vue/v3-object.mixin'
 
 const threeProps = {
   position: {
@@ -21,7 +21,6 @@ const materialProps = {
 
 export default {
   name: 'Orbit'
-  , inject: [ 'threeVue' ]
   , mixins: [ THREEObjectMixin ]
   , props: {
     radius: {
@@ -38,8 +37,22 @@ export default {
   , data: () => ({
   })
   , created(){
-    this.addTHREEObjectWatchers( this.object, threeProps )
-    this.addTHREEObjectWatchers( this.object.material, materialProps )
+    let material
+    if ( this.gapSize || this.dashSize ){
+      material = new THREE.LineDashedMaterial({ gapSize: this.gapSize, dashSize: this.dashSize })
+    } else {
+      material = new THREE.LineBasicMaterial({})
+    }
+    let geometry = new THREE.CircleGeometry( this.radius, this.segments )
+
+    geometry.vertices.shift()
+    geometry.vertices.push(geometry.vertices[0])
+
+    this.v3object = new THREE.LineLoop( geometry, material )
+    this.v3object.computeLineDistances()
+
+    this.addTHREEObjectWatchers( this.v3object, threeProps )
+    this.addTHREEObjectWatchers( this.v3object.material, materialProps )
   }
   , updated(){
     this.object.computeLineDistances()
@@ -47,21 +60,6 @@ export default {
   , computed: {
   }
   , methods: {
-    createObject(){
-      let material
-      if ( this.gapSize || this.dashSize ){
-        material = new THREE.LineDashedMaterial({ gapSize: this.gapSize, dashSize: this.dashSize })
-      } else {
-        material = new THREE.LineBasicMaterial({})
-      }
-			let geometry = new THREE.CircleGeometry( this.radius, this.segments )
-
-      geometry.vertices.shift()
-      geometry.vertices.push(geometry.vertices[0])
-
-      this.object = new THREE.LineLoop( geometry, material )
-      this.object.computeLineDistances()
-    }
   }
 }
 </script>

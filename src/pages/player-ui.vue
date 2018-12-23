@@ -1,7 +1,7 @@
 <template lang="pug">
 Player.player(:playlist="playlist", :play-index="playIndex")
   .main(ref="main")
-    router-view(:view-width="viewWidth", :view-height="viewHeight")
+    router-view(v-if="viewWidth", :view-width="viewWidth", :view-height="viewHeight")
   .panel-bottom
     PlayerControls()
 </template>

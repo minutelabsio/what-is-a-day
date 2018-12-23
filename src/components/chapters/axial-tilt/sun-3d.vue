@@ -1,6 +1,6 @@
 <script>
 import * as THREE from 'three'
-import THREEObjectMixin from '@/components/three-vue/three-object.mixin'
+import THREEObjectMixin from '@/components/three-vue/v3-object.mixin'
 
 // glow effect from http://kadekeith.me/stuff/three/glow/
 const glowVertexShader = `
@@ -35,7 +35,6 @@ const threeProps = {
 
 export default {
   name: 'Sun3D'
-  , inject: [ 'threeVue' ]
   , mixins: [ THREEObjectMixin ]
   , props: {
     isMean: Boolean
@@ -47,83 +46,77 @@ export default {
   , data: () => ({
   })
   , created(){
-    const camera = this.threeVue.camera
+    let material
+    let bloomColor
+    let radius = 1
 
-    this.addTHREEObjectWatchers( this.object, threeProps )
+    if ( this.isMean ){
+      radius = 0.99
+      bloomColor = 0xbb0000
+      material = new THREE.MeshBasicMaterial({
+        transparent: true
+        , color: 0xaa2222
+      })
+      material.opacity = 0.3
+    } else {
+      bloomColor = 0xbbaa00
+      material = new THREE.MeshBasicMaterial({
+        transparent: false
+        , map: TextureLoader.load( textureUrl )
+        , color: 0x888888
+      })
+    }
+
+    let geometry = new THREE.SphereGeometry( radius, 32, 32 )
+    let sun = new THREE.Mesh( geometry, material )
+    this.v3object = sun
+
+    this.addTHREEObjectWatchers( this.v3object, threeProps )
 
     if ( this.isMean ){
       return
     }
 
+    // glow effect
+    let glowMaterial = new THREE.ShaderMaterial({
+      uniforms: {
+        viewVector: {
+          type: 'v3'
+          , value: 1.0
+        }
+        , color: {
+          type: 'v3'
+          , value: new THREE.Color( bloomColor )
+        }
+      }
+      , vertexShader: glowVertexShader
+      , fragmentShader: glowFragmentShader
+      , side: THREE.FrontSide
+      , blending: THREE.AdditiveBlending
+      , transparent: true
+    })
+
+    let glowGeometry = new THREE.SphereGeometry( 1.5, 32, 32 )
+    let glowMesh = new THREE.Mesh(glowGeometry, glowMaterial)
+    this.glowMesh = glowMesh
+    sun.add( glowMesh )
+    //
+
     let viewVector= new THREE.Vector3()
 
-    this.onFrame(() => {
+    this.beforeDraw(() => {
       // glow
+      const camera = this.threeVue.camera
+
       this.glowMesh.getWorldPosition(viewVector).sub( camera.position )
       this.glowMesh.material.uniforms.viewVector.value = viewVector
 
-      this.object.rotation.y += 0.001
+      this.v3object.rotation.y += 0.001
     })
   }
   , computed: {
   }
   , methods: {
-    createObject(){
-      const camera = this.threeVue.camera
-      let material
-      let bloomColor
-      let radius = 1
-
-      if ( this.isMean ){
-        radius = 0.99
-        bloomColor = 0xbb0000
-        material = new THREE.MeshBasicMaterial({
-          transparent: true
-          , color: 0xaa2222
-        })
-        material.opacity = 0.3
-      } else {
-        bloomColor = 0xbbaa00
-        material = new THREE.MeshBasicMaterial({
-          transparent: false
-          , map: TextureLoader.load( textureUrl )
-          , color: 0x888888
-        })
-      }
-
-      let geometry = new THREE.SphereGeometry( radius, 32, 32 )
-      let sun = new THREE.Mesh( geometry, material )
-      this.object = sun
-
-      if ( this.isMean ){
-        return
-      }
-
-      // glow effect
-      let glowMaterial = new THREE.ShaderMaterial({
-        uniforms: {
-          viewVector: {
-            type: 'v3'
-            , value: camera.position
-          }
-          , color: {
-            type: 'v3'
-            , value: new THREE.Color( bloomColor )
-          }
-        }
-        , vertexShader: glowVertexShader
-        , fragmentShader: glowFragmentShader
-        , side: THREE.FrontSide
-        , blending: THREE.AdditiveBlending
-        , transparent: true
-      })
-
-      let glowGeometry = new THREE.SphereGeometry( 1.5, 32, 32 )
-      let glowMesh = new THREE.Mesh(glowGeometry, glowMaterial)
-      this.glowMesh = glowMesh
-      sun.add( glowMesh )
-      //
-    }
   }
 }
 </script>

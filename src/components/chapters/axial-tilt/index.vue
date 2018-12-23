@@ -1,82 +1,87 @@
 <template lang="pug">
 .chapter
-  ThreeScene(
-    :width="viewWidth"
+  v3-renderer(
+    ref="renderer"
+    , :width="viewWidth"
     , :height="viewHeight"
-    , :background="spaceBackgroundTexture"
-    , :camera.sync="camera"
-    , @frame="frame"
   )
-    Light(type="ambient", :intensity="0.2")
+    v3-camera(ref="camera", type="perspective", :aspect="viewWidth / viewHeight", v-bind="cameraSettings")
+    v3-scene(
+      :background="spaceBackgroundTexture"
+    )
+      v3-light(type="ambient", :intensity="0.2")
 
-    Group
-      Earth3D(:rotation.sync="earthRotation")
+      v3-group
+        Earth3D(:rotation.sync="earthRotation")
 
-    //- mean sun
-    Group
-      Group(:position.sync="meanSunPos")
-        Sun3D(:isMean="true")
-      Orbit(
-        :radius="1.01"
-        , :segments="100"
-        , :rotation="[Math.PI/2, 0, 0]"
-        , :color="0xcc0000"
-      )
-      Orbit(
-        :radius="sunDistance"
-        , :segments="50"
-        , :rotation="[Math.PI/2, 0, 0]"
-        , :dash-size="0.25"
-        , :gap-size="0.15"
-        , :color="0x666666"
-      )
-      Orbit(
-        :radius="sunDistance"
-        , :segments="50"
-        , :rotation="[Math.PI/2, 0, 0]"
-        , :color="0xcc0000"
-      )
-    //- true sun
-    Group(:rotation="[23.4 * deg, 0, 0]")
-      Group(:position.sync="sunPos")
-        Light(type="spot", :intensity="0.1", :position="[1, 0, 0]")
-        Light(type="spot", :intensity="0.1", :position="[-1, 0, 0]")
-        Light(type="spot", :intensity="0.1", :position="[0, 1, 0]")
-        Light(type="spot", :intensity="0.1", :position="[0, -1, 0]")
-        Light(type="spot", :intensity="0.1", :position="[0, 0, 1]")
-        Light(type="spot", :intensity="0.1", :position="[0, 0, -1]")
-        Sun3D()
-      Orbit(
-        :radius="1.01"
-        , :segments="100"
-        , :rotation="[Math.PI/2, 0, 0]"
-        , :color="0xeedd00"
-      )
-      Orbit(
-        :radius="sunDistance"
-        , :segments="50"
-        , :rotation="[Math.PI/2, 0, 0]"
-        , :dash-size="0.25"
-        , :gap-size="0.15"
-        , :color="0x666666"
-      )
-      Orbit(
-        :radius="sunDistance"
-        , :segments="50"
-        , :rotation="[Math.PI/2, 0, 0]"
-        , :color="0xeedd00"
-      )
+      //- mean sun
+      v3-group
+        v3-group(:position.sync="meanSunPos")
+          Sun3D(:isMean="true")
+        Orbit(
+          :radius="1.01"
+          , :segments="100"
+          , :rotation="[Math.PI/2, 0, 0]"
+          , :color="0xcc0000"
+        )
+        Orbit(
+          :radius="sunDistance"
+          , :segments="50"
+          , :rotation="[Math.PI/2, 0, 0]"
+          , :dash-size="0.25"
+          , :gap-size="0.15"
+          , :color="0x666666"
+        )
+        Orbit(
+          :radius="sunDistance"
+          , :segments="50"
+          , :rotation="[Math.PI/2, 0, 0]"
+          , :color="0xcc0000"
+        )
+      //- true sun
+      v3-group(:rotation="[23.4 * deg, 0, 0]")
+        v3-group(:position.sync="sunPos")
+          v3-light(type="spot", :intensity="0.1", :position="[1, 0, 0]")
+          v3-light(type="spot", :intensity="0.1", :position="[-1, 0, 0]")
+          v3-light(type="spot", :intensity="0.1", :position="[0, 1, 0]")
+          v3-light(type="spot", :intensity="0.1", :position="[0, -1, 0]")
+          v3-light(type="spot", :intensity="0.1", :position="[0, 0, 1]")
+          v3-light(type="spot", :intensity="0.1", :position="[0, 0, -1]")
+          Sun3D()
+        Orbit(
+          :radius="1.01"
+          , :segments="100"
+          , :rotation="[Math.PI/2, 0, 0]"
+          , :color="0xeedd00"
+        )
+        Orbit(
+          :radius="sunDistance"
+          , :segments="50"
+          , :rotation="[Math.PI/2, 0, 0]"
+          , :dash-size="0.25"
+          , :gap-size="0.15"
+          , :color="0x666666"
+        )
+        Orbit(
+          :radius="sunDistance"
+          , :segments="50"
+          , :rotation="[Math.PI/2, 0, 0]"
+          , :color="0xeedd00"
+        )
 </template>
 
 <script>
 // import Copilot from 'copilot'
 import * as THREE from 'three'
-import ThreeScene from '@/components/three-vue/three-scene'
-import Light from '@/components/three-vue/light'
-import Group from '@/components/three-vue/group'
+import v3Renderer from '@/components/three-vue/v3-renderer'
+import v3Scene from '@/components/three-vue/v3-scene'
+import v3Camera from '@/components/three-vue/v3-camera'
+import v3Light from '@/components/three-vue/v3-light'
+import v3Group from '@/components/three-vue/v3-group'
 import Earth3D from './earth-3d'
 import Sun3D from './sun-3d'
 import Orbit from './orbit'
+const OrbitControls = require('three-orbit-controls')(THREE)
 
 const spaceBackgroundTexture = new THREE.CubeTextureLoader().load([
   require('./space-skybox-px.png')
@@ -97,9 +102,11 @@ export default {
     , viewHeight: Number
   }
   , components: {
-    ThreeScene
-    , Light
-    , Group
+    v3Renderer
+    , v3Scene
+    , v3Camera
+    , v3Light
+    , v3Group
 
     , Earth3D
     , Sun3D
@@ -108,7 +115,7 @@ export default {
   , data: () => ({
     deg: Math.PI / 180 // helper constant
     , spaceBackgroundTexture
-    , camera: {
+    , cameraSettings: {
       fov: 35
       , near: 1
       , far: 1000
@@ -123,14 +130,44 @@ export default {
 
     , meanSunPos: [sunDistance, 0, 0]
   })
-  , created(){
+  , mounted(){
+    let stop = false
+    const draw = () => {
+      if ( stop ) { return }
+      requestAnimationFrame( draw )
+
+      this.draw()
+    }
+
+    this.$on('hook:beforeDestroy', () => {
+      stop = true
+    })
+
+    // controls
+    let controls = this.controls = new OrbitControls( this.$refs.camera.v3object )
+
+		controls.rotateSpeed = 0.2
+		controls.zoomSpeed = 1.2
+		controls.panSpeed = 0.8
+
+		controls.enableZoom = true
+		controls.enablePan = false
+
+		// controls.staticMoving = true
+    controls.enableDamping = true
+		controls.dampingFactor = 0.1
+    // end controls
+
+    draw()
   }
   , computed: {
   }
   , methods: {
-    frame(){
+    draw(){
       this.orbit( this.sunPos, 0.001 )
       this.orbit( this.meanSunPos, 0.001 )
+      this.controls.update()
+      this.$refs.renderer.draw()
     }
     , orbit( pos ){
       tmpSph.setFromVector3( pos )

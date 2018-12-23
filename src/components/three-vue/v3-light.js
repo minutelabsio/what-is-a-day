@@ -1,4 +1,3 @@
-<script>
 import {
   AmbientLight
   , DirectionalLight
@@ -7,7 +6,7 @@ import {
   , RectAreaLight
   , SpotLight
 } from 'three'
-import THREEObjectMixin from './three-object.mixin'
+import THREEObjectMixin from './v3-object.mixin'
 
 const Types = {
   ambientlight: ({ color, intensity }) => new AmbientLight( color, intensity )
@@ -57,9 +56,8 @@ const watchableProps = {
 }
 
 export default {
-  name: 'Light'
+  name: 'v3-light'
   , mixins: [ THREEObjectMixin ]
-  , inject: [ 'threeVue' ]
   , props: {
     type: String
 
@@ -70,7 +68,9 @@ export default {
   , data: () => ({
   })
   , created(){
-    let light = this.object
+    const light = this.light = this.lightConstructor( this )
+    light.position.fromArray(this.position)
+    this.v3object = light
     // watchers
     this.addTHREEObjectWatchers( light, watchableProps )
   }
@@ -81,14 +81,5 @@ export default {
     }
   }
   , methods: {
-    createObject(){
-      const light = this.light = this.lightConstructor( this )
-      light.position.fromArray(this.position)
-      this.object = light
-    }
-  }
-  , render(){
-    return null
   }
 }
-</script>
