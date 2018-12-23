@@ -68,11 +68,9 @@ export default {
   , data: () => ({
   })
   , created(){
-    const light = this.light = this.lightConstructor( this )
+    const light = this.lightConstructor( this )
     light.position.fromArray(this.position)
     this.v3object = light
-    // watchers
-    this.addTHREEObjectWatchers( light, watchableProps )
   }
   , computed: {
     lightConstructor(){
@@ -81,5 +79,8 @@ export default {
     }
   }
   , methods: {
+    updateObjects(){
+      this.addTHREEObjectWatchers( this.v3object, watchableProps )
+    }
   }
 }

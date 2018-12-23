@@ -22,10 +22,10 @@ export default {
   })
   , created(){
     this.v3object = new THREE.Group()
-    this.addTHREEObjectWatchers( this.v3object, threeProps )
-  }
-  , computed: {
   }
   , methods: {
+    updateObjects(){
+      this.assignProps( this.v3object, threeProps )
+    }
   }
 }

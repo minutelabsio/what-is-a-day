@@ -20,7 +20,7 @@ void main() {
   gl_FragColor = vec4( glow, 1.0 );
 }`
 
-const textureUrl = 'https://fblupi.github.io/threejs-sun-earth-and-moon/res/sol.jpg'
+const textureUrl = require('@/assets/sol.jpg')
 const TextureLoader = new THREE.TextureLoader()
 TextureLoader.crossOrigin = 'anonymous'
 
@@ -71,8 +71,6 @@ export default {
     let sun = new THREE.Mesh( geometry, material )
     this.v3object = sun
 
-    this.addTHREEObjectWatchers( this.v3object, threeProps )
-
     if ( this.isMean ){
       return
     }
@@ -117,6 +115,9 @@ export default {
   , computed: {
   }
   , methods: {
+    updateObjects(){
+      this.assignProps( this.v3object, threeProps )
+    }
   }
 }
 </script>

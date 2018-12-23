@@ -64,8 +64,21 @@ export default {
     camera.position.z = 1
 
     this.v3object = camera
+
+    this.$watch(() => {
+      // watch these
+      return this.fov +
+        this.aspect +
+        this.left +
+        this.right +
+        this.top +
+        this.bottom
+    }, () => {
+      this.v3object.updateProjectionMatrix()
+    })
   }
   , mounted(){
+    this.v3object.updateProjectionMatrix()
     this.threeVue.camera = this.v3object
   }
   , computed: {
@@ -74,12 +87,9 @@ export default {
       return Types[ name + 'camera' ] || Types[ name ]
     }
   }
-  , render(){
-    this.assignProps( this.v3object, watchableProps )
-    // TODO not optimal
-    this.v3object.updateProjectionMatrix()
-    return null
-  }
   , methods: {
+    updateObjects(){
+      this.assignProps( this.v3object, watchableProps )
+    }
   }
 }

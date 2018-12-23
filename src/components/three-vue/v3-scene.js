@@ -17,13 +17,13 @@ export default {
   })
   , created(){
     this.scene = this.v3object = new THREE.Scene()
-    this.addTHREEObjectWatchers( this.scene, sceneProps )
   }
   , mounted(){
     this.threeVue.scene = this.scene
   }
-  , computed: {
-  }
   , methods: {
+    updateObjects(){
+      this.assignProps( this.scene, sceneProps )
+    }
   }
 }

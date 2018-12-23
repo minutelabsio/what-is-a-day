@@ -19,8 +19,7 @@ export default new Router({
           , meta: {
             title: 'The Equation of Time'
             , audio: [
-              'https://labs.minutelabs.io/Equation-of-Time/library/media/equation-of-time.mp3'
-              , 'https://labs.minutelabs.io/Equation-of-Time/library/media/equation-of-time.ogg'
+              require('@/assets/equation-of-time.mp3')
             ]
           }
         }
@@ -31,8 +30,7 @@ export default new Router({
           , meta: {
             title: 'Stellar Time vs. Solar Time'
             , audio: [
-              'https://labs.minutelabs.io/Equation-of-Time/library/media/stellar-v-solar.mp3'
-              , 'https://labs.minutelabs.io/Equation-of-Time/library/media/stellar-v-solar.ogg'
+              require('@/assets/equation-of-time.mp3')
             ]
           }
         }

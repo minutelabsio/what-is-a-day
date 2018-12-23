@@ -49,17 +49,18 @@ export default {
     geometry.vertices.push(geometry.vertices[0])
 
     this.v3object = new THREE.LineLoop( geometry, material )
-    this.v3object.computeLineDistances()
-
-    this.addTHREEObjectWatchers( this.v3object, threeProps )
-    this.addTHREEObjectWatchers( this.v3object.material, materialProps )
   }
   , updated(){
-    this.object.computeLineDistances()
+    this.v3object.computeLineDistances()
   }
   , computed: {
   }
   , methods: {
+    updateObjects(){
+      this.assignProps( this.v3object, threeProps )
+      this.assignProps( this.v3object.material, materialProps )
+      this.v3object.computeLineDistances()
+    }
   }
 }
 </script>

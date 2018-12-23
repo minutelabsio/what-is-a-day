@@ -21,6 +21,7 @@ export default {
     })
   }
   , render(h){
+    this.updateObjects()
     return h(
       'template'
       , this.$slots.default
@@ -28,8 +29,12 @@ export default {
   }
   , methods: {
 
+    updateObjects(){
+      // abstract
+    }
+
     // add frame listner
-    beforeDraw( fn ){
+    , beforeDraw( fn ){
       this.threeVue.$on( 'beforeDraw', fn )
 
       this.$on('hook:beforeDestroy', () => {
@@ -39,7 +44,6 @@ export default {
 
     , assignProps( dest, props ){
       for ( let prop of Object.keys(props) ){
-        // numbers
         if ( prop in dest ){
           let val = this[prop]
           let cur = dest[prop]
@@ -52,22 +56,17 @@ export default {
             if ( Array.isArray(val) ){
               cur.fromArray( val )
               this.$emit(`update:${prop}`, cur)
-              return
-            }
-
-            if ( typeof val === 'object' ){
+            } else if ( typeof val === 'object' ){
               cur.copy( val )
               this.$emit(`update:${prop}`, cur)
-              return
+            } else {
+              cur.set( val )
+              this.$emit(`update:${prop}`, cur)
             }
-
-            cur.set( val )
-            this.$emit(`update:${prop}`, cur)
-            return
+          } else {
+            dest[ prop ] = val
+            this.$emit(`update:${prop}`, val)
           }
-
-          dest[ prop ] = val
-          this.$emit(`update:${prop}`, val)
         }
       }
     }
