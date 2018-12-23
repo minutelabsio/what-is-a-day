@@ -30,17 +30,9 @@ export default {
 
     this.addTHREEObjectWatchers( this.object, threeProps )
 
-    let earth = this.object
-
-    function animate(){
+    this.onFrame(() => {
       // earth.rotation.x += 0.01
-      earth.rotation.y += 0.01
-    }
-
-    this.threeVue.onFrame( animate )
-
-    this.$on('hook:beforeDestroy', () => {
-      this.threeVue.removeFrameListener( animate )
+      this.object.rotation.y += 0.01
     })
   }
   , computed: {

@@ -9,15 +9,63 @@
   )
     Light(type="ambient", :intensity="0.2")
 
-    Earth3D(:position.sync="earthPos", :rotation.sync="earthRotation")
-    Group(:position.sync="sunPos", :rotation.sync="sunRotation")
-      Light(type="spot", :intensity="0.1", :position="[1, 0, 0]")
-      Light(type="spot", :intensity="0.1", :position="[-1, 0, 0]")
-      Light(type="spot", :intensity="0.1", :position="[0, 1, 0]")
-      Light(type="spot", :intensity="0.1", :position="[0, -1, 0]")
-      Light(type="spot", :intensity="0.1", :position="[0, 0, 1]")
-      Light(type="spot", :intensity="0.1", :position="[0, 0, -1]")
-      Sun3D()
+    Group
+      Earth3D(:rotation.sync="earthRotation")
+
+    //- mean sun
+    Group
+      Group(:position.sync="meanSunPos")
+        Sun3D(:isMean="true")
+      Orbit(
+        :radius="1.01"
+        , :segments="100"
+        , :rotation="[Math.PI/2, 0, 0]"
+        , :color="0xcc0000"
+      )
+      Orbit(
+        :radius="sunDistance"
+        , :segments="50"
+        , :rotation="[Math.PI/2, 0, 0]"
+        , :dash-size="0.25"
+        , :gap-size="0.15"
+        , :color="0x666666"
+      )
+      Orbit(
+        :radius="sunDistance"
+        , :segments="50"
+        , :rotation="[Math.PI/2, 0, 0]"
+        , :color="0xcc0000"
+      )
+    //- true sun
+    Group(:rotation="[23.4 * deg, 0, 0]")
+      Group(:position.sync="sunPos")
+        Light(type="spot", :intensity="0.1", :position="[1, 0, 0]")
+        Light(type="spot", :intensity="0.1", :position="[-1, 0, 0]")
+        Light(type="spot", :intensity="0.1", :position="[0, 1, 0]")
+        Light(type="spot", :intensity="0.1", :position="[0, -1, 0]")
+        Light(type="spot", :intensity="0.1", :position="[0, 0, 1]")
+        Light(type="spot", :intensity="0.1", :position="[0, 0, -1]")
+        Sun3D()
+      Orbit(
+        :radius="1.01"
+        , :segments="100"
+        , :rotation="[Math.PI/2, 0, 0]"
+        , :color="0xeedd00"
+      )
+      Orbit(
+        :radius="sunDistance"
+        , :segments="50"
+        , :rotation="[Math.PI/2, 0, 0]"
+        , :dash-size="0.25"
+        , :gap-size="0.15"
+        , :color="0x666666"
+      )
+      Orbit(
+        :radius="sunDistance"
+        , :segments="50"
+        , :rotation="[Math.PI/2, 0, 0]"
+        , :color="0xeedd00"
+      )
 </template>
 
 <script>
@@ -28,6 +76,7 @@ import Light from '@/components/three-vue/light'
 import Group from '@/components/three-vue/group'
 import Earth3D from './earth-3d'
 import Sun3D from './sun-3d'
+import Orbit from './orbit'
 
 const spaceBackgroundTexture = new THREE.CubeTextureLoader().load([
   require('./space-skybox-px.png')
@@ -38,6 +87,7 @@ const spaceBackgroundTexture = new THREE.CubeTextureLoader().load([
   , require('./space-skybox-nz.png')
 ])
 
+const sunDistance = 10
 const tmpSph = new THREE.Spherical()
 
 export default {
@@ -53,9 +103,11 @@ export default {
 
     , Earth3D
     , Sun3D
+    , Orbit
   }
   , data: () => ({
-    spaceBackgroundTexture
+    deg: Math.PI / 180 // helper constant
+    , spaceBackgroundTexture
     , camera: {
       fov: 35
       , near: 1
@@ -65,19 +117,25 @@ export default {
 
     , earthPos: [0, 0, 0]
     , earthRotation: [0, 0, 0]
-    , sunPos: [10, 0, 0]
-    , sunRotation: [0, 0, 0]
+
+    , sunDistance
+    , sunPos: [sunDistance, 0, 0]
+
+    , meanSunPos: [sunDistance, 0, 0]
   })
   , created(){
   }
   , computed: {
-
   }
   , methods: {
     frame(){
-      tmpSph.setFromVector3( this.sunPos )
-      tmpSph.theta += 0.01
-      this.sunPos.setFromSpherical( tmpSph )
+      this.orbit( this.sunPos, 0.001 )
+      this.orbit( this.meanSunPos, 0.001 )
+    }
+    , orbit( pos ){
+      tmpSph.setFromVector3( pos )
+      tmpSph.theta += 0.001
+      pos.setFromSpherical( tmpSph )
     }
   }
 }

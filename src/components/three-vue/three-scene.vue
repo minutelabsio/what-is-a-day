@@ -46,7 +46,7 @@ export default {
     // controls
     let controls = this.controls = new OrbitControls( this._camera )
 
-		controls.rotateSpeed = 0.5
+		controls.rotateSpeed = 0.2
 		controls.zoomSpeed = 1.2
 		controls.panSpeed = 0.8
 
@@ -72,7 +72,7 @@ export default {
       this.$emit('update:camera', this.camera)
     }, { immediate: true })
 
-    this.renderer = new THREE.WebGLRenderer( { alpha: true } )
+    this.renderer = new THREE.WebGLRenderer( { alpha: true, antialias: true } )
     // this.renderer.toneMapping = THREE.ReinhardToneMapping
 
     let axesHelper = new THREE.AxesHelper( 5 )

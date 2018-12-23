@@ -31,6 +31,15 @@ export default {
       throw new Error('Please implement createObject() method')
     }
 
+    // add frame listner
+    , onFrame( fn ){
+      this.threeVue.onFrame( fn )
+
+      this.$on('hook:beforeDestroy', () => {
+        this.threeVue.removeFrameListener( fn )
+      })
+    }
+
     , addTHREEObjectWatchers( dest, props ){
       for ( let prop of Object.keys(props) ){
         // numbers
