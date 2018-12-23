@@ -31,6 +31,11 @@ const watchableProps = {
   , top: Number
   , bottom: Number
 
+  , zoom: {
+    type: Number
+    , default: 1
+  }
+
   , position: {
     default: () => [ 0, 0, 0 ]
   }
@@ -59,12 +64,6 @@ export default {
     camera.position.z = 1
 
     this.v3object = camera
-    // watchers
-    this.addTHREEObjectWatchers( camera, watchableProps )
-    this.v3object.updateProjectionMatrix()
-  }
-  , updated(){
-    this.v3object.updateProjectionMatrix()
   }
   , mounted(){
     this.threeVue.camera = this.v3object
@@ -74,6 +73,12 @@ export default {
       let name = this.type.toLowerCase()
       return Types[ name + 'camera' ] || Types[ name ]
     }
+  }
+  , render(){
+    this.assignProps( this.v3object, watchableProps )
+    // TODO not optimal
+    this.v3object.updateProjectionMatrix()
+    return null
   }
   , methods: {
   }

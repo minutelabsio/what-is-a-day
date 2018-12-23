@@ -5,7 +5,18 @@
     , :width="viewWidth"
     , :height="viewHeight"
   )
-    v3-camera(ref="camera", type="perspective", :aspect="viewWidth / viewHeight", v-bind="cameraSettings")
+    //- v3-camera(ref="camera", type="perspective", :aspect="viewWidth / viewHeight", v-bind="cameraSettings")
+    v3-camera(
+      ref="camera"
+      , type="orthographic"
+      , :left="-viewWidth/2"
+      , :right="viewWidth/2"
+      , :top="viewHeight/2"
+      , :bottom="-viewHeight/2"
+      , :zoom="30"
+      , :far="5000"
+      , :position="[ 0, 10, 10 ]"
+    )
     v3-scene(
       :background="spaceBackgroundTexture"
     )

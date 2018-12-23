@@ -37,6 +37,41 @@ export default {
       })
     }
 
+    , assignProps( dest, props ){
+      for ( let prop of Object.keys(props) ){
+        // numbers
+        if ( prop in dest ){
+          let val = this[prop]
+          let cur = dest[prop]
+
+          if (
+            cur instanceof Color ||
+            cur instanceof Vector3 ||
+            cur instanceof Euler
+          ){
+            if ( Array.isArray(val) ){
+              cur.fromArray( val )
+              this.$emit(`update:${prop}`, cur)
+              return
+            }
+
+            if ( typeof val === 'object' ){
+              cur.copy( val )
+              this.$emit(`update:${prop}`, cur)
+              return
+            }
+
+            cur.set( val )
+            this.$emit(`update:${prop}`, cur)
+            return
+          }
+
+          dest[ prop ] = val
+          this.$emit(`update:${prop}`, val)
+        }
+      }
+    }
+
     , addTHREEObjectWatchers( dest, props ){
       for ( let prop of Object.keys(props) ){
         // numbers
