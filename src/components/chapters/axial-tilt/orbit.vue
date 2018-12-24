@@ -15,6 +15,10 @@ const materialProps = {
   color: {
     default: 0xffffff
   }
+  , opacity: {
+    type: Number
+    , default: 1
+  }
   , dashSize: Number
   , gapSize: Number
 }

@@ -15,7 +15,8 @@
       , :bottom="-viewHeight/2"
       , :zoom="30"
       , :far="5000"
-      , :position="[ 0, 10, 10 ]"
+      , :position="orthCameraPos"
+      , :look-at="origin"
     )
     v3-scene(
       :background="spaceBackgroundTexture"
@@ -25,15 +26,20 @@
       v3-group
         Earth3D(:rotation.sync="earthRotation")
 
+      Wedge(v-bind="timeDiffWedgeProps", :opacity="0.5", :rotation="[Math.PI/2, 0, 0]")
+      v3-line(:to="[ timeDiffWedgeProps.x1, 0, timeDiffWedgeProps.y1 ]", :color="red")
+      v3-line(:to="[ timeDiffWedgeProps.x2, 0, timeDiffWedgeProps.y2 ]", :color="yellow")
+      v3-line(:from="[ timeDiffWedgeProps.x2, 0, timeDiffWedgeProps.y2 ]", :to="sunWorldPos", :color="yellow")
+
       //- mean sun
       v3-group
-        v3-group(:position.sync="meanSunPos")
-          Sun3D(:isMean="true")
+        v3-group(:position="meanSunPos")
+          Sun3D(ref="meanSun", :isMean="true")
         Orbit(
           :radius="1.01"
           , :segments="100"
           , :rotation="[Math.PI/2, 0, 0]"
-          , :color="0xcc0000"
+          , :color="red"
         )
         Orbit(
           :radius="sunDistance"
@@ -41,29 +47,29 @@
           , :rotation="[Math.PI/2, 0, 0]"
           , :dash-size="0.25"
           , :gap-size="0.15"
-          , :color="0x666666"
+          , :color="0x333333"
         )
         Orbit(
           :radius="sunDistance"
           , :segments="50"
           , :rotation="[Math.PI/2, 0, 0]"
-          , :color="0xcc0000"
+          , :color="red"
         )
       //- true sun
       v3-group(:rotation="[23.4 * deg, 0, 0]")
-        v3-group(:position.sync="sunPos")
+        v3-group(:position="sunPos")
           v3-light(type="spot", :intensity="0.1", :position="[1, 0, 0]")
           v3-light(type="spot", :intensity="0.1", :position="[-1, 0, 0]")
           v3-light(type="spot", :intensity="0.1", :position="[0, 1, 0]")
           v3-light(type="spot", :intensity="0.1", :position="[0, -1, 0]")
           v3-light(type="spot", :intensity="0.1", :position="[0, 0, 1]")
           v3-light(type="spot", :intensity="0.1", :position="[0, 0, -1]")
-          Sun3D()
+          Sun3D(ref="sun")
         Orbit(
           :radius="1.01"
           , :segments="100"
           , :rotation="[Math.PI/2, 0, 0]"
-          , :color="0xeedd00"
+          , :color="yellow"
         )
         Orbit(
           :radius="sunDistance"
@@ -71,13 +77,13 @@
           , :rotation="[Math.PI/2, 0, 0]"
           , :dash-size="0.25"
           , :gap-size="0.15"
-          , :color="0x666666"
+          , :color="0x333333"
         )
         Orbit(
           :radius="sunDistance"
           , :segments="50"
           , :rotation="[Math.PI/2, 0, 0]"
-          , :color="0xeedd00"
+          , :color="yellow"
         )
 </template>
 
@@ -92,6 +98,8 @@ import v3Group from '@/components/three-vue/v3-group'
 import Earth3D from './earth-3d'
 import Sun3D from './sun-3d'
 import Orbit from './orbit'
+import Wedge from './wedge'
+import v3Line from './line'
 const OrbitControls = require('three-orbit-controls')(THREE)
 
 const spaceBackgroundTexture = new THREE.CubeTextureLoader().load([
@@ -105,6 +113,15 @@ const spaceBackgroundTexture = new THREE.CubeTextureLoader().load([
 
 const sunDistance = 10
 const tmpSph = new THREE.Spherical()
+const tmpV1 = new THREE.Vector3()
+const tmpV2 = new THREE.Vector3()
+
+const vOrigin = new THREE.Vector3()
+const axis = {
+  x: new THREE.Vector3(1, 0, 0)
+  , y: new THREE.Vector3(0, 1, 0)
+  , z: new THREE.Vector3(0, 0, 1)
+}
 
 export default {
   name: 'AxialTilt'
@@ -122,16 +139,22 @@ export default {
     , Earth3D
     , Sun3D
     , Orbit
+    , Wedge
+    , v3Line
   }
   , data: () => ({
     deg: Math.PI / 180 // helper constant
     , spaceBackgroundTexture
+    , origin: [0, 0, 0]
     , cameraSettings: {
       fov: 35
       , near: 1
       , far: 1000
       , position: [ 0, 30, 0 ]
-    } // set by three scene
+    }
+    , yellow: 0xdddd00
+    , red: 0xdd0000
+    , orthCameraPos: [ 0, 10, 10 ]
 
     , earthPos: [0, 0, 0]
     , earthRotation: [0, 0, 0]
@@ -141,6 +164,13 @@ export default {
 
     , meanSunPos: [sunDistance, 0, 0]
   })
+  , created(){
+    this.$watch(() => {
+      return this.viewWidth && this.viewHeight
+    }, () => {
+      this.onResize()
+    })
+  }
   , mounted(){
     let stop = false
     const draw = () => {
@@ -172,18 +202,52 @@ export default {
     draw()
   }
   , computed: {
+    timeDiffWedgeProps(){
+      this.sunPos
+      this.meanSunPos
+      if ( !this.$refs.meanSun || !this.$refs.sun ){ return {} }
+      this.$refs.meanSun.v3object.getWorldPosition( tmpV1 )
+      let x1 = tmpV1.x
+      let y1 = tmpV1.z
+      let len = tmpV1.length()
+
+      this.$refs.sun.v3object.getWorldPosition( tmpV2 )
+      tmpV2.y = 0
+      tmpV2.setLength( len )
+
+      let x2 = tmpV2.x
+      let y2 = tmpV2.z
+
+      let color = tmpV1.dot( axis.x ) > tmpV2.dot( axis.x ) ? this.red : this.yellow
+
+      return {
+        x1, y1, x2, y2
+        , color
+      }
+    }
+    , sunWorldPos(){
+      this.sunPos
+      if ( !this.$refs.sun ){ return [] }
+      return this.$refs.sun.v3object.getWorldPosition( tmpV2 ).toArray()
+    }
   }
   , methods: {
     draw(){
-      this.orbit( this.sunPos, 0.001 )
-      this.orbit( this.meanSunPos, 0.001 )
+      this.sunPos = this.orbit( this.sunPos, 0.001 )
+      this.meanSunPos = this.orbit( this.meanSunPos, 0.001 )
       this.controls.update()
       this.$refs.renderer.draw()
     }
     , orbit( pos ){
-      tmpSph.setFromVector3( pos )
+      tmpV1.fromArray( pos )
+      tmpSph.setFromVector3( tmpV1 )
       tmpSph.theta += 0.001
-      pos.setFromSpherical( tmpSph )
+      tmpV1.setFromSpherical( tmpSph )
+      return tmpV1.toArray()
+    }
+    , onResize(){
+      // let camera = this.$refs.camera.v3object
+      // camera.lookAt(vOrigin)
     }
   }
 }

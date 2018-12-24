@@ -1,6 +1,7 @@
 import {
   OrthographicCamera
   , PerspectiveCamera
+  , Vector3
 } from 'three'
 import THREEObjectMixin from './v3-object.mixin'
 
@@ -53,6 +54,7 @@ export default {
       , default: 'perspective'
     }
 
+    , lookAt: Array
     , ...watchableProps
   }
   , components: {
@@ -67,7 +69,7 @@ export default {
 
     this.$watch(() => {
       // watch these
-      return this.fov +
+      return '' + this.fov +
         this.aspect +
         this.left +
         this.right +
@@ -82,7 +84,10 @@ export default {
     this.threeVue.camera = this.v3object
   }
   , computed: {
-    cameraConstructor(){
+    lookAtV(){
+      return new Vector3().fromArray(this.lookAt)
+    }
+    , cameraConstructor(){
       let name = this.type.toLowerCase()
       return Types[ name + 'camera' ] || Types[ name ]
     }
@@ -90,6 +95,10 @@ export default {
   , methods: {
     updateObjects(){
       this.assignProps( this.v3object, watchableProps )
+      if ( this.lookAt ){
+        // console.log(this.lookAtV)
+        this.v3object.lookAt(this.lookAtV)
+      }
     }
   }
 }

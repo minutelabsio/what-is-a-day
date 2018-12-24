@@ -71,7 +71,7 @@ export default {
     let sun = new THREE.Mesh( geometry, material )
     this.v3object = sun
 
-    if ( this.isMean ){
+    if ( true || this.isMean ){
       return
     }
 

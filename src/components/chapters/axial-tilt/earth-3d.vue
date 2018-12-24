@@ -29,7 +29,7 @@ export default {
 
     let geometry = new THREE.SphereGeometry( 1, 32, 32 )
     let texture = TextureLoader.load( textureUrl )
-    let material = new THREE.MeshLambertMaterial({ transparent: false, map: texture })
+    let material = new THREE.MeshToonMaterial({ transparent: false, map: texture })
     let earth = new THREE.Mesh( geometry, material )
     this.v3object = earth
 
