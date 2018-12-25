@@ -29,12 +29,12 @@
       Wedge(v-bind="timeDiffWedgeProps", :opacity="0.5", :rotation="[Math.PI/2, 0, 0]")
       v3-line(:to="[ timeDiffWedgeProps.x1, 0, timeDiffWedgeProps.y1 ]", :color="red")
       v3-line(:to="[ timeDiffWedgeProps.x2, 0, timeDiffWedgeProps.y2 ]", :color="yellow")
-      v3-line(:from="[ timeDiffWedgeProps.x2, 0, timeDiffWedgeProps.y2 ]", :to="sunWorldPos", :color="yellow")
+      v3-line(:from="sunPosProjection", :to="sunWorldPos", :color="yellow")
 
       //- mean sun
       v3-group
-        v3-group(:position="meanSunPos")
-          Sun3D(ref="meanSun", :isMean="true")
+        v3-group(:rotation="yearRotation")
+          Sun3D(ref="meanSun", :isMean="true", :position="sunPos")
         Orbit(
           :radius="1.01"
           , :segments="100"
@@ -57,14 +57,9 @@
         )
       //- true sun
       v3-group(:rotation="[23.4 * deg, 0, 0]")
-        v3-group(:position="sunPos")
-          v3-light(type="spot", :intensity="0.1", :position="[1, 0, 0]")
-          v3-light(type="spot", :intensity="0.1", :position="[-1, 0, 0]")
-          v3-light(type="spot", :intensity="0.1", :position="[0, 1, 0]")
-          v3-light(type="spot", :intensity="0.1", :position="[0, -1, 0]")
-          v3-light(type="spot", :intensity="0.1", :position="[0, 0, 1]")
-          v3-light(type="spot", :intensity="0.1", :position="[0, 0, -1]")
-          Sun3D(ref="sun")
+        v3-group(:rotation="yearRotation")
+          v3-light(type="spot", :intensity="0.4", :position="sunPos")
+          Sun3D(ref="sun", :position="sunPos")
         Orbit(
           :radius="1.01"
           , :segments="100"
@@ -102,6 +97,7 @@ import Wedge from './wedge'
 import v3Line from './line'
 const OrbitControls = require('three-orbit-controls')(THREE)
 
+const bg = new THREE.TextureLoader().load( require('@/assets/scene.jpg') )
 const spaceBackgroundTexture = new THREE.CubeTextureLoader().load([
   require('./space-skybox-px.png')
   , require('./space-skybox-nx.png')
@@ -154,6 +150,9 @@ export default {
     }
     , yellow: 0xdddd00
     , red: 0xdd0000
+    , daysPerYear: 365
+    , day: 0
+    , rate: 1 / 10
     , orthCameraPos: [ 0, 10, 10 ]
 
     , earthPos: [0, 0, 0]
@@ -163,6 +162,7 @@ export default {
     , sunPos: [sunDistance, 0, 0]
 
     , meanSunPos: [sunDistance, 0, 0]
+    , yearRotation: [ 0, 0, 0 ]
   })
   , created(){
     this.$watch(() => {
@@ -203,15 +203,15 @@ export default {
   }
   , computed: {
     timeDiffWedgeProps(){
-      this.sunPos
-      this.meanSunPos
+      this.day
       if ( !this.$refs.meanSun || !this.$refs.sun ){ return {} }
-      this.$refs.meanSun.v3object.getWorldPosition( tmpV1 )
+
+      this.getWorldPosition( 'meanSun', tmpV1 )
       let x1 = tmpV1.x
       let y1 = tmpV1.z
       let len = tmpV1.length()
 
-      this.$refs.sun.v3object.getWorldPosition( tmpV2 )
+      this.getWorldPosition( 'sun', tmpV2 )
       tmpV2.y = 0
       tmpV2.setLength( len )
 
@@ -226,17 +226,36 @@ export default {
       }
     }
     , sunWorldPos(){
-      this.sunPos
+      this.day
       if ( !this.$refs.sun ){ return [] }
-      return this.$refs.sun.v3object.getWorldPosition( tmpV2 ).toArray()
+      return this.getWorldPosition( 'sun', tmpV2 ).toArray()
+    }
+    , sunPosProjection(){
+      this.day
+      if ( !this.$refs.sun ){ return [] }
+      let sunPos = this.getWorldPosition( 'sun', tmpV1 )
+      let meanSunPos = this.getWorldPosition( 'meanSun', tmpV2 )
+
+      return sunPos.projectOnPlane( axis.y ).toArray()
+    }
+    , radsPerYear(){
+      return (2 * Math.PI / this.daysPerYear)
+    }
+    , yearAngle(){
+      return this.day * this.radsPerYear
     }
   }
   , methods: {
     draw(){
-      this.sunPos = this.orbit( this.sunPos, 0.001 )
-      this.meanSunPos = this.orbit( this.meanSunPos, 0.001 )
+      // this.sunPos = this.orbit( this.sunPos, 0.001 )
+      // this.meanSunPos = this.orbit( this.meanSunPos, 0.001 )
+      this.day = (this.day + this.rate) % this.daysPerYear
+      this.yearRotation.splice(1, 1, this.yearAngle)
       this.controls.update()
       this.$refs.renderer.draw()
+    }
+    , getWorldPosition( ref, result ){
+      return this.$refs[ref].v3object.getWorldPosition( result )
     }
     , orbit( pos ){
       tmpV1.fromArray( pos )

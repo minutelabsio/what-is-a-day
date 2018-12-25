@@ -50,15 +50,22 @@ export default {
   }
   , watch: {
     vertices(){
-      if (!this.v3object){ return }
+      if ( !this.v3object ){ return }
       this.v3object.geometry.verticesNeedUpdate = true
     }
   }
   , computed: {
     vertices(){
       if ( !this.geometry ){ return [] }
-      this.geometry.vertices[0].fromArray(this.from)
-      this.geometry.vertices[1].fromArray(this.to)
+      let from = this.geometry.vertices[0]
+      let to = this.geometry.vertices[1]
+
+      from.fromArray(this.from)
+      to.fromArray(this.to)
+
+      if ( from.equals(to) ){
+        to.x += 0.01
+      }
       return this.geometry.vertices
     }
   }

@@ -1,5 +1,6 @@
 import * as THREE from 'three'
 import THREEObjectMixin from '@/components/three-vue/v3-object.mixin'
+const origin = new THREE.Vector2( 0, 0 )
 
 const threeProps = {
   position: {
@@ -59,10 +60,13 @@ export default {
   }
   , computed: {
     shape(){
+      let first = new THREE.Vector2( this.x1, this.y1 )
+      let second = new THREE.Vector2( this.x2, this.y2 )
+
       return new THREE.Shape([
         new THREE.Vector2( 0, 0 )
-        , new THREE.Vector2( this.x1, this.y1 )
-        , new THREE.Vector2( this.x2, this.y2 )
+        , first
+        , second
         , new THREE.Vector2( 0, 0 )
       ])
     }

@@ -5,6 +5,7 @@ import {
   , PointLight
   , RectAreaLight
   , SpotLight
+  , Vector3
 } from 'three'
 import THREEObjectMixin from './v3-object.mixin'
 
@@ -60,6 +61,7 @@ export default {
   , mixins: [ THREEObjectMixin ]
   , props: {
     type: String
+    , target: Object
 
     , ...watchableProps
   }
@@ -69,8 +71,14 @@ export default {
   })
   , created(){
     const light = this.lightConstructor( this )
-    light.position.fromArray(this.position)
     this.v3object = light
+  }
+  , watch: {
+    target( val ){
+      if ( val && val.matrixWorld ){
+        this.v3object.target = val
+      }
+    }
   }
   , computed: {
     lightConstructor(){
@@ -80,7 +88,7 @@ export default {
   }
   , methods: {
     updateObjects(){
-      this.addTHREEObjectWatchers( this.v3object, watchableProps )
+      this.assignProps( this.v3object, watchableProps )
     }
   }
 }
