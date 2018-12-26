@@ -52,10 +52,12 @@ export default {
     let geometry = new THREE.ShapeGeometry( this.shape, this.segments )
 
     this.v3object = new THREE.Mesh( geometry, material )
+    this.v3object.visible = (this.v3object.geometry.faces.length > 0)
   }
   , watch: {
     shape(){
       this.v3object.geometry = new THREE.ShapeGeometry( this.shape, this.segments )
+      this.v3object.visible = (this.v3object.geometry.faces.length > 0)
     }
   }
   , computed: {

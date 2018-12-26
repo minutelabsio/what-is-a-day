@@ -18,9 +18,7 @@
       , :position="orthCameraPos"
       , :look-at="origin"
     )
-    v3-scene(
-      :background="spaceBackgroundTexture"
-    )
+    v3-scene(:background="background")
       v3-light(type="ambient", :intensity="0.2")
 
       v3-group
@@ -97,7 +95,6 @@ import Wedge from './wedge'
 import v3Line from './line'
 const OrbitControls = require('three-orbit-controls')(THREE)
 
-const bg = new THREE.TextureLoader().load( require('@/assets/scene.jpg') )
 const spaceBackgroundTexture = new THREE.CubeTextureLoader().load([
   require('./space-skybox-px.png')
   , require('./space-skybox-nx.png')
@@ -106,6 +103,15 @@ const spaceBackgroundTexture = new THREE.CubeTextureLoader().load([
   , require('./space-skybox-pz.png')
   , require('./space-skybox-nz.png')
 ])
+// const spaceBackgroundTexture = new THREE.CubeTextureLoader().setPath('https://threejs.org/examples/textures/cube/Park3Med/').setCrossOrigin('anonymous').load([
+//   'px.jpg'
+//   , 'nx.jpg'
+//   , 'py.jpg'
+//   , 'ny.jpg'
+//   , 'pz.jpg'
+//   , 'nz.jpg'
+// ])
+// const spaceBackgroundTexture = new THREE.TextureLoader().load( require('@/assets/test.jpg') )
 
 const sunDistance = 10
 const tmpSph = new THREE.Spherical()
@@ -140,6 +146,7 @@ export default {
   }
   , data: () => ({
     deg: Math.PI / 180 // helper constant
+    , renderer: null
     , spaceBackgroundTexture
     , origin: [0, 0, 0]
     , cameraSettings: {
@@ -199,6 +206,14 @@ export default {
 		controls.dampingFactor = 0.1
     // end controls
 
+    // let skyGeometry = new THREE.SphereGeometry(50, 50, 50)
+    // let skyMaterial = new THREE.MeshBasicMaterial({ envMap: this.spaceBackgroundTexture, side: THREE.BackSide })
+    // let skyBox = new THREE.Mesh( skyGeometry, skyMaterial )
+    // this.$refs.renderer.scene.add( skyBox )
+
+    this.spaceCam = new THREE.PerspectiveCamera( 30, this.viewWidth/this.viewHeight, 1000, 10000 )
+
+    this.renderer = this.$refs.renderer.renderer
     draw()
   }
   , computed: {
@@ -234,7 +249,6 @@ export default {
       this.day
       if ( !this.$refs.sun ){ return [] }
       let sunPos = this.getWorldPosition( 'sun', tmpV1 )
-      let meanSunPos = this.getWorldPosition( 'meanSun', tmpV2 )
 
       return sunPos.projectOnPlane( axis.y ).toArray()
     }
@@ -244,6 +258,20 @@ export default {
     , yearAngle(){
       return this.day * this.radsPerYear
     }
+    , background(){
+      return this.spaceBackgroundTexture
+      // if (!this.renderer){ return }
+      //
+      // let texture = this.spaceBackgroundTexture
+      // var options = {
+    	// 	resolution: 1024
+    	// 	, generateMipmaps: true
+    	// 	, minFilter: THREE.LinearMipMapLinearFilter
+    	// 	, magFilter: THREE.LinearFilter
+    	// }
+      // texture.mapping = THREE.UVMapping
+      // return new THREE.CubemapGenerator( this.$refs.renderer.renderer ).fromEquirectangular( texture, options )
+    }
   }
   , methods: {
     draw(){
@@ -252,7 +280,18 @@ export default {
       this.day = (this.day + this.rate) % this.daysPerYear
       this.yearRotation.splice(1, 1, this.yearAngle)
       this.controls.update()
+
+      let renderer = this.$refs.renderer.renderer
+      renderer.autoClear = true
+      this.drawBackground()
+      renderer.autoClear = false
       this.$refs.renderer.draw()
+    }
+    , drawBackground(){
+      let renderer = this.renderer
+      this.spaceCam.position.copy(this.$refs.camera.v3object.position)
+      this.spaceCam.lookAt(vOrigin)
+      renderer.render( this.$refs.renderer.scene, this.spaceCam )
     }
     , getWorldPosition( ref, result ){
       return this.$refs[ref].v3object.getWorldPosition( result )
@@ -265,8 +304,8 @@ export default {
       return tmpV1.toArray()
     }
     , onResize(){
-      // let camera = this.$refs.camera.v3object
-      // camera.lookAt(vOrigin)
+      this.spaceCam.aspect = this.viewWidth / this.viewHeight
+      this.spaceCam.updateProjectionMatrix()
     }
   }
 }
