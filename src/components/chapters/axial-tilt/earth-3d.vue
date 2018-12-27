@@ -2,7 +2,7 @@
 import * as THREE from 'three'
 import THREEObjectMixin from '@/components/three-vue/v3-object.mixin'
 
-const textureUrl = require('@/assets/me-34-world-map.png')
+const textureUrl = require('@/assets/earth.png')
 const TextureLoader = new THREE.TextureLoader()
 TextureLoader.crossOrigin = 'anonymous'
 
@@ -32,7 +32,7 @@ export default {
     let material = new THREE.MeshToonMaterial({
       transparent: false
       , map: texture
-      , shininess: 0
+      , shininess: 2
     })
     let earth = new THREE.Mesh( geometry, material )
     this.v3object = earth

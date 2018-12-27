@@ -96,12 +96,12 @@ import v3Line from './line'
 const OrbitControls = require('three-orbit-controls')(THREE)
 
 const spaceBackgroundTexture = new THREE.CubeTextureLoader().load([
-  require('./space-skybox-px.png')
-  , require('./space-skybox-nx.png')
-  , require('./space-skybox-py.png')
-  , require('./space-skybox-ny.png')
-  , require('./space-skybox-pz.png')
-  , require('./space-skybox-nz.png')
+  require('@/assets/sky/px.png')
+  , require('@/assets/sky/nx.png')
+  , require('@/assets/sky/py.png')
+  , require('@/assets/sky/ny.png')
+  , require('@/assets/sky/pz.png')
+  , require('@/assets/sky/nz.png')
 ])
 // const spaceBackgroundTexture = new THREE.CubeTextureLoader().setPath('https://threejs.org/examples/textures/cube/Park3Med/').setCrossOrigin('anonymous').load([
 //   'px.jpg'
