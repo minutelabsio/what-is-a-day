@@ -33,6 +33,7 @@ export default {
       transparent: false
       , map: texture
       , shininess: 2
+      , specular: 0x000000
     })
     let earth = new THREE.Mesh( geometry, material )
     this.v3object = earth

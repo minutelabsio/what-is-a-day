@@ -96,7 +96,6 @@ export default {
     updateObjects(){
       this.assignProps( this.v3object, watchableProps )
       if ( this.lookAt ){
-        // console.log(this.lookAtV)
         this.v3object.lookAt(this.lookAtV)
       }
     }

@@ -58,12 +58,13 @@ export default {
         , color: 0xaa2222
       })
       material.opacity = 0.3
+      material.depthTest = false
     } else {
       bloomColor = 0xbbaa00
       material = new THREE.MeshBasicMaterial({
         transparent: false
         , map: TextureLoader.load( textureUrl )
-        , color: 0x888888
+        , color: 0xeeeeee
       })
     }
 

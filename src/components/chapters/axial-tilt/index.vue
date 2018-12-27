@@ -1,28 +1,38 @@
 <template lang="pug">
 .chapter
+  .controls
+    b-field(grouped)
+      b-select(v-model="cameraTarget")
+        option(value="earth") Focus on Earth
+        option(value="sun") Focus on Sun
+        option(value="meanSun") Focus on Mean Sun
+      b-switch(v-model="cameraFollow")
+        | Follow Orbit
   v3-renderer(
     ref="renderer"
     , :width="viewWidth"
     , :height="viewHeight"
   )
-    //- v3-camera(ref="camera", type="perspective", :aspect="viewWidth / viewHeight", v-bind="cameraSettings")
-    v3-camera(
-      ref="camera"
-      , type="orthographic"
-      , :left="-viewWidth/2"
-      , :right="viewWidth/2"
-      , :top="viewHeight/2"
-      , :bottom="-viewHeight/2"
-      , :zoom="30"
-      , :far="5000"
-      , :position="orthCameraPos"
-      , :look-at="origin"
-    )
-    v3-scene(:background="background")
+    v3-scene
+      v3-group(ref="cameraGroup", :rotation="cameraPivot")
+        //- v3-camera(ref="camera", type="perspective", :aspect="viewWidth / viewHeight", v-bind="cameraSettings")
+        v3-camera(
+          ref="camera"
+          , type="orthographic"
+          , :left="-viewWidth/2"
+          , :right="viewWidth/2"
+          , :top="viewHeight/2"
+          , :bottom="-viewHeight/2"
+          , :zoom="30"
+          , :near="1"
+          , :far="1000"
+          , :position="orthCameraPos"
+          , :look-at="origin"
+        )
       v3-light(type="ambient", :intensity="0.2")
 
       v3-group
-        Earth3D(:rotation.sync="earthRotation")
+        Earth3D(ref="earth", :rotation.sync="earthRotation")
 
       Wedge(v-bind="timeDiffWedgeProps", :opacity="0.5", :rotation="[Math.PI/2, 0, 0]")
       v3-line(:to="[ timeDiffWedgeProps.x1, 0, timeDiffWedgeProps.y1 ]", :color="red")
@@ -56,7 +66,7 @@
       //- true sun
       v3-group(:rotation="[23.4 * deg, 0, 0]")
         v3-group(:rotation="yearRotation")
-          v3-light(type="spot", :intensity="0.4", :position="sunPos")
+          v3-light(type="spot", :intensity="0.4", :position="lightPos")
           Sun3D(ref="sun", :position="sunPos")
         Orbit(
           :radius="1.01"
@@ -146,7 +156,6 @@ export default {
   }
   , data: () => ({
     deg: Math.PI / 180 // helper constant
-    , renderer: null
     , spaceBackgroundTexture
     , origin: [0, 0, 0]
     , cameraSettings: {
@@ -160,8 +169,13 @@ export default {
     , daysPerYear: 365
     , day: 0
     , rate: 1 / 10
-    , orthCameraPos: [ 0, 10, 10 ]
 
+    , cameraFollow: false
+    , cameraTarget: 'earth'
+    , cameraPivot: new THREE.Euler(0, 0, 0)
+    , orthCameraPos: [ 0, 50, 50 ]
+
+    , lightPos: [-0.01, 0, 0]
     , earthPos: [0, 0, 0]
     , earthRotation: [0, 0, 0]
 
@@ -191,8 +205,12 @@ export default {
       stop = true
     })
 
+    this.camera = this.$refs.camera.v3object
+    this.renderer = this.$refs.renderer.renderer
+    this.renderer.autoClear = false
+
     // controls
-    let controls = this.controls = new OrbitControls( this.$refs.camera.v3object )
+    let controls = this.controls = new OrbitControls( this.camera, this.renderer.domElement )
 
 		controls.rotateSpeed = 0.2
 		controls.zoomSpeed = 1.2
@@ -204,16 +222,22 @@ export default {
 		// controls.staticMoving = true
     controls.enableDamping = true
 		controls.dampingFactor = 0.1
+    controls.minZoom = 10
+    controls.maxZoom = 500
+    let epsilon = 0.001
+    controls.minPolarAngle = epsilon
+    controls.maxPolarAngle = Math.PI - epsilon
     // end controls
 
-    // let skyGeometry = new THREE.SphereGeometry(50, 50, 50)
-    // let skyMaterial = new THREE.MeshBasicMaterial({ envMap: this.spaceBackgroundTexture, side: THREE.BackSide })
-    // let skyBox = new THREE.Mesh( skyGeometry, skyMaterial )
-    // this.$refs.renderer.scene.add( skyBox )
+    this.addSkybox( 2 )
 
-    this.spaceCam = new THREE.PerspectiveCamera( 30, this.viewWidth/this.viewHeight, 1000, 10000 )
+    this.spaceCam = new THREE.PerspectiveCamera( 45, this.viewWidth/this.viewHeight, 1, 100 )
+    this.spaceCam.layers.set(2)
+    this.$refs.cameraGroup.v3object.add(this.spaceCam)
+    this.$on('hook:beforeDestroy', () => {
+      this.$refs.cameraGroup.v3object.remove(this.spaceCam)
+    })
 
-    this.renderer = this.$refs.renderer.renderer
     draw()
   }
   , computed: {
@@ -279,22 +303,59 @@ export default {
       // this.meanSunPos = this.orbit( this.meanSunPos, 0.001 )
       this.day = (this.day + this.rate) % this.daysPerYear
       this.yearRotation.splice(1, 1, this.yearAngle)
+      this.getWorldPosition(this.cameraTarget, this.controls.target)
+      this.cameraPivot.y = this.cameraFollow ? this.yearAngle : 0
       this.controls.update()
 
       let renderer = this.$refs.renderer.renderer
-      renderer.autoClear = true
+      renderer.clear()
       this.drawBackground()
-      renderer.autoClear = false
       this.$refs.renderer.draw()
     }
     , drawBackground(){
       let renderer = this.renderer
-      this.spaceCam.position.copy(this.$refs.camera.v3object.position)
-      this.spaceCam.lookAt(vOrigin)
+      this.spaceCam.position.copy(this.camera.position)
+      this.spaceCam.rotation.copy(this.camera.rotation)
       renderer.render( this.$refs.renderer.scene, this.spaceCam )
     }
     , getWorldPosition( ref, result ){
       return this.$refs[ref].v3object.getWorldPosition( result )
+    }
+    , addSkybox( layer ){
+      let skyGeometry = new THREE.BoxBufferGeometry(50, 50, 50)
+      // let skyMaterial = new THREE.MeshBasicMaterial({ envMap: this.spaceBackgroundTexture, side: THREE.BackSide })
+      let skyMaterial = new THREE.ShaderMaterial( {
+        type: 'BackgroundCubeMaterial'
+        , uniforms: THREE.UniformsUtils.clone( THREE.ShaderLib.cube.uniforms )
+        , vertexShader: THREE.ShaderLib.cube.vertexShader
+        , fragmentShader: THREE.ShaderLib.cube.fragmentShader
+        , side: THREE.BackSide
+        , depthTest: true
+        , depthWrite: false
+        , fog: false
+      } )
+
+      let skyBox = new THREE.Mesh( skyGeometry, skyMaterial )
+      skyBox.geometry.removeAttribute( 'normal' )
+  		skyBox.geometry.removeAttribute( 'uv' )
+      skyBox.material.uniforms.tCube.value = this.background
+  		skyBox.material.uniforms.tFlip.value = ( this.background.isWebGLRenderTargetCube ) ? 1 : - 1
+      skyBox.onBeforeRender = function ( renderer, scene, camera ) {
+        this.matrixWorld.copyPosition( camera.matrixWorld )
+      }
+
+      // enable code injection for non-built-in material
+      Object.defineProperty( skyBox.material, 'map', {
+        get: function () {
+          return this.uniforms.tCube.value
+        }
+      } )
+
+      skyBox.layers.set(layer)
+      this.$refs.renderer.scene.add( skyBox )
+      this.$on('hook:beforeDestroy', () => {
+        this.$refs.renderer.scene.remove( skyBox )
+      })
     }
     , orbit( pos ){
       tmpV1.fromArray( pos )
@@ -316,4 +377,11 @@ export default {
 .chapter
   background: $black
 
+.controls
+  position: absolute
+  z-index: 1
+  top: 0
+  right: 0
+  padding: 1rem
+  background: $white
 </style>
