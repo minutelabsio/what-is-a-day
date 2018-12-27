@@ -212,16 +212,16 @@ export default {
     // controls
     let controls = this.controls = new OrbitControls( this.camera, this.renderer.domElement )
 
-		controls.rotateSpeed = 0.2
-		controls.zoomSpeed = 1.2
-		controls.panSpeed = 0.8
+    controls.rotateSpeed = 0.2
+    controls.zoomSpeed = 1.2
+    controls.panSpeed = 0.8
 
-		controls.enableZoom = true
-		controls.enablePan = false
+    controls.enableZoom = true
+    controls.enablePan = false
 
-		// controls.staticMoving = true
+    // controls.staticMoving = true
     controls.enableDamping = true
-		controls.dampingFactor = 0.1
+    controls.dampingFactor = 0.1
     controls.minZoom = 10
     controls.maxZoom = 500
     let epsilon = 0.001
@@ -337,9 +337,9 @@ export default {
 
       let skyBox = new THREE.Mesh( skyGeometry, skyMaterial )
       skyBox.geometry.removeAttribute( 'normal' )
-  		skyBox.geometry.removeAttribute( 'uv' )
+      skyBox.geometry.removeAttribute( 'uv' )
       skyBox.material.uniforms.tCube.value = this.background
-  		skyBox.material.uniforms.tFlip.value = ( this.background.isWebGLRenderTargetCube ) ? 1 : - 1
+      skyBox.material.uniforms.tFlip.value = ( this.background.isWebGLRenderTargetCube ) ? 1 : - 1
       skyBox.onBeforeRender = function ( renderer, scene, camera ) {
         this.matrixWorld.copyPosition( camera.matrixWorld )
       }
