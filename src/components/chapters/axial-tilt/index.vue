@@ -264,11 +264,11 @@ export default {
       //
       // let texture = this.spaceBackgroundTexture
       // var options = {
-    	// 	resolution: 1024
-    	// 	, generateMipmaps: true
-    	// 	, minFilter: THREE.LinearMipMapLinearFilter
-    	// 	, magFilter: THREE.LinearFilter
-    	// }
+      //  resolution: 1024
+      //  , generateMipmaps: true
+      //  , minFilter: THREE.LinearMipMapLinearFilter
+      //  , magFilter: THREE.LinearFilter
+      // }
       // texture.mapping = THREE.UVMapping
       // return new THREE.CubemapGenerator( this.$refs.renderer.renderer ).fromEquirectangular( texture, options )
     }

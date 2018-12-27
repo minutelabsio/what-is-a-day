@@ -5,7 +5,7 @@ import {
   , PointLight
   , RectAreaLight
   , SpotLight
-  , Vector3
+  // , Vector3
 } from 'three'
 import THREEObjectMixin from './v3-object.mixin'
 

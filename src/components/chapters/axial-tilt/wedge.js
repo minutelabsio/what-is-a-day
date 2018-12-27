@@ -1,6 +1,6 @@
 import * as THREE from 'three'
 import THREEObjectMixin from '@/components/three-vue/v3-object.mixin'
-const origin = new THREE.Vector2( 0, 0 )
+// const origin = new THREE.Vector2( 0, 0 )
 
 const threeProps = {
   position: {
