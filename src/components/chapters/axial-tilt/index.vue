@@ -113,18 +113,9 @@ const spaceBackgroundTexture = new THREE.CubeTextureLoader().load([
   , require('@/assets/sky/pz.png')
   , require('@/assets/sky/nz.png')
 ])
-// const spaceBackgroundTexture = new THREE.CubeTextureLoader().setPath('https://threejs.org/examples/textures/cube/Park3Med/').setCrossOrigin('anonymous').load([
-//   'px.jpg'
-//   , 'nx.jpg'
-//   , 'py.jpg'
-//   , 'ny.jpg'
-//   , 'pz.jpg'
-//   , 'nz.jpg'
-// ])
-// const spaceBackgroundTexture = new THREE.TextureLoader().load( require('@/assets/test.jpg') )
 
 const sunDistance = 10
-const tmpSph = new THREE.Spherical()
+// const tmpSph = new THREE.Spherical()
 const tmpV1 = new THREE.Vector3()
 const tmpV2 = new THREE.Vector3()
 
@@ -187,7 +178,7 @@ export default {
   })
   , created(){
     this.$watch(() => {
-      return this.viewWidth && this.viewHeight
+      return this.viewWidth + this.viewHeight
     }, () => {
       this.onResize()
     })
@@ -284,23 +275,10 @@ export default {
     }
     , background(){
       return this.spaceBackgroundTexture
-      // if (!this.renderer){ return }
-      //
-      // let texture = this.spaceBackgroundTexture
-      // var options = {
-      //  resolution: 1024
-      //  , generateMipmaps: true
-      //  , minFilter: THREE.LinearMipMapLinearFilter
-      //  , magFilter: THREE.LinearFilter
-      // }
-      // texture.mapping = THREE.UVMapping
-      // return new THREE.CubemapGenerator( this.$refs.renderer.renderer ).fromEquirectangular( texture, options )
     }
   }
   , methods: {
     draw(){
-      // this.sunPos = this.orbit( this.sunPos, 0.001 )
-      // this.meanSunPos = this.orbit( this.meanSunPos, 0.001 )
       this.day = (this.day + this.rate) % this.daysPerYear
       this.yearRotation.splice(1, 1, this.yearAngle)
       this.getWorldPosition(this.cameraTarget, this.controls.target)
@@ -357,13 +335,6 @@ export default {
         this.$refs.renderer.scene.remove( skyBox )
       })
     }
-    , orbit( pos ){
-      tmpV1.fromArray( pos )
-      tmpSph.setFromVector3( tmpV1 )
-      tmpSph.theta += 0.001
-      tmpV1.setFromSpherical( tmpSph )
-      return tmpV1.toArray()
-    }
     , onResize(){
       this.spaceCam.aspect = this.viewWidth / this.viewHeight
       this.spaceCam.updateProjectionMatrix()
@@ -383,5 +354,5 @@ export default {
   top: 0
   right: 0
   padding: 1rem
-  background: $white
+  background: $background
 </style>

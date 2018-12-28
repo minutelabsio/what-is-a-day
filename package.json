@@ -14,6 +14,7 @@
     "babel-plugin-component": "^1.1.1",
     "buefy": "^0.7.1",
     "bulma": "^0.7.1",
+    "bulmaswatch": "^0.7.2",
     "element-ui": "^2.4.11",
     "howler": "^2.0.15",
     "lodash": "^4.17.10",

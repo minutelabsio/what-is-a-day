@@ -34,7 +34,8 @@ export default {
 </script>
 
 <style scoped lang="sass">
-@import '@/styles/_variables.scss'
+$pending-color: $grey-darker
+$progress-color: $blue
 .scrubber
   position: relative
   z-index: 1
@@ -64,7 +65,7 @@ export default {
       left: -5px
       top: 3px
       display: block
-      background: $blue
+      background: $progress-color
       width: 10px
       height: 10px
       border-radius: 10px
@@ -74,16 +75,14 @@ export default {
     position: relative
     overflow: hidden
     height: 4px
-    background: $grey-light
+    background: $pending-color
 
   .progress-bar
     position: relative
     right: 100%
     width: 100%
     height: 100%
-    background: $blue
+    background: $progress-color
     // border-radius: 0 6px 6px 0
     transition: transform 0.1s ease
-
-
 </style>

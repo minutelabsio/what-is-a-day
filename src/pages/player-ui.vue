@@ -62,13 +62,13 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped lang="sass">
-@import '@/styles/_variables.scss'
 .player
   display: flex
   flex-direction: column
   justify-content: flex-end
   height: 100vh
-
+.panel-bottom
+  background: $background
 .main
   flex: 1
 </style>

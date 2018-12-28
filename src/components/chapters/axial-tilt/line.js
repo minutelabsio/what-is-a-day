@@ -47,6 +47,7 @@ export default {
     ]
 
     this.v3object = new THREE.Line( geometry, material )
+    this.v3object.frustumCulled = false
   }
   , watch: {
     vertices(){

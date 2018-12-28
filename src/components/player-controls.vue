@@ -4,7 +4,7 @@
   .info
     .toc
       b-dropdown(position="is-top-left")
-        .button.is-white.is-fullwidth(slot="trigger")
+        .button.btn-toc.is-fullwidth(slot="trigger")
           span {{ player.nowPlaying.title }}
           b-icon(icon="chevron-up", size="is-small")
         b-dropdown-item(v-for="(item, index) in player.playlist", :key="item.title", @click="player.setTrack(index)")
@@ -51,11 +51,10 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped lang="sass">
-@import '@/styles/_variables.scss'
 .player-controls
   position: relative
   max-width: 100vw
-  color: $grey
+  color: $text
 .info
   margin-top: 2px
   display: flex
@@ -68,6 +67,11 @@ export default {
     margin-bottom: -6px
     max-width: 100%
     align-self: center
+
+    .btn-toc
+      background: $background
+      border-color: $background
+      color: $text
   .time-total,
   .time-elapsed
     position: absolute
