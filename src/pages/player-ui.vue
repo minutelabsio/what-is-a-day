@@ -63,12 +63,17 @@ export default {
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped lang="sass">
 .player
+  position: absolute
+  top: 0
+  left: 0
+  bottom: 0
+  right: 0
   display: flex
   flex-direction: column
   justify-content: flex-end
-  height: 100vh
 .panel-bottom
   background: $background
 .main
   flex: 1
+  overflow: hidden
 </style>

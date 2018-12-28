@@ -122,7 +122,7 @@ export default {
   height: $size
   border-style: double
   border-width: 0px 0 0px round($size * 0.85)
-  border-color: transparent transparent transparent $grey
+  border-color: transparent transparent transparent $text
   // transform: translate( 0, 0 )
   transition: 0.1s all ease
 

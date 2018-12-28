@@ -120,6 +120,11 @@ const axis = {
   , z: new THREE.Vector3(0, 0, 1)
 }
 
+const Pi2 = Math.PI * 2
+function shortestAngle( ang ){
+  return ((ang % Pi2) + Math.PI) % Pi2 - Math.PI
+}
+
 function TransitionSetter( opts ){
 
   const hasSetter = opts.hasSetter
@@ -264,7 +269,7 @@ export default {
     this.cameraOrbitSetter = TransitionSetter({
       current: this.yearAngle
       , getCurrent: () => {
-        return this.cameraFollow ? this.yearAngle : 0
+        return this.cameraFollow ? shortestAngle(this.yearAngle) : 0
       }
       , onUpdate: ( from, to, alpha ) => {
         this.cameraPivot.y = Copilot.Interpolators.Linear( from, to, alpha )
@@ -347,8 +352,6 @@ export default {
       return this.$refs[ref].v3object.getWorldPosition( result )
     }
     , onResize(){
-      this.spaceCam.aspect = this.viewWidth / this.viewHeight
-      this.spaceCam.updateProjectionMatrix()
     }
   }
 }
