@@ -93,7 +93,7 @@
 </template>
 
 <script>
-// import Copilot from 'copilot'
+import Copilot from 'copilot'
 import * as THREE from 'three'
 import v3Renderer from '@/components/three-vue/v3-renderer'
 import v3Scene from '@/components/three-vue/v3-scene'
@@ -108,7 +108,6 @@ import Wedge from './wedge'
 import v3Line from './line'
 const OrbitControls = require('three-orbit-controls')(THREE)
 
-
 const sunDistance = 10
 // const tmpSph = new THREE.Spherical()
 const tmpV1 = new THREE.Vector3()
@@ -119,6 +118,42 @@ const axis = {
   x: new THREE.Vector3(1, 0, 0)
   , y: new THREE.Vector3(0, 1, 0)
   , z: new THREE.Vector3(0, 0, 1)
+}
+
+function TransitionSetter( opts ){
+
+  const hasSetter = opts.hasSetter
+  const onUpdate = opts.onUpdate
+  const getCurrent = opts.getCurrent
+  const duration = opts.duration || 1000
+  let currentProgress = 1
+  let current = opts.current || 0
+  let prev = hasSetter ? current.clone() : 0
+
+  const start = function( val ){
+    currentProgress = 0
+    if ( hasSetter ){
+      prev.copy( val )
+    } else {
+      prev = val
+    }
+  }
+
+  return {
+    start
+    , update( delta ){
+      let to = getCurrent( current )
+
+      if ( currentProgress >= 1 ){
+        currentProgress = 1
+      } else {
+        currentProgress += delta / duration
+      }
+
+      let progress = Copilot.Easing.Quadratic.InOut( currentProgress )
+      onUpdate( prev, to, progress )
+    }
+  }
 }
 
 export default {
@@ -180,22 +215,23 @@ export default {
   }
   , mounted(){
     let stop = false
+    const clock = new THREE.Clock()
     const draw = () => {
       if ( stop ) { return }
       requestAnimationFrame( draw )
 
-      this.draw()
+      this.draw( clock.getDelta() * 1000 )
     }
 
     this.$on('hook:beforeDestroy', () => {
       stop = true
     })
 
-    this.camera = this.$refs.camera.v3object
-    this.renderer = this.$refs.renderer.renderer
+    let camera = this.$refs.camera.v3object
+    let renderer = this.$refs.renderer.renderer
 
     // controls
-    let controls = this.controls = new OrbitControls( this.camera, this.renderer.domElement )
+    let controls = this.controls = new OrbitControls( camera, renderer.domElement )
 
     controls.rotateSpeed = 0.2
     controls.zoomSpeed = 1.2
@@ -214,7 +250,34 @@ export default {
     controls.maxPolarAngle = Math.PI - epsilon
     // end controls
 
+    this.cameraTargetSetter = TransitionSetter({
+      hasSetter: true
+      , current: controls.target.clone()
+      , getCurrent: ( current ) => {
+        return this.getWorldPosition(this.cameraTarget, current)
+      }
+      , onUpdate: ( from, to, alpha ) => {
+        this.controls.target.lerpVectors( from, to, alpha )
+      }
+    })
+
+    this.cameraOrbitSetter = TransitionSetter({
+      current: this.yearAngle
+      , getCurrent: () => {
+        return this.cameraFollow ? this.yearAngle : 0
+      }
+      , onUpdate: ( from, to, alpha ) => {
+        this.cameraPivot.y = Copilot.Interpolators.Linear( from, to, alpha )
+      }
+    })
+
     draw()
+  }
+  , watch: {
+    cameraFollow( flag ){
+      let prev = this.cameraPivot.y
+      this.cameraOrbitSetter.start( prev )
+    }
   }
   , computed: {
     timeDiffWedgeProps(){
@@ -260,16 +323,25 @@ export default {
     }
   }
   , methods: {
-    draw(){
+    draw( delta ){
       this.day = (this.day + this.rate) % this.daysPerYear
       this.yearRotation.splice(1, 1, this.yearAngle)
-      this.getWorldPosition(this.cameraTarget, this.controls.target)
-      this.cameraPivot.y = this.cameraFollow ? this.yearAngle : 0
+      this.transitionCameraTarget( delta )
+      this.cameraOrbitSetter.update( delta )
+
       this.controls.update()
 
-      let renderer = this.$refs.renderer.renderer
-
       this.$refs.renderer.draw()
+    }
+    , transitionCameraTarget( delta ){
+      if ( !this.oldTarget ){
+        this.oldTarget = this.cameraTarget
+      }
+      if ( this.cameraTarget !== this.oldTarget ){
+        this.cameraTargetSetter.start( this.getWorldPosition(this.oldTarget ) )
+        this.oldTarget = this.cameraTarget
+      }
+      this.cameraTargetSetter.update( delta )
     }
     , getWorldPosition( ref, result ){
       return this.$refs[ref].v3object.getWorldPosition( result )
