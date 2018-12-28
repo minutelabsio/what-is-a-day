@@ -17,8 +17,6 @@ export default {
   })
   , created(){
     this.scene = this.v3object = new THREE.Scene()
-  }
-  , mounted(){
     this.threeVue.scene = this.scene
   }
   , methods: {
