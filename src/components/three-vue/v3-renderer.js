@@ -1,4 +1,5 @@
 import * as THREE from 'three'
+import { CSS2DRenderer } from 'three/examples/js/renderers/CSS2DRenderer'
 
 export default {
   name: 'v3-renderer'
@@ -24,15 +25,22 @@ export default {
     })
     // this.renderer.toneMapping = THREE.ReinhardToneMapping
 
+    this.cssRenderer = new CSS2DRenderer({})
+
     this.$watch(() => this.width + this.height, () => {
       this.renderer.setSize( this.width, this.height )
+      this.cssRenderer.setSize( this.width, this.height )
       this.$emit('resize')
     }, { immediate: true })
   }
   , mounted(){
-    // append renderer and cleanup
-    this.$el.parentNode.appendChild( this.renderer.domElement )
-    this.$el.parentNode.removeChild( this.$el )
+    // append renderers
+    this.cssRenderer.domElement.style.position = 'absolute'
+    this.cssRenderer.domElement.style.top = '0'
+    this.cssRenderer.domElement.style.left = '0'
+    this.cssRenderer.domElement.className = 'no-events'
+    this.$el.appendChild( this.renderer.domElement )
+    this.$el.appendChild( this.cssRenderer.domElement )
   }
   , computed: {
   }
@@ -51,9 +59,18 @@ export default {
       this.$emit('beforeDraw')
 
       this.renderer.render( this.scene, this.camera )
+      this.cssRenderer.render( this.scene, this.camera )
     }
   }
   , render(h){
-    return h('div', this.$slots.default)
+    return h('div'
+      , {
+        style: {
+          position: 'relative'
+          , overflow: 'hidden'
+        }
+      }
+      , this.$slots.default
+    )
   }
 }

@@ -23,7 +23,7 @@ export default {
   , render(h){
     this.updateObjects()
     return h(
-      'template'
+      'div'
       , this.$slots.default
     )
   }

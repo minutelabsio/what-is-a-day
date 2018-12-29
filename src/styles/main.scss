@@ -77,6 +77,10 @@ body {
   -webkit-tap-highlight-color: transparent;
 }
 
+.no-events {
+  pointer-events: none;
+}
+
 .scrollbars {
   &::-webkit-scrollbar {
     -webkit-appearance: none;

@@ -1,3 +1,5 @@
+const ThreeWebpackPlugin = require('@wildpeaks/three-webpack-plugin')
+
 module.exports = {
   baseUrl: process.env.NODE_ENV === 'production'
     ? '/what-is-a-day/'
@@ -7,6 +9,9 @@ module.exports = {
     , node: {
       __dirname: true
     }
+    ,plugins: [
+  		new ThreeWebpackPlugin()
+  	]
   }
   , css: {
     loaderOptions: {

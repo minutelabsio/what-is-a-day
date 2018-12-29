@@ -7,6 +7,7 @@
         option(value="sun") Focus on Sun
       b-switch(v-model="cameraFollow")
         | Follow Orbit
+    vue-slider(v-model="sliderDay", :max="daysPerYear", @callback="sliderDayChange", :tooltip="false", :speed="0")
   v3-renderer(
     ref="renderer"
     , :width="viewWidth"
@@ -34,6 +35,10 @@
       v3-group(:rotation="yearRotation")
         v3-group(:position="sunPos")
           Earth3D(ref="earth", :rotation="earthRotation")
+          v3-dom(:position="[0, 1.5, 0]")
+            .has-text-right
+              .scene-label Solar Day: {{ solarDay }}
+              .scene-label Sidereal Day: {{ siderealDay }}
           v3-light(type="spot", :intensity="0.4", :position="lightPos")
           v3-line(:position="[0, 0.001, 0.002]", :from="[-1.38, 0, 0]", :to="[-1.8, 0, 0]", :color="yellow")
           v3-ring(
@@ -73,12 +78,14 @@
 
 <script>
 import Copilot from 'copilot'
+import vueSlider from 'vue-slider-component'
 import * as THREE from 'three'
 import v3Renderer from '@/components/three-vue/v3-renderer'
 import v3Scene from '@/components/three-vue/v3-scene'
 import v3Camera from '@/components/three-vue/v3-camera'
 import v3Light from '@/components/three-vue/v3-light'
 import v3Group from '@/components/three-vue/v3-group'
+import v3Dom from '@/components/three-vue/v3-dom'
 import Earth3D from '@/components/entities/earth-3d'
 import Sun3D from '@/components/entities/sun-3d'
 import SkyBackground from '@/components/entities/sky-background'
@@ -89,15 +96,15 @@ const OrbitControls = require('three-orbit-controls')(THREE)
 
 const sunDistance = 10
 // const tmpSph = new THREE.Spherical()
-const tmpV1 = new THREE.Vector3()
-const tmpV2 = new THREE.Vector3()
+// const tmpV1 = new THREE.Vector3()
+// const tmpV2 = new THREE.Vector3()
 
-const vOrigin = new THREE.Vector3()
-const axis = {
-  x: new THREE.Vector3(1, 0, 0)
-  , y: new THREE.Vector3(0, 1, 0)
-  , z: new THREE.Vector3(0, 0, 1)
-}
+// const vOrigin = new THREE.Vector3()
+// const axis = {
+//   x: new THREE.Vector3(1, 0, 0)
+//   , y: new THREE.Vector3(0, 1, 0)
+//   , z: new THREE.Vector3(0, 0, 1)
+// }
 
 const Pi2 = Math.PI * 2
 function shortestAngle( ang ){
@@ -145,13 +152,16 @@ export default {
   , props: {
     viewWidth: Number
     , viewHeight: Number
+    , playerLoading: Boolean
   }
   , components: {
-    v3Renderer
+    vueSlider
+    , v3Renderer
     , v3Scene
     , v3Camera
     , v3Light
     , v3Group
+    , v3Dom
 
     , SkyBackground
     , Earth3D
@@ -169,12 +179,13 @@ export default {
     , blue: 0x2888e4
     , daysPerYear: 10
     , day: 0
+    , sliderDay: 0
     , rate: 1 / 100
 
     , cameraFollow: false
     , cameraTarget: 'earth'
     , cameraPivot: new THREE.Euler(0, 0, 0)
-    , orthCameraPos: [ 0, 50, -30 ]
+    , orthCameraPos: [ sunDistance, 50, 30 ]
 
     , lightPos: [-0.01, 0, 0]
     , earthPos: [0, 0, 0]
@@ -251,12 +262,22 @@ export default {
       }
     })
 
-    draw()
+    if ( !this.playerLoading ){
+      draw()
+    } else {
+      let unwatch = this.$watch('playerLoading', () => {
+        unwatch()
+        draw()
+      })
+    }
   }
   , watch: {
-    cameraFollow( flag ){
+    cameraFollow(){
       let prev = this.cameraPivot.y
       this.cameraOrbitSetter.start( prev )
+    }
+    , day(){
+      this.sliderDay = this.day.toFixed(2)
     }
   }
   , computed: {
@@ -268,6 +289,12 @@ export default {
     }
     , dayAngle(){
       return (this.day % 1) * Math.PI * 2
+    }
+    , siderealDay(){
+      return this.day | 0
+    }
+    , solarDay(){
+      return (this.day - 1/this.daysPerYear) | 0
     }
   }
   , methods: {
@@ -287,7 +314,7 @@ export default {
         this.oldTarget = this.cameraTarget
       }
       if ( this.cameraTarget !== this.oldTarget ){
-        this.cameraTargetSetter.start( this.getWorldPosition(this.oldTarget ) )
+        this.cameraTargetSetter.start( this.getWorldPosition(this.oldTarget) )
         this.oldTarget = this.cameraTarget
       }
       this.cameraTargetSetter.update( delta )
@@ -296,6 +323,10 @@ export default {
       return this.$refs[ref].v3object.getWorldPosition( result )
     }
     , onResize(){
+    }
+    , sliderDayChange(){
+      this.cameraTargetSetter.start( this.controls.target.clone() )
+      this.day = this.sliderDay
     }
   }
 }
@@ -312,4 +343,8 @@ export default {
   right: 0
   padding: 1rem
   background: $background
+
+.scene-label
+  font-family: $family-monospace
+  text-shadow: 0 0 3px rgba(0, 0, 0, 1)
 </style>

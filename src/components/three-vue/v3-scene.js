@@ -15,6 +15,10 @@ export default {
   }
   , data: () => ({
   })
+  , mounted(){
+    // cleanup
+    this.$el.parentNode.removeChild(this.$el)
+  }
   , created(){
     this.scene = this.v3object = new THREE.Scene()
     this.threeVue.scene = this.scene

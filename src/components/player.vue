@@ -1,7 +1,7 @@
 <template lang="pug">
 .player
   b-loading(:is-full-page="false", :active="loading")
-  slot
+  slot(:loading="loading")
 </template>
 
 <script>

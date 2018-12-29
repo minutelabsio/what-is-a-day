@@ -9,6 +9,7 @@
     "deploy": "sh deploy.sh"
   },
   "dependencies": {
+    "@wildpeaks/three-webpack-plugin": "^2.0.0",
     "axios": "^0.18.0",
     "axios-cache-adapter": "^2.0.0",
     "babel-plugin-component": "^1.1.1",
@@ -25,7 +26,9 @@
     "three-orbit-controls": "^82.1.0",
     "three-trackballcontrols": "^0.0.7",
     "vue": "^2.5.17",
-    "vue-router": "^3.0.2"
+    "vue-circle-slider": "^1.0.2",
+    "vue-router": "^3.0.2",
+    "vue-slider-component": "^2.8.3"
   },
   "devDependencies": {
     "@vue/cli-plugin-babel": "^3.2.0",

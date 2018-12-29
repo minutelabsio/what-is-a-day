@@ -113,7 +113,7 @@ const sunDistance = 10
 const tmpV1 = new THREE.Vector3()
 const tmpV2 = new THREE.Vector3()
 
-const vOrigin = new THREE.Vector3()
+// const vOrigin = new THREE.Vector3()
 const axis = {
   x: new THREE.Vector3(1, 0, 0)
   , y: new THREE.Vector3(0, 1, 0)
@@ -279,7 +279,7 @@ export default {
     draw()
   }
   , watch: {
-    cameraFollow( flag ){
+    cameraFollow(){
       let prev = this.cameraPivot.y
       this.cameraOrbitSetter.start( prev )
     }

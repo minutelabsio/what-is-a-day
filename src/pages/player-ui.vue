@@ -1,9 +1,10 @@
 <template lang="pug">
 Player.player(:playlist="playlist", :play-index="playIndex")
-  .main(ref="main")
-    router-view(v-if="viewWidth", :view-width="viewWidth", :view-height="viewHeight")
-  .panel-bottom
-    PlayerControls()
+  template(slot-scope="playerProps")
+    .main(ref="main")
+      router-view(v-if="viewWidth", :player-loading="playerProps.loading", :view-width="viewWidth", :view-height="viewHeight")
+    .panel-bottom
+      PlayerControls()
 </template>
 
 <script>

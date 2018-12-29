@@ -4,6 +4,7 @@ import router from '@/router'
 import Filters from '@/plugins/filters'
 import Gestures from '@/plugins/gestures'
 import Buefy from 'buefy'
+import VueCircleSlider from 'vue-circle-slider'
 // import ElementUI from 'element-ui'
 import 'element-ui/lib/theme-chalk/index.css'
 
@@ -17,6 +18,7 @@ Vue.use(Buefy, {
   // , defaultIconPack: 'fas'
 })
 
+Vue.use(VueCircleSlider)
 // Vue.use(ElementComponents)
 Vue.use(Filters)
 Vue.use(Gestures)
