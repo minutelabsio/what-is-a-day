@@ -37,11 +37,6 @@ export default {
     })
     let earth = new THREE.Mesh( geometry, material )
     this.v3object = earth
-
-    this.beforeDraw(() => {
-      // earth.rotation.x += 0.01
-      this.v3object.rotation.y += 0.01
-    })
   }
   , computed: {
   }

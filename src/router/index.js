@@ -10,25 +10,25 @@ export default new Router({
       path: '/'
       , name: 'player'
       , component: PlayerUI
-      , redirect: { name: 'demo' }
+      , redirect: { name: 'stellar-v-solar' }
       , children: [
         {
-          path: 'demo'
-          , name: 'demo'
-          , component: () => import('@/components/chapters/axial-tilt')
+          path: 'stellar-v-solar'
+          , name: 'stellar-v-solar'
+          , component: () => import('@/components/chapters/stellar-v-solar')
           , meta: {
-            title: 'The Equation of Time'
+            title: 'Stellar Time vs. Solar Time'
             , audio: [
               require('@/assets/equation-of-time.mp3')
             ]
           }
         }
         , {
-          path: 'demo2'
-          , name: 'demo2'
-          , component: () => import('@/components/demo')
+          path: 'axial-tilt'
+          , name: 'axial-tilt'
+          , component: () => import('@/components/chapters/axial-tilt')
           , meta: {
-            title: 'Stellar Time vs. Solar Time'
+            title: 'Axial Tilt'
             , audio: [
               require('@/assets/equation-of-time.mp3')
             ]

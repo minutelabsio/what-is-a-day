@@ -5,7 +5,6 @@
       b-select(v-model="cameraTarget")
         option(value="earth") Focus on Earth
         option(value="sun") Focus on Sun
-        option(value="meanSun") Focus on Mean Sun
       b-switch(v-model="cameraFollow")
         | Follow Orbit
   v3-renderer(
@@ -18,7 +17,6 @@
 
       v3-group(ref="cameraGroup", :rotation="cameraPivot")
         SkyBackground(:aspect="viewWidth/viewHeight")
-        //- v3-camera(ref="camera", type="perspective", :aspect="viewWidth / viewHeight", v-bind="cameraSettings")
         v3-camera(
           ref="camera"
           , type="orthographic"
@@ -26,70 +24,51 @@
           , :right="viewWidth/2"
           , :top="viewHeight/2"
           , :bottom="-viewHeight/2"
-          , :zoom="30"
+          , :zoom="50"
           , :near="1"
           , :far="1000"
           , :position="orthCameraPos"
           , :look-at="origin"
         )
 
-      v3-group
-        Earth3D(ref="earth", :rotation="earthRotation")
-
-      Wedge(v-bind="timeDiffWedgeProps", :opacity="0.5", :rotation="[Math.PI/2, 0, 0]")
-      v3-line(:to="[ timeDiffWedgeProps.x1, 0, timeDiffWedgeProps.y1 ]", :color="red")
-      v3-line(:to="[ timeDiffWedgeProps.x2, 0, timeDiffWedgeProps.y2 ]", :color="yellow")
-      v3-line(:from="sunPosProjection", :to="sunWorldPos", :color="yellow")
-
-      //- mean sun
-      v3-group
-        v3-group(:rotation="yearRotation")
-          Sun3D(ref="meanSun", :isMean="true", :position="sunPos")
-        Orbit(
-          :radius="1.01"
-          , :segments="100"
-          , :rotation="[Math.PI/2, 0, 0]"
-          , :color="red"
-        )
-        Orbit(
-          :radius="sunDistance"
-          , :segments="50"
-          , :rotation="[Math.PI/2, 0, 0]"
-          , :dash-size="0.25"
-          , :gap-size="0.15"
-          , :color="0x333333"
-        )
-        Orbit(
-          :radius="sunDistance"
-          , :segments="50"
-          , :rotation="[Math.PI/2, 0, 0]"
-          , :color="red"
-        )
-      //- true sun
-      v3-group(:rotation="[23.4 * deg, 0, 0]")
-        v3-group(:rotation="yearRotation")
+      v3-group(:rotation="yearRotation")
+        v3-group(:position="sunPos")
+          Earth3D(ref="earth", :rotation="earthRotation")
           v3-light(type="spot", :intensity="0.4", :position="lightPos")
-          Sun3D(ref="sun", :position="sunPos")
-        Orbit(
-          :radius="1.01"
-          , :segments="100"
-          , :rotation="[Math.PI/2, 0, 0]"
-          , :color="yellow"
-        )
-        Orbit(
-          :radius="sunDistance"
-          , :segments="50"
-          , :rotation="[Math.PI/2, 0, 0]"
-          , :dash-size="0.25"
-          , :gap-size="0.15"
-          , :color="0x333333"
-        )
-        Orbit(
-          :radius="sunDistance"
-          , :segments="50"
-          , :rotation="[Math.PI/2, 0, 0]"
-          , :color="yellow"
-        )
+          v3-line(:position="[0, 0.001, 0.002]", :from="[-1.38, 0, 0]", :to="[-1.8, 0, 0]", :color="yellow")
+          v3-ring(
+            :innerRadius="1.2"
+            , :outerRadius="1.4"
+            , :segments="40"
+            , :thetaEnd="dayAngle"
+            , :color="yellow"
+            , :opacity="0.8"
+            , :rotation="[90 * deg, 180 * deg, 0]"
+            , :position="[0, 0.001, 0]"
+          )
+          v3-group(:rotation="[0, -yearAngle, 0]")
+            v3-line(:position="[0, 0, 0.002]", :from="[1, 0, 0]", :to="[1.8, 0, 0]", :color="blue")
+            v3-ring(
+              :innerRadius="0.98"
+              , :outerRadius="1.2"
+              , :segments="40"
+              , :thetaEnd="dayAngle"
+              , :opacity="0.8"
+              , :color="blue"
+              , :rotation="[-90 * deg, 0, 0]"
+            )
+
+      Orbit(
+        :radius="sunDistance"
+        , :segments="50"
+        , :rotation="[Math.PI/2, 0, 0]"
+        , :dash-size="0.25"
+        , :gap-size="0.15"
+        , :color="0x333333"
+      )
+
+      //- true sun
+      Sun3D(ref="sun")
 </template>
 
 <script>
@@ -104,7 +83,7 @@ import Earth3D from '@/components/entities/earth-3d'
 import Sun3D from '@/components/entities/sun-3d'
 import SkyBackground from '@/components/entities/sky-background'
 import Orbit from '@/components/entities/orbit'
-import Wedge from '@/components/entities/wedge'
+import v3Ring from '@/components/entities/v3-ring'
 import v3Line from '@/components/entities/line'
 const OrbitControls = require('three-orbit-controls')(THREE)
 
@@ -162,7 +141,7 @@ function TransitionSetter( opts ){
 }
 
 export default {
-  name: 'AxialTilt'
+  name: 'StellarVSolar'
   , props: {
     viewWidth: Number
     , viewHeight: Number
@@ -178,28 +157,24 @@ export default {
     , Earth3D
     , Sun3D
     , Orbit
-    , Wedge
+    , v3Ring
     , v3Line
   }
   , data: () => ({
-    deg: Math.PI / 180 // helper constant
+    Pi2: Math.PI * 2
+    , deg: Math.PI / 180 // helper constant
     , origin: [0, 0, 0]
-    , cameraSettings: {
-      fov: 35
-      , near: 1
-      , far: 1000
-      , position: [ 0, 30, 0 ]
-    }
     , yellow: 0xdddd00
-    , red: 0xdd0000
-    , daysPerYear: 365
+    , red: 0xe93f33
+    , blue: 0x2888e4
+    , daysPerYear: 10
     , day: 0
-    , rate: 1 / 10
+    , rate: 1 / 100
 
     , cameraFollow: false
     , cameraTarget: 'earth'
     , cameraPivot: new THREE.Euler(0, 0, 0)
-    , orthCameraPos: [ 0, 50, 50 ]
+    , orthCameraPos: [ 0, 50, -30 ]
 
     , lightPos: [-0.01, 0, 0]
     , earthPos: [0, 0, 0]
@@ -285,42 +260,7 @@ export default {
     }
   }
   , computed: {
-    timeDiffWedgeProps(){
-      this.day
-      if ( !this.$refs.meanSun || !this.$refs.sun ){ return {} }
-
-      this.getWorldPosition( 'meanSun', tmpV1 )
-      let x1 = tmpV1.x
-      let y1 = tmpV1.z
-      let len = tmpV1.length()
-
-      this.getWorldPosition( 'sun', tmpV2 )
-      tmpV2.y = 0
-      tmpV2.setLength( len )
-
-      let x2 = tmpV2.x
-      let y2 = tmpV2.z
-
-      let color = tmpV1.dot( axis.x ) > tmpV2.dot( axis.x ) ? this.red : this.yellow
-
-      return {
-        x1, y1, x2, y2
-        , color
-      }
-    }
-    , sunWorldPos(){
-      this.day
-      if ( !this.$refs.sun ){ return [] }
-      return this.getWorldPosition( 'sun', tmpV2 ).toArray()
-    }
-    , sunPosProjection(){
-      this.day
-      if ( !this.$refs.sun ){ return [] }
-      let sunPos = this.getWorldPosition( 'sun', tmpV1 )
-
-      return sunPos.projectOnPlane( axis.y ).toArray()
-    }
-    , radsPerYear(){
+    radsPerYear(){
       return (2 * Math.PI / this.daysPerYear)
     }
     , yearAngle(){
@@ -362,7 +302,6 @@ export default {
 </script>
 
 <style scoped lang="sass">
-
 .chapter
   background: $black
 
