@@ -1,5 +1,5 @@
 <template lang="pug">
-.chapter
+.chapter(:style="{ 'cursor': cursorStyle }")
   .controls
     b-field(grouped)
       b-select(v-model="cameraTarget")
@@ -7,12 +7,28 @@
         option(value="sun") Focus on Sun
       b-switch(v-model="cameraFollow")
         | Follow Orbit
-    vue-slider(v-model="sliderDay", :max="daysPerYear", @callback="sliderDayChange", :tooltip="false", :speed="0")
+    vue-slider(
+      v-model="sliderDay"
+      , :max="daysPerYear"
+      , :tooltip="false"
+      , :speed="0"
+      , :interval="0.0001"
+      , @callback="sliderDayChange"
+      , @drag-start="paused = true"
+      , @drag-end="paused = false"
+    )
   v3-renderer(
     ref="renderer"
     , :width="viewWidth"
     , :height="viewHeight"
   )
+    Gestures(
+      :names="['earth', 'sun']"
+      , @dragstart="dragStart"
+      , @drag="drag"
+      , @dragend="dragEnd"
+      , @hover="mouseHover"
+    )
     v3-scene
       v3-light(type="ambient", :intensity="0.4")
 
@@ -34,7 +50,7 @@
 
       v3-group(:rotation="yearRotation")
         v3-group(:position="sunPos")
-          Earth3D(ref="earth", :rotation="earthRotation")
+          Earth3D(ref="earth", name="earth", :rotation="earthRotation")
           v3-dom(:position="[0, 1.5, 0]")
             .has-text-right
               .scene-label Solar Day: {{ solarDay }}
@@ -45,14 +61,14 @@
             :innerRadius="1.2"
             , :outerRadius="1.4"
             , :segments="40"
-            , :thetaEnd="dayAngle"
+            , :thetaEnd="solarDayArcAngle"
             , :color="yellow"
             , :opacity="0.8"
             , :rotation="[90 * deg, 180 * deg, 0]"
             , :position="[0, 0.001, 0]"
           )
           v3-group(:rotation="[0, -yearAngle, 0]")
-            v3-line(:position="[0, 0, 0.002]", :from="[1, 0, 0]", :to="[1.8, 0, 0]", :color="blue")
+            v3-line(:position="[0, 0, 0.002]", :from="[-1, 0, 0]", :to="[-1.8, 0, 0]", :color="blue")
             v3-ring(
               :innerRadius="0.98"
               , :outerRadius="1.2"
@@ -60,7 +76,7 @@
               , :thetaEnd="dayAngle"
               , :opacity="0.8"
               , :color="blue"
-              , :rotation="[-90 * deg, 0, 0]"
+              , :rotation="[90 * deg, 180 * deg, 0]"
             )
 
       Orbit(
@@ -73,11 +89,12 @@
       )
 
       //- true sun
-      Sun3D(ref="sun")
+      Sun3D(ref="sun", name="sun")
 </template>
 
 <script>
 import Copilot from 'copilot'
+import _find from 'lodash/find'
 import vueSlider from 'vue-slider-component'
 import * as THREE from 'three'
 import v3Renderer from '@/components/three-vue/v3-renderer'
@@ -86,6 +103,7 @@ import v3Camera from '@/components/three-vue/v3-camera'
 import v3Light from '@/components/three-vue/v3-light'
 import v3Group from '@/components/three-vue/v3-group'
 import v3Dom from '@/components/three-vue/v3-dom'
+import Gestures from '@/components/entities/gestures'
 import Earth3D from '@/components/entities/earth-3d'
 import Sun3D from '@/components/entities/sun-3d'
 import SkyBackground from '@/components/entities/sky-background'
@@ -96,15 +114,17 @@ const OrbitControls = require('three-orbit-controls')(THREE)
 
 const sunDistance = 10
 // const tmpSph = new THREE.Spherical()
-// const tmpV1 = new THREE.Vector3()
+const tmpV1 = new THREE.Vector3()
 // const tmpV2 = new THREE.Vector3()
 
 // const vOrigin = new THREE.Vector3()
-// const axis = {
-//   x: new THREE.Vector3(1, 0, 0)
-//   , y: new THREE.Vector3(0, 1, 0)
-//   , z: new THREE.Vector3(0, 0, 1)
-// }
+const axis = {
+  x: new THREE.Vector3(1, 0, 0)
+  , y: new THREE.Vector3(0, 1, 0)
+  , z: new THREE.Vector3(0, 0, 1)
+}
+
+const OrbitalPlane = new THREE.Plane( axis.y )
 
 const Pi2 = Math.PI * 2
 function shortestAngle( ang ){
@@ -164,6 +184,7 @@ export default {
     , v3Dom
 
     , SkyBackground
+    , Gestures
     , Earth3D
     , Sun3D
     , Orbit
@@ -181,6 +202,9 @@ export default {
     , day: 0
     , sliderDay: 0
     , rate: 1 / 100
+    , paused: false
+    , dragTarget: false
+    , canGrab: false
 
     , cameraFollow: false
     , cameraTarget: 'earth'
@@ -262,6 +286,8 @@ export default {
       }
     })
 
+    this.targetDay = false
+
     if ( !this.playerLoading ){
       draw()
     } else {
@@ -288,18 +314,42 @@ export default {
       return this.day * this.radsPerYear
     }
     , dayAngle(){
-      return (this.day % 1) * Math.PI * 2
+      return (this.day % 1) * Pi2
+    }
+    , solarDayArcAngle(){
+      return (this.dayAngle - this.yearAngle + Pi2) % Pi2
     }
     , siderealDay(){
       return this.day | 0
     }
     , solarDay(){
-      return (this.day - 1/this.daysPerYear) | 0
+      return (this.day * (1 - 1/this.daysPerYear)) | 0
+    }
+    , cursorStyle(){
+      return this.dragTarget ?
+        'grabbing' :
+        this.canGrab ? 'grab' : ''
     }
   }
   , methods: {
     draw( delta ){
-      this.day = (this.day + this.rate) % this.daysPerYear
+      if ( !this.paused ){
+        this.day = this.day + this.rate
+      } else if ( this.targetDay ) {
+        let halfYear = this.daysPerYear / 2
+        let dayDelta = (this.targetDay - this.day)
+        if ( Math.abs(dayDelta) > halfYear ){
+          if ( dayDelta > 0 ){
+            dayDelta -= this.daysPerYear
+          } else {
+            dayDelta += this.daysPerYear
+          }
+        }
+        this.day = this.day + dayDelta * 0.05
+      }
+
+      this.day = THREE.Math.euclideanModulo(this.day, this.daysPerYear)
+
       this.yearRotation.splice(1, 1, this.yearAngle)
       this.earthRotation.splice(1, 1, this.dayAngle)
       this.transitionCameraTarget( delta )
@@ -328,6 +378,41 @@ export default {
       this.cameraTargetSetter.start( this.controls.target.clone() )
       this.day = this.sliderDay
     }
+    , inIntersects( name, intersects ){
+      let obj = this.$refs[name]
+
+      if ( !obj ){ return false }
+      obj = obj.v3object
+
+      return !!_find( intersects, int => (int.object === obj) )
+    }
+    , dragStart({ intersects }){
+      if ( this.inIntersects('earth', intersects) ){
+        this.dragTarget = this.$refs['earth'].v3object
+        this.paused = true
+        this.controls.enabled = false
+      }
+    }
+    , drag({ intersects, ray }){
+      if ( !this.dragTarget ){ return }
+
+      ray.intersectPlane( OrbitalPlane, tmpV1 )
+      let angle = axis.x.angleTo( tmpV1 )
+
+      if ( tmpV1.z > 0 ){
+        angle = Pi2 - angle
+      }
+      // earth
+      this.targetDay = angle / this.radsPerYear
+    }
+    , dragEnd(){
+      this.dragTarget = false
+      this.paused = false
+      this.controls.enabled = true
+    }
+    , mouseHover({ intersects }){
+      this.canGrab = intersects.length
+    }
   }
 }
 </script>
@@ -335,6 +420,7 @@ export default {
 <style scoped lang="sass">
 .chapter
   background: $black
+  cursor: crosshair
 
 .controls
   position: absolute

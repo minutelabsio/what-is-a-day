@@ -5,7 +5,10 @@ import {
 } from 'three'
 
 export default {
-  inject: [ 'threeVue' ]
+  props: {
+    name: String
+  }
+  , inject: [ 'threeVue' ]
   , beforeMount(){
     if ( !this.v3object ){
       throw new Error('Please set component v3object property')
@@ -20,8 +23,15 @@ export default {
       parent.remove( this.v3object )
     })
   }
+  , mounted(){
+    this.threeVue.$emit('scene:changed', { type: 'add', component: this, object: this.v3object })
+  }
+  , beforeDestroy(){
+    this.threeVue.$emit('scene:changed', { type: 'remove', component: this, object: this.v3object })
+  }
   , render(h){
     this.updateObjects()
+    this.v3object.name = this.name
     return h(
       'div'
       , this.$slots.default
