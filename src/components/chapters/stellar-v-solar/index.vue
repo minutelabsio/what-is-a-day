@@ -393,7 +393,7 @@ export default {
         this.controls.enabled = false
       }
     }
-    , drag({ intersects, ray }){
+    , drag({ ray }){
       if ( !this.dragTarget ){ return }
 
       ray.intersectPlane( OrbitalPlane, tmpV1 )
