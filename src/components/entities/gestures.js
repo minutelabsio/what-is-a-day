@@ -10,7 +10,6 @@ export default {
   }
   , data: () => ({
     dragging: false
-    , monitored: []
   })
   , created(){
     this.raycaster = new THREE.Raycaster()
