@@ -286,7 +286,7 @@ export default {
       }
     })
 
-    this.targetDay = false
+    this.yearAngleDrag = false
 
     if ( !this.playerLoading ){
       draw()
@@ -335,9 +335,10 @@ export default {
     draw( delta ){
       if ( !this.paused ){
         this.day = this.day + this.rate
-      } else if ( this.targetDay ) {
+      } else if ( this.yearAngleDrag ) {
+        let targetDay = (this.yearAngle + this.yearAngleDrag) / this.radsPerYear
         let halfYear = this.daysPerYear / 2
-        let dayDelta = (this.targetDay - this.day)
+        let dayDelta = (targetDay - this.day)
         if ( Math.abs(dayDelta) > halfYear ){
           if ( dayDelta > 0 ){
             dayDelta -= this.daysPerYear
@@ -403,9 +404,10 @@ export default {
         angle = Pi2 - angle
       }
       // earth
-      this.targetDay = angle / this.radsPerYear
+      this.yearAngleDrag = angle - this.yearAngle
     }
     , dragEnd(){
+      this.yearAngleDrag = false
       this.dragTarget = false
       this.paused = false
       this.controls.enabled = true
