@@ -18,6 +18,8 @@ export default {
   }
   , created(){
 
+    this.afterReady(() => { this.isReady = true })
+
     this.renderer = new THREE.WebGLRenderer({
       alpha: true
       , antialias: true
@@ -60,6 +62,17 @@ export default {
 
       this.renderer.render( this.scene, this.camera )
       this.cssRenderer.render( this.scene, this.camera )
+    }
+    , getObjectByName( name ){
+      return this.scene.getObjectByName( name )
+    }
+    , afterReady( fn ){
+      if ( this.isReady ){
+        fn()
+        return this
+      }
+
+      this.$once('hook:mounted', fn)
     }
   }
   , render(h){

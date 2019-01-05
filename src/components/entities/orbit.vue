@@ -28,6 +28,7 @@ export default {
   , mixins: [ THREEObjectMixin ]
   , props: {
     radius: {
+      // can be Array for ellipse
       default: 10
     }
     , segments: {
@@ -40,27 +41,46 @@ export default {
   }
   , data: () => ({
   })
-  , created(){
-    let material
-    if ( this.gapSize || this.dashSize ){
-      material = new THREE.LineDashedMaterial({ gapSize: this.gapSize, dashSize: this.dashSize })
-    } else {
-      material = new THREE.LineBasicMaterial({})
-    }
-    let geometry = new THREE.CircleGeometry( this.radius, this.segments )
-
-    geometry.vertices.shift()
-    geometry.vertices.push(geometry.vertices[0])
-
-    this.v3object = new THREE.LineLoop( geometry, material )
-  }
   , updated(){
     this.v3object.computeLineDistances()
   }
   , computed: {
+    geometry(){
+      let xr = this.radius
+      let yr = xr
+
+      if ( Array.isArray(this.radius) ){
+        xr = this.radius[0]
+        yr = this.radius[1]
+      }
+
+      let focus = xr * xr - yr * yr
+      if ( focus < 0 ){
+        yr = xr
+        xr = this.radius[1]
+        focus = -focus
+      }
+
+      focus = Math.sqrt( focus )
+      let path = new THREE.Path()
+      path.ellipse( focus, 0, xr, yr )
+      return new THREE.Geometry().setFromPoints( path.getPoints(this.segments) )
+    }
   }
   , methods: {
-    updateObjects(){
+    createObject(){
+      let material
+      if ( this.gapSize || this.dashSize ){
+        material = new THREE.LineDashedMaterial({ gapSize: this.gapSize, dashSize: this.dashSize })
+      } else {
+        material = new THREE.LineBasicMaterial({})
+      }
+
+      this.v3object = new THREE.LineLoop( this.geometry, material )
+      this.v3object.computeLineDistances()
+    }
+    , updateObjects(){
+      this.v3object.geometry = this.geometry
       this.assignProps( this.v3object, threeProps )
       this.assignProps( this.v3object.material, materialProps )
       this.v3object.computeLineDistances()

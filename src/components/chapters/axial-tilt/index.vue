@@ -95,6 +95,7 @@
 <script>
 import Copilot from 'copilot'
 import * as THREE from 'three'
+import TransitionSetter from '@/lib/transition-setter'
 import v3Renderer from '@/components/three-vue/v3-renderer'
 import v3Scene from '@/components/three-vue/v3-scene'
 import v3Camera from '@/components/three-vue/v3-camera'
@@ -123,42 +124,6 @@ const axis = {
 const Pi2 = Math.PI * 2
 function shortestAngle( ang ){
   return ((ang % Pi2) + Math.PI) % Pi2 - Math.PI
-}
-
-function TransitionSetter( opts ){
-
-  const hasSetter = opts.hasSetter
-  const onUpdate = opts.onUpdate
-  const getCurrent = opts.getCurrent
-  const duration = opts.duration || 1000
-  let currentProgress = 1
-  let current = opts.current || 0
-  let prev = hasSetter ? current.clone() : 0
-
-  const start = function( val ){
-    currentProgress = 0
-    if ( hasSetter ){
-      prev.copy( val )
-    } else {
-      prev = val
-    }
-  }
-
-  return {
-    start
-    , update( delta ){
-      let to = getCurrent( current )
-
-      if ( currentProgress >= 1 ){
-        currentProgress = 1
-      } else {
-        currentProgress += delta / duration
-      }
-
-      let progress = Copilot.Easing.Quadratic.InOut( currentProgress )
-      onUpdate( prev, to, progress )
-    }
-  }
 }
 
 export default {

@@ -24,6 +24,17 @@ export default new Router({
           }
         }
         , {
+          path: 'elliptic-orbit'
+          , name: 'elliptic-orbit'
+          , component: () => import('@/components/chapters/elliptic-orbit')
+          , meta: {
+            title: 'The Earth\'s Elliptic Orbit'
+            , audio: [
+              require('@/assets/equation-of-time.mp3')
+            ]
+          }
+        }
+        , {
           path: 'axial-tilt'
           , name: 'axial-tilt'
           , component: () => import('@/components/chapters/axial-tilt')

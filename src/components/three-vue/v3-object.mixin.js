@@ -9,7 +9,7 @@ export default {
     name: String
   }
   , inject: [ 'threeVue' ]
-  , beforeMount(){
+  , mounted(){
     if ( !this.v3object ){
       throw new Error('Please set component v3object property')
     }
@@ -22,14 +22,16 @@ export default {
     this.$on('hook:beforeDestroy', () => {
       parent.remove( this.v3object )
     })
-  }
-  , mounted(){
+
     this.threeVue.$emit('scene:changed', { type: 'add', component: this, object: this.v3object })
   }
   , beforeDestroy(){
     this.threeVue.$emit('scene:changed', { type: 'remove', component: this, object: this.v3object })
   }
   , render(h){
+    if ( !this.v3object ){
+      this.createObject()
+    }
     this.updateObjects()
     this.v3object.name = this.name
     return h(

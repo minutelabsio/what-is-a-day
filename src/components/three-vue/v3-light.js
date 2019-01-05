@@ -61,7 +61,7 @@ export default {
   , mixins: [ THREEObjectMixin ]
   , props: {
     type: String
-    , target: Object
+    , target: String
 
     , ...watchableProps
   }
@@ -75,8 +75,11 @@ export default {
   }
   , watch: {
     target( val ){
-      if ( val && val.matrixWorld ){
-        this.v3object.target = val
+      if ( val ){
+        this.threeVue.afterReady(() => {
+          let obj = this.threeVue.getObjectByName( val )
+          this.v3object.target = val
+        })
       }
     }
   }
