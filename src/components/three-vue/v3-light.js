@@ -78,7 +78,7 @@ export default {
       if ( val ){
         this.threeVue.afterReady(() => {
           let obj = this.threeVue.getObjectByName( val )
-          this.v3object.target = val
+          this.v3object.target = obj
         })
       }
     }
