@@ -35,6 +35,9 @@ export default {
       this.$emit('resize')
     }, { immediate: true })
   }
+  , beforeDestroy(){
+    this.renderer.dispose()
+  }
   , mounted(){
     // append renderers
     this.cssRenderer.domElement.style.position = 'absolute'

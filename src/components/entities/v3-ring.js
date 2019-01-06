@@ -62,9 +62,12 @@ export default {
     this.v3object = mesh
   }
   , watch: {
-    geometry(){
+    geometry( geometry, oldGeometry ){
+      // cleanup
+      oldGeometry.dispose()
+
       if ( !this.v3object ){ return }
-      this.v3object.geometry = this.geometry
+      this.v3object.geometry = geometry
 
       let start = this.thetaStart % Pi2
       let end = this.thetaEnd % Pi2

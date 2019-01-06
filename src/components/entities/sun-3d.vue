@@ -71,6 +71,7 @@ export default {
     let geometry = new THREE.SphereGeometry( radius, 32, 32 )
     let sun = new THREE.Mesh( geometry, material )
     this.v3object = sun
+    this.registerDisposables([ material, geometry ])
 
     // glow effect
     let glowMaterial = new THREE.ShaderMaterial({
@@ -96,9 +97,11 @@ export default {
     let glowMesh = new THREE.Mesh(glowGeometry, glowMaterial)
     this.glowMesh = glowMesh
     sun.add( glowMesh )
+    this.registerDisposables([ glowMaterial, glowGeometry ])
     //
 
-    let viewVector= new THREE.Vector3()
+    let viewVector = new THREE.Vector3()
+    let camDir = new THREE.Vector3()
 
     this.beforeDraw(() => {
       // glow
@@ -107,7 +110,7 @@ export default {
       this.glowMesh.getWorldPosition(viewVector)
         .sub( camera.position )
         // for orthographic cam
-        .projectOnVector( camera.getWorldDirection() )
+        .projectOnVector( camera.getWorldDirection(camDir) )
       this.glowMesh.material.uniforms.viewVector.value = viewVector
 
       this.v3object.rotation.y += 0.001

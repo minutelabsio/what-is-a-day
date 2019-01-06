@@ -3,12 +3,16 @@ import {
   , Vector3
   , Euler
 } from 'three'
+import _uniq from 'lodash/uniq'
 
 export default {
   props: {
     name: String
   }
   , inject: [ 'threeVue' ]
+  , created(){
+    this.disposables = []
+  }
   , mounted(){
     if ( !this.v3object ){
       throw new Error('Please set component v3object property')
@@ -27,6 +31,9 @@ export default {
   }
   , beforeDestroy(){
     this.threeVue.$emit('scene:changed', { type: 'remove', component: this, object: this.v3object })
+
+    this.registerDisposables([ this.v3object.geometry, this.v3object.material ])
+    this.disposables.forEach( thing => thing && thing.dispose && thing.dispose() )
   }
   , render(h){
     if ( !this.v3object ){
@@ -43,6 +50,17 @@ export default {
 
     updateObjects(){
       // abstract
+    }
+
+    , registerDisposables( thing ){
+      if ( Array.isArray( thing ) ){
+        Array.prototype.push.apply( this.disposables, thing )
+      } else {
+        this.disposables.push( thing )
+      }
+
+      this.disposables = _uniq(this.disposables)
+      return this
     }
 
     // add frame listner

@@ -80,6 +80,9 @@ export default {
       this.v3object.computeLineDistances()
     }
     , updateObjects(){
+      if ( this.v3object.geometry !== this.geometry ){
+        this.v3object.geometry.dispose()
+      }
       this.v3object.geometry = this.geometry
       this.assignProps( this.v3object, threeProps )
       this.assignProps( this.v3object.material, materialProps )

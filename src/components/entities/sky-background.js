@@ -58,6 +58,7 @@ export default {
     skyBox.onBeforeRender = function ( renderer, scene, camera ) {
       this.matrixWorld.copyPosition( camera.matrixWorld )
     }
+    this.registerDisposables([ skyGeometry, skyMaterial ])
 
     // enable code injection for non-built-in material
     Object.defineProperty( skyBox.material, 'map', {

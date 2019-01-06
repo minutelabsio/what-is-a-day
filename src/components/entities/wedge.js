@@ -46,6 +46,12 @@ export default {
   }
   , data: () => ({
   })
+  , watch: {
+    geometry( geometry, oldGeometry ){
+      // cleanup
+      oldGeometry.dispose()
+    }
+  }
   , computed: {
     shape(){
       let first = new THREE.Vector2( this.x1, this.y1 )
