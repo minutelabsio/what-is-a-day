@@ -72,10 +72,6 @@ export default {
     let sun = new THREE.Mesh( geometry, material )
     this.v3object = sun
 
-    if ( true || this.isMean ){
-      return
-    }
-
     // glow effect
     let glowMaterial = new THREE.ShaderMaterial({
       uniforms: {
@@ -94,6 +90,7 @@ export default {
       , blending: THREE.AdditiveBlending
       , transparent: true
     })
+    glowMaterial.depthTest = false
 
     let glowGeometry = new THREE.SphereGeometry( 1.5, 32, 32 )
     let glowMesh = new THREE.Mesh(glowGeometry, glowMaterial)
@@ -107,7 +104,10 @@ export default {
       // glow
       const camera = this.threeVue.camera
 
-      this.glowMesh.getWorldPosition(viewVector).sub( camera.position )
+      this.glowMesh.getWorldPosition(viewVector)
+        .sub( camera.position )
+        // for orthographic cam
+        .projectOnVector( camera.getWorldDirection() )
       this.glowMesh.material.uniforms.viewVector.value = viewVector
 
       this.v3object.rotation.y += 0.001
