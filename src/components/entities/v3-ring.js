@@ -78,13 +78,18 @@ export default {
   }
   , computed: {
     geometry(){
+      let start = this.thetaStart % Pi2
+      let end = this.thetaEnd % Pi2
+
+      end = Math.max(start + 0.01, end)
+
       return new THREE.RingGeometry(
         this.innerRadius
         , this.outerRadius
         , this.segments
         , this.radialSegments
-        , this.thetaStart
-        , this.thetaEnd
+        , start
+        , end
       )
     }
   }

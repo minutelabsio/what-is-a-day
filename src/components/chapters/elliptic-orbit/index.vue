@@ -1,5 +1,5 @@
 <template lang="pug">
-.chapter
+.chapter(:style="{ 'cursor': cursorStyle }")
   .controls
     b-field(grouped)
       b-select(v-model="cameraTarget")
@@ -13,6 +13,13 @@
     , :width="viewWidth"
     , :height="viewHeight"
   )
+    Gestures(
+      :names="['earth', 'sun']"
+      , @dragstart="dragStart"
+      , @drag="drag"
+      , @dragend="dragEnd"
+      , @hover="mouseHover"
+    )
     v3-scene
       v3-light(type="ambient", :intensity="0.4")
 
@@ -35,13 +42,41 @@
 
       v3-group(:rotation="yearRotation")
         v3-group(:position="earthPosition", :rotation="[0, Math.PI, 0]")
-          Earth3D(ref="earth", :rotation="earthRotation")
+          Earth3D(name="earth", ref="earth", :rotation="earthRotation")
+          v3-dom(:position="[0, 1.5, 0]")
+            .has-text-right
+              .scene-label Solar Day: {{ solarDay }}
+              .scene-label Sidereal Day: {{ siderealDay }}
           v3-light(type="spot", :intensity="0.4", :position="lightPos")
 
+          v3-line(:position="[0, 0.001, 0.002]", :from="[1.38, 0, 0]", :to="[1.8, 0, 0]", :color="yellow")
+          v3-ring(
+            :innerRadius="1.2"
+            , :outerRadius="1.4"
+            , :segments="40"
+            , :thetaEnd="solarDayArcAngle"
+            , :color="yellow"
+            , :opacity="0.8"
+            , :rotation="[-90 * deg, 0, 0]"
+            , :position="[0, 0.001, 0]"
+          )
+          v3-group(:rotation="[0, -yearAngle, 0]")
+            v3-line(:position="[0, 0, 0.002]", :from="[1, 0, 0]", :to="[1.8, 0, 0]", :color="blue")
+            v3-ring(
+              :innerRadius="0.98"
+              , :outerRadius="1.2"
+              , :segments="40"
+              , :thetaEnd="dayAngle"
+              , :opacity="0.8"
+              , :color="blue"
+              , :rotation="[-90 * deg, 0, 0]"
+            )
+
           v3-group(:rotation="invYearRotation")
-            Wedge(v-bind="timeDiffWedgeProps", :opacity="0.5", :rotation="[Math.PI/2, 0, 0]")
-            v3-line(:to="[ timeDiffWedgeProps.x1, 0, timeDiffWedgeProps.y1 ]", :color="red")
-            v3-line(:to="[ timeDiffWedgeProps.x2, 0, timeDiffWedgeProps.y2 ]", :color="yellow")
+            template(v-if="timeDiffWedgeProps")
+              Wedge(v-bind="timeDiffWedgeProps", :opacity="0.5", :rotation="[Math.PI/2, 0, 0]")
+              v3-line(:to="[ timeDiffWedgeProps.x1, 0, timeDiffWedgeProps.y1 ]", :color="red")
+              v3-line(:to="[ timeDiffWedgeProps.x2, 0, timeDiffWedgeProps.y2 ]", :color="yellow")
             //- mean sun path on earth
             Orbit(
               :radius="1.01"
@@ -91,8 +126,6 @@
                 , :color="0x333333"
               )
 
-
-
       //- mean sun (origin)
       v3-group
         Sun3D(ref="meanSun", :isMean="true")
@@ -123,11 +156,14 @@ import v3Scene from '@/components/three-vue/v3-scene'
 import v3Camera from '@/components/three-vue/v3-camera'
 import v3Light from '@/components/three-vue/v3-light'
 import v3Group from '@/components/three-vue/v3-group'
+import v3Dom from '@/components/three-vue/v3-dom'
+import Gestures from '@/components/entities/gestures'
 import Earth3D from '@/components/entities/earth-3d'
 import Sun3D from '@/components/entities/sun-3d'
 import SkyBackground from '@/components/entities/sky-background'
 import Orbit from '@/components/entities/orbit'
 import Wedge from '@/components/entities/wedge'
+import v3Ring from '@/components/entities/v3-ring'
 import v3Line from '@/components/entities/line'
 const OrbitControls = require('three-orbit-controls')(THREE)
 
@@ -149,6 +185,8 @@ function shortestAngle( ang ){
   return ((ang % Pi2) + Math.PI) % Pi2 - Math.PI
 }
 
+const OrbitalPlane = new THREE.Plane( axis.y )
+
 export default {
   name: 'elliptic-orbit'
   , props: {
@@ -162,12 +200,15 @@ export default {
     , v3Camera
     , v3Light
     , v3Group
+    , v3Dom
 
+    , Gestures
     , SkyBackground
     , Earth3D
     , Sun3D
     , Orbit
     , Wedge
+    , v3Ring
     , v3Line
   }
   , data: () => ({
@@ -184,9 +225,9 @@ export default {
     , dragTarget: false
     , canGrab: false
 
-    , daysPerYear: 365
+    , daysPerYear: 10
     , day: 0
-    , rate: 1 / 10
+    , rate: 1 / 100
     , tiltAngle: 23.4 * deg
 
     // for sunlight...
@@ -207,9 +248,10 @@ export default {
     , yearRotation: [ 0, 0, 0 ]
     , invYearRotation: [ 0, 0, 0 ]
 
-    , solarPlane: new THREE.Plane()
+    , solarPlane: new THREE.Plane(new THREE.Vector3(0, 1, 0))
     , referenceFramePosition: new THREE.Vector3()
     , referenceFrameAngle: 0
+    , timeDiffWedgeProps: null
   })
   , created(){
     this.$watch(() => {
@@ -304,6 +346,8 @@ export default {
       }
     })
 
+    this.yearAngleDrag = false
+
     if ( !this.playerLoading ){
       draw()
     } else {
@@ -318,8 +362,8 @@ export default {
       let prev = this.cameraPivot
       this.cameraOrbitSetter.start( prev )
     }
-    , cameraTarget( newTarget, oldTarget ){
-
+    , day(){
+      this.setTimeDiffWedgeProps()
     }
     , tiltAngle: {
       handler(){
@@ -329,32 +373,9 @@ export default {
     }
   }
   , computed: {
-    timeDiffWedgeProps(){
+    sunDeclination(){
       this.day
-      if ( !this.$refs.meanSun || !this.$refs.sun ){ return {} }
-
-      this.getWorldPosition( 'earth', tmpV1 )
-      let x1 = tmpV1.x
-      let y1 = tmpV1.z
-      let len = tmpV1.length()
-
-      this.getWorldPosition( 'sun', tmpV2 ).sub( tmpV1 ).negate()
-      tmpV2.y = 0
-      tmpV2.setLength( len )
-
-      let x2 = tmpV2.x
-      let y2 = tmpV2.z
-
-      let color = tmpV1.dot( axis.x ) > tmpV2.dot( axis.x ) ? this.red : this.yellow
-
-      return {
-        x1, y1, x2, y2
-        , color
-      }
-    }
-    , sunDeclination(){
-      this.day
-      if ( !this.$refs.sun ){ return [] }
+      if ( !this.$refs.sun ){ return [0, 0, 0] }
       let sunPos = this.getWorldPosition( 'earth', tmpV1 )
       tmpV2.copy( tmpV1 )
 
@@ -395,12 +416,13 @@ export default {
   }
   , methods: {
     draw( delta ){
+      let day = this.day
       if ( !this.paused ){
-        this.day = this.day + this.rate
+        day = day + this.rate
       } else if ( this.yearAngleDrag ) {
         let targetDay = (this.yearAngle + this.yearAngleDrag) / this.radsPerYear
         let halfYear = this.daysPerYear / 2
-        let dayDelta = (targetDay - this.day)
+        let dayDelta = (targetDay - day)
         if ( Math.abs(dayDelta) > halfYear ){
           if ( dayDelta > 0 ){
             dayDelta -= this.daysPerYear
@@ -408,10 +430,10 @@ export default {
             dayDelta += this.daysPerYear
           }
         }
-        this.day = this.day + dayDelta * 0.05
+        day = day + dayDelta * 0.05
       }
 
-      this.day = THREE.Math.euclideanModulo(this.day, this.daysPerYear)
+      this.day = THREE.Math.euclideanModulo(day, this.daysPerYear)
 
       this.yearRotation.splice(1, 1, this.yearAngle)
       this.invYearRotation.splice(1, 1, -this.yearAngle)
@@ -445,6 +467,28 @@ export default {
       this.cameraTargetSetter.update( delta )
       this.referenceFrameAngleSetter.update( delta )
       this.referenceFramePositionSetter.update( delta )
+    }
+    , setTimeDiffWedgeProps(){
+      if ( !this.$refs.earth || !this.$refs.sun ){ return }
+
+      this.getWorldPosition( 'earth', tmpV1 )
+      let x1 = tmpV1.x
+      let y1 = tmpV1.z
+      let len = tmpV1.length()
+
+      this.getWorldPosition( 'sun', tmpV2 ).sub( tmpV1 ).negate()
+      tmpV2.y = 0
+      tmpV2.setLength( len )
+
+      let x2 = tmpV2.x
+      let y2 = tmpV2.z
+
+      let color = tmpV1.dot( axis.x ) > tmpV2.dot( axis.x ) ? this.red : this.yellow
+
+      this.timeDiffWedgeProps = {
+        x1, y1, x2, y2
+        , color
+      }
     }
     , getWorldPosition( ref, result ){
       return this.$refs[ref].v3object.getWorldPosition( result )
@@ -492,9 +536,9 @@ export default {
 </script>
 
 <style scoped lang="sass">
-
 .chapter
   background: $black
+  cursor: crosshair
 
 .controls
   position: absolute
@@ -503,4 +547,8 @@ export default {
   right: 0
   padding: 1rem
   background: $background
+
+.scene-label
+  font-family: $family-monospace
+  text-shadow: 0 0 3px rgba(0, 0, 0, 1)
 </style>

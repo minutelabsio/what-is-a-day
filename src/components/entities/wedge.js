@@ -1,6 +1,6 @@
 import * as THREE from 'three'
 import THREEObjectMixin from '@/components/three-vue/v3-object.mixin'
-// const origin = new THREE.Vector2( 0, 0 )
+const origin = new THREE.Vector2( 0, 0 )
 
 const threeProps = {
   position: {
@@ -46,24 +46,14 @@ export default {
   }
   , data: () => ({
   })
-  , created(){
-    let material = new THREE.MeshBasicMaterial({ transparent: true })
-    material.side = THREE.DoubleSide
-    let geometry = new THREE.ShapeGeometry( this.shape, this.segments )
-
-    this.v3object = new THREE.Mesh( geometry, material )
-    this.v3object.visible = (this.v3object.geometry.faces.length > 0)
-  }
-  , watch: {
-    shape(){
-      this.v3object.geometry = new THREE.ShapeGeometry( this.shape, this.segments )
-      this.v3object.visible = (this.v3object.geometry.faces.length > 0)
-    }
-  }
   , computed: {
     shape(){
       let first = new THREE.Vector2( this.x1, this.y1 )
       let second = new THREE.Vector2( this.x2, this.y2 )
+
+      if ( Math.abs(second.cross(first)) < 0.01 ){
+        second.copy(first).rotateAround(origin, 0.01)
+      }
 
       return new THREE.Shape([
         new THREE.Vector2( 0, 0 )
@@ -72,11 +62,23 @@ export default {
         , new THREE.Vector2( 0, 0 )
       ])
     }
+    , geometry(){
+      return new THREE.ShapeGeometry( this.shape, this.segments )
+    }
   }
   , methods: {
-    updateObjects(){
+    createObject(){
+      let material = new THREE.MeshBasicMaterial({ transparent: true })
+      material.side = THREE.DoubleSide
+
+      this.v3object = new THREE.Mesh( this.geometry, material )
+    }
+    , updateObjects(){
       this.assignProps( this.v3object, threeProps )
       this.assignProps( this.v3object.material, materialProps )
+
+      this.v3object.visible = (this.v3object.geometry.faces.length > 0)
+      this.v3object.geometry = this.geometry
     }
   }
 }
