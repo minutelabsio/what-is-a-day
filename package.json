@@ -21,6 +21,7 @@
     "lodash": "^4.17.10",
     "moment": "^2.22.2",
     "moment-duration-format": "^2.2.2",
+    "newton-raphson-method": "^1.0.2",
     "pixi.js": "^4.8.3",
     "three": "^0.99.0",
     "three-orbit-controls": "^82.1.0",

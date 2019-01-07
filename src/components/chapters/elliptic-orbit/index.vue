@@ -49,13 +49,13 @@
               .scene-label Sidereal Day: {{ siderealDay }}
           v3-light(type="spot", :intensity="0.4", :position="lightPos")
 
-          v3-line(:position="[0, 0.001, 0.002]", :from="[1.38, 0, 0]", :to="[1.8, 0, 0]", :color="yellow")
+          v3-line(:from="[1.2, 0, 0]", :to="[1.8, 0, 0]", :color="red")
           v3-ring(
             :innerRadius="1.2"
             , :outerRadius="1.4"
             , :segments="40"
             , :thetaEnd="solarDayArcAngle"
-            , :color="yellow"
+            , :color="red"
             , :opacity="0.8"
             , :rotation="[-90 * deg, 0, 0]"
             , :position="[0, 0.001, 0]"
@@ -72,7 +72,7 @@
               , :rotation="[-90 * deg, 0, 0]"
             )
 
-          v3-group(:rotation="invYearRotation")
+          v3-group(:position="[0, -0.001, 0]", :rotation="invYearRotation")
             template(v-if="timeDiffWedgeProps")
               Wedge(v-bind="timeDiffWedgeProps", :opacity="0.5", :rotation="[Math.PI/2, 0, 0]")
               v3-line(:to="[ timeDiffWedgeProps.x1, 0, timeDiffWedgeProps.y1 ]", :color="red")
@@ -129,7 +129,7 @@
       //- mean sun (origin)
       v3-group
         Sun3D(ref="meanSun", :isMean="true")
-        v3-line(:from="sunPosProjection", :to="sunDeclination", :color="yellow")
+        v3-line(:from="sunPosProjection", :to="sunPosition", :color="yellow")
 
         v3-group
           Orbit(
@@ -142,7 +142,7 @@
           )
 
       //- true sun
-      v3-group(:position="sunDeclination")
+      v3-group(:position="sunPosition")
         Sun3D(ref="sun", name="sun")
 </template>
 
@@ -150,6 +150,7 @@
 import Copilot from 'copilot'
 import _find from 'lodash/find'
 import * as THREE from 'three'
+import { calcEOT } from '@/lib/stellar-mechanics'
 import TransitionSetter from '@/lib/transition-setter'
 import v3Renderer from '@/components/three-vue/v3-renderer'
 import v3Scene from '@/components/three-vue/v3-scene'
@@ -326,7 +327,7 @@ export default {
           return current.set( sunDistance, 0, 0 )
         }
         if ( this.cameraTarget === 'sun' ){
-          return current.fromArray( this.sunDeclination )
+          return current.fromArray( this.sunPosition )
         }
 
         return current.set( 0, 0, 0 )
@@ -347,6 +348,20 @@ export default {
     })
 
     this.yearAngleDrag = false
+
+    // setInterval(() => {
+    //   this.setTimeDiffWedgeProps()
+    //   let td = this.timeDiffWedgeProps
+    //   let v1 = new THREE.Vector2( td.x1, td.y1 )
+    //   let v2 = new THREE.Vector2( td.x2, td.y2 )
+    //
+    //   let e = 0
+    //   let y = this.tiltAngle
+    //   let M = this.day * (2 * Math.PI / this.daysPerYear)
+    //   let p = 0
+    //
+    //   console.log( (v2.angle() - v1.angle()) - calcEOT( M, e, y, p ) )
+    // }, 500)
 
     if ( !this.playerLoading ){
       draw()
@@ -373,20 +388,19 @@ export default {
     }
   }
   , computed: {
-    sunDeclination(){
+    sunPosition(){
       this.day
       if ( !this.$refs.sun ){ return [0, 0, 0] }
       let sunPos = this.getWorldPosition( 'earth', tmpV1 )
       tmpV2.copy( tmpV1 )
 
-      return sunPos.projectOnPlane( this.solarPlane.normal )
-        .setLength(sunDistance)
+      return sunPos.applyAxisAngle( axis.x, -this.tiltAngle )
         .sub( tmpV2 )
         .negate()
         .toArray()
     }
     , sunPosProjection(){
-      tmpV2.fromArray( this.sunDeclination )
+      tmpV2.fromArray( this.sunPosition )
 
       return tmpV2.projectOnPlane( axis.y ).toArray()
     }
@@ -455,7 +469,7 @@ export default {
         if ( this.oldTarget === 'earth' ){
           this.referenceFramePositionSetter.start( new THREE.Vector3( sunDistance, 0, 0 ) )
         } else if ( this.oldTarget === 'sun' ){
-          this.referenceFramePositionSetter.start( new THREE.Vector3().fromArray(this.sunDeclination) )
+          this.referenceFramePositionSetter.start( new THREE.Vector3().fromArray(this.sunPosition) )
         } else {
           this.referenceFramePositionSetter.start( vOrigin )
         }
@@ -476,12 +490,23 @@ export default {
       let y1 = tmpV1.z
       let len = tmpV1.length()
 
-      this.getWorldPosition( 'sun', tmpV2 ).sub( tmpV1 ).negate()
-      tmpV2.y = 0
-      tmpV2.setLength( len )
+      let M = this.yearAngle
+      let e = 0
+      let y = this.tiltAngle
+      let p = 0
+      let eot = calcEOT( M, e, y, p )
 
-      let x2 = tmpV2.x
-      let y2 = tmpV2.z
+      tmpV1.applyAxisAngle( axis.y, -eot )
+
+      let x2 = tmpV1.x
+      let y2 = tmpV1.z
+
+      // this.getWorldPosition( 'sun', tmpV2 ).sub( tmpV1 ).negate()
+      // tmpV2.y = 0
+      // tmpV2.setLength( len )
+      //
+      // let x2 = tmpV2.x
+      // let y2 = tmpV2.z
 
       let color = tmpV1.dot( axis.x ) > tmpV2.dot( axis.x ) ? this.red : this.yellow
 
