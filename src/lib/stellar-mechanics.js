@@ -9,6 +9,10 @@ function trueAnomalyFromMeanAnomaly( M, e ){
   return M + ( 2 * e * Math.sin(M) ) + ( 5 / 4 ) * e * e * Math.sin( 2 * M )
 }
 
+const NROPTIONS = {
+  // verbose: true
+}
+
 function trueAnomaly( M, e ){
   let E
   let cosE
@@ -21,12 +25,12 @@ function trueAnomaly( M, e ){
   // https://en.wikipedia.org/wiki/Eccentric_anomaly#From_the_mean_anomaly
   const FofE = ( E ) => E - e * Math.sin(E) - M
   // derivative
-  const FofEp = ( E ) => - e * Math.cos(E)
+  const FofEp = ( E ) => 1 - e * Math.cos(E)
   // guess...
-  E = M + e * Math.sin( M ) / ( 1 - e * Math.cos( M ) )
+  E = trueAnomalyFromMeanAnomaly( M, e )
 
   // calculate E
-  E = NR( FofE, FofEp, E )
+  E = NR( FofE, FofEp, E, NROPTIONS )
 
   cosE = Math.cos( E )
   // calc true anomaly
@@ -34,6 +38,8 @@ function trueAnomaly( M, e ){
   if ( E > Math.PI ){
     theta = Pi2 - theta
   }
+
+  // console.log(theta)
 
   return theta
 }

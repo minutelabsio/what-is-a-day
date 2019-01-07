@@ -8,6 +8,10 @@ import _uniq from 'lodash/uniq'
 export default {
   props: {
     name: String
+    , visible: {
+      type: Boolean
+      , default: true
+    }
   }
   , inject: [ 'threeVue' ]
   , created(){
@@ -41,6 +45,7 @@ export default {
     }
     this.updateObjects()
     this.v3object.name = this.name
+    this.v3object.visible = this.visible
     return h(
       'div'
       , this.$slots.default

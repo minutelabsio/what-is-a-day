@@ -22,6 +22,20 @@
     )
     v3-scene
       v3-light(type="ambient", :intensity="0.4")
+      v3-group(:visible="showGrid")
+        v3-polar-grid(
+          :radius="50"
+          , :color1="0x001e44"
+          , :color2="0x102b61"
+        )
+        v3-circle(
+          :rotation="[Math.PI/2, 0, 0]"
+          , :position="[0, -0.01, 0]"
+          , :radius="50"
+          , :transparent="true"
+          , :opacity="0.7"
+          , :color="0x000022"
+        )
 
       v3-group(:rotation="[0, referenceFrameAngle + cameraPivot, 0]")
         v3-group(:position="referenceFramePosition", :rotation="[0, -referenceFrameAngle, 0]")
@@ -110,17 +124,17 @@
                 , :color="yellow"
               )
               Orbit(
-                :radius="sunDistance"
+                :radius="[majorAxis, semiMajorAxis]"
                 , :segments="50"
-                , :rotation="[Math.PI/2, 0, 0]"
+                , :rotation="[Math.PI/2, Math.PI, 0]"
                 , :dash-size="0.25"
                 , :gap-size="0"
                 , :color="yellow"
               )
               Orbit(
-                :radius="sunDistance"
+                :radius="[majorAxis, semiMajorAxis]"
                 , :segments="50"
-                , :rotation="[Math.PI/2, 0, 0]"
+                , :rotation="[Math.PI/2, Math.PI, 0]"
                 , :dash-size="0.25"
                 , :gap-size="0.15"
                 , :color="0x333333"
@@ -130,20 +144,28 @@
       v3-group
         Sun3D(ref="meanSun", :isMean="true")
         v3-line(:from="sunPosProjection", :to="sunPosition", :color="yellow")
+        Orbit(
+          :radius="sunDistance"
+          , :segments="50"
+          , :rotation="[Math.PI/2, Math.PI, 0]"
+          , :dash-size="0.25"
+          , :gap-size="0.15"
+          , :color="0xaaaaaa"
+        )
+
+        //- true sun
+      v3-group(:position="sunPosition")
+        Sun3D(ref="sun", name="sun")
 
         v3-group
           Orbit(
-            :radius="[sunDistance, sunDistance]"
+            :radius="[majorAxis, semiMajorAxis]"
             , :segments="50"
-            , :rotation="[Math.PI/2, Math.PI, 0]"
+            , :rotation="[Math.PI/2 - tiltAngle, Math.PI, 0]"
             , :dash-size="0.25"
             , :gap-size="0.15"
             , :color="0xaaaaaa"
           )
-
-      //- true sun
-      v3-group(:position="sunPosition")
-        Sun3D(ref="sun", name="sun")
 </template>
 
 <script>
@@ -158,6 +180,8 @@ import v3Camera from '@/components/three-vue/v3-camera'
 import v3Light from '@/components/three-vue/v3-light'
 import v3Group from '@/components/three-vue/v3-group'
 import v3Dom from '@/components/three-vue/v3-dom'
+import v3PolarGrid from '@/components/three-vue/v3-polar-grid'
+import v3Circle from '@/components/three-vue/v3-circle'
 import Gestures from '@/components/entities/gestures'
 import Earth3D from '@/components/entities/earth-3d'
 import Sun3D from '@/components/entities/sun-3d'
@@ -168,6 +192,7 @@ import v3Ring from '@/components/entities/v3-ring'
 import v3Line from '@/components/entities/line'
 const OrbitControls = require('three-orbit-controls')(THREE)
 
+// mean sun distance
 const sunDistance = 10
 // const tmpSph = new THREE.Spherical()
 const tmpV1 = new THREE.Vector3()
@@ -194,6 +219,8 @@ export default {
     viewWidth: Number
     , viewHeight: Number
     , playerLoading: Boolean
+
+    , showGrid: Boolean
   }
   , components: {
     v3Renderer
@@ -202,6 +229,8 @@ export default {
     , v3Light
     , v3Group
     , v3Dom
+    , v3PolarGrid
+    , v3Circle
 
     , Gestures
     , SkyBackground
@@ -234,8 +263,9 @@ export default {
     // for sunlight...
     , lightPos: [-0.01, 0, 0]
 
+    , eccentricity: 0.3
     , cameraFollow: false
-    , cameraTarget: 'earth'
+    , cameraTarget: 'meanSun'
     , cameraPivot: 0
     , orthCameraPos: [ 0, 50, 50 ]
 
@@ -388,13 +418,40 @@ export default {
     }
   }
   , computed: {
-    sunPosition(){
+    semiMajorAxis(){
+      let e = this.eccentricity
+      let gamma = Math.sqrt(1 - e * e)
+      let d = this.sunDistance
+      return 2 * d * gamma / (1 + gamma)
+    }
+    , majorAxis(){
+      let e = this.eccentricity
+      return this.semiMajorAxis / Math.sqrt(1 - e * e)
+    }
+    , earthDistance(){
+      let e = this.eccentricity
+      let a = this.majorAxis
+      let theta = this.yearAngle - this.eot
+      let r = a * (1 - e * e) / (1 + e * Math.cos(theta))
+
+      return r
+    }
+    , eot(){
+      let M = this.yearAngle
+      let e = this.eccentricity
+      let y = this.tiltAngle
+      let p = 0
+      return calcEOT( M, e, y, p )
+    }
+    , sunPosition(){
       this.day
       if ( !this.$refs.sun ){ return [0, 0, 0] }
       let sunPos = this.getWorldPosition( 'earth', tmpV1 )
       tmpV2.copy( tmpV1 )
 
-      return sunPos.applyAxisAngle( axis.x, -this.tiltAngle )
+      return sunPos.applyAxisAngle( axis.y, -this.eot )
+        .applyAxisAngle( axis.x, -this.tiltAngle )
+        .setLength( this.earthDistance )
         .sub( tmpV2 )
         .negate()
         .toArray()
@@ -490,13 +547,12 @@ export default {
       let y1 = tmpV1.z
       let len = tmpV1.length()
 
-      let M = this.yearAngle
-      let e = 0
-      let y = this.tiltAngle
-      let p = 0
-      let eot = calcEOT( M, e, y, p )
+      let eot = this.eot
 
       tmpV1.applyAxisAngle( axis.y, -eot )
+        .applyAxisAngle( axis.x, this.tiltAngle )
+        .setLength(this.earthDistance)
+        .projectOnPlane( axis.y )
 
       let x2 = tmpV1.x
       let y2 = tmpV1.z
@@ -562,7 +618,7 @@ export default {
 
 <style scoped lang="sass">
 .chapter
-  background: $black
+  background: $background
   cursor: crosshair
 
 .controls
@@ -571,7 +627,11 @@ export default {
   top: 0
   right: 0
   padding: 1rem
-  background: $background
+  background: transparentize($background, 0.4)
+  border-radius: 0 0 0 3px
+  border: 1px solid $background
+  border-top-width: 0
+  border-right-width: 0
 
 .scene-label
   font-family: $family-monospace
