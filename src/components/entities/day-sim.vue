@@ -521,7 +521,6 @@ export default {
       this.getEarthPosition( tmpV1 )
       let x1 = tmpV1.x
       let y1 = tmpV1.z
-      let len = tmpV1.length()
 
       let eot = this.eot
 

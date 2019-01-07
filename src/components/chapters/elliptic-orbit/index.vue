@@ -44,7 +44,7 @@
 </template>
 
 <script>
-import Copilot from 'copilot'
+// import Copilot from 'copilot'
 import DaySim from '@/components/entities/day-sim'
 import vueSlider from 'vue-slider-component'
 
