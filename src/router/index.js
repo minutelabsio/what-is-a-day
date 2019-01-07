@@ -10,7 +10,7 @@ export default new Router({
       path: '/'
       , name: 'player'
       , component: PlayerUI
-      , redirect: { name: 'stellar-v-solar' }
+      , redirect: { name: 'elliptic-orbit' }
       , children: [
         {
           path: 'stellar-v-solar'

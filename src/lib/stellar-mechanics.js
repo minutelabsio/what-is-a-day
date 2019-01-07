@@ -13,7 +13,7 @@ const NROPTIONS = {
   // verbose: true
 }
 
-function trueAnomaly( M, e ){
+export function trueAnomaly( M, e ){
   let E
   let cosE
   let theta
