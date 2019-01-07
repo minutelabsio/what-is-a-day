@@ -2,12 +2,12 @@ import * as THREE from 'three'
 import THREEObjectMixin from '@/components/three-vue/v3-object.mixin'
 
 const spaceBackgroundTexture = new THREE.CubeTextureLoader().load([
-  require('@/assets/sky/px.png')
-  , require('@/assets/sky/nx.png')
-  , require('@/assets/sky/py.png')
-  , require('@/assets/sky/ny.png')
-  , require('@/assets/sky/pz.png')
-  , require('@/assets/sky/nz.png')
+  require('@/assets/stars/px.png')
+  , require('@/assets/stars/nx.png')
+  , require('@/assets/stars/py.png')
+  , require('@/assets/stars/ny.png')
+  , require('@/assets/stars/pz.png')
+  , require('@/assets/stars/nz.png')
 ])
 
 export default {
