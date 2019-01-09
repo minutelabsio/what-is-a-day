@@ -206,7 +206,7 @@
 import Copilot from 'copilot'
 import _find from 'lodash/find'
 import * as THREE from 'three'
-import { calcEOT, trueAnomaly } from '@/lib/stellar-mechanics'
+import { calcEOT, trueAnomaly, meanAnomalyFromTrue } from '@/lib/stellar-mechanics'
 import TransitionSetter from '@/lib/transition-setter'
 import v3Renderer from '@/components/three-vue/v3-renderer'
 import v3Scene from '@/components/three-vue/v3-scene'
@@ -245,7 +245,7 @@ function shortestAngle( ang ){
   return ((ang % Pi2) + Math.PI) % Pi2 - Math.PI
 }
 
-const OrbitalPlane = new THREE.Plane( axis.y )
+const EquatorialPlane = new THREE.Plane( axis.y )
 
 export default {
   name: 'DaySim'
@@ -344,6 +344,14 @@ export default {
     }, () => {
       this.onResize()
     })
+    this.$watch(() => {
+      return this.tiltAngle + this.day + this.eccentricity
+    }, () => {
+      this.solarPlane.constant = 0
+      this.solarPlane.normal.set(0, 1, 0).applyAxisAngle(axis.x, -this.tiltAngle)
+      this.getSunPosition( tmpV2 )
+      this.solarPlane.translate( tmpV2 )
+    }, { immediate: true })
   }
   , mounted(){
     let stop = false
@@ -361,6 +369,9 @@ export default {
 
     let camera = this.$refs.camera.v3object
     let renderer = this.$refs.renderer.renderer
+
+    // var helper = new THREE.PlaneHelper( this.solarPlane, 50, 0xffff00 )
+    // this.$refs.renderer.scene.add( helper )
 
     // controls
     let controls = this.controls = new OrbitControls( camera, renderer.domElement )
@@ -447,14 +458,17 @@ export default {
       let prev = this.cameraPivot
       this.cameraOrbitSetter.start( prev )
     }
-    , day(){
-      this.setTimeDiffWedgeProps()
-    }
-    , tiltAngle: {
+    , day: {
       handler(){
-        this.solarPlane.normal.set(0, 1, 0).applyAxisAngle(axis.x, -this.tiltAngle)
+        this.setTimeDiffWedgeProps()
       }
       , immediate: true
+    }
+    , tiltAngle(){
+      this.setTimeDiffWedgeProps()
+    }
+    , eccentricity(){
+      this.setTimeDiffWedgeProps()
     }
   }
   , computed: {
@@ -490,15 +504,7 @@ export default {
       return trueAnomaly( this.yearAngle, this.eccentricity )
     }
     , sunPosition(){
-      let sunPos = tmpV1.copy( axis.x ).setLength( sunDistance )
-      this.getEarthPosition(tmpV2)
-
-      return sunPos.applyAxisAngle( axis.y, this.trueAnomaly )
-        .applyAxisAngle( axis.x, -this.tiltAngle )
-        .setLength( this.earthDistance )
-        .sub( tmpV2 )
-        .negate()
-        .toArray()
+      return this.getSunPosition( tmpV1 ).toArray()
     }
     , sunPosProjection(){
       tmpV2.fromArray( this.sunPosition )
@@ -613,6 +619,19 @@ export default {
         .applyAxisAngle( axis.y, this.yearAngle )
         .setLength( sunDistance )
     }
+    , getSunPosition: (function(){
+        const v = new THREE.Vector3()
+        return function( result ){
+          let sunPos = result.copy( axis.x ).setLength( sunDistance )
+          this.getEarthPosition( v )
+
+          return sunPos.applyAxisAngle( axis.y, this.trueAnomaly )
+            .applyAxisAngle( axis.x, -this.tiltAngle )
+            .setLength( this.earthDistance )
+            .sub( v )
+            .negate()
+        }
+      })()
     , getWorldPosition( ref, result ){
       return this.$refs[ref].v3object.getWorldPosition( result )
     }
@@ -637,11 +656,21 @@ export default {
     , drag({ ray }){
       if ( !this.dragTarget ){ return }
 
-      ray.intersectPlane( OrbitalPlane, tmpV1 )
-      let angle = axis.x.angleTo( tmpV1 )
-
-      if ( tmpV1.z > 0 ){
-        angle = Pi2 - angle
+      let angle
+      if ( this.cameraTarget === 'sun' ){
+        ray.intersectPlane(this.solarPlane, tmpV1)
+        this.getSunPosition(tmpV2)
+        angle = axis.x.angleTo( tmpV1.sub(tmpV2).applyAxisAngle( axis.x, this.tiltAngle ) )
+        if ( tmpV1.z > 0 ){
+          angle = Pi2 - angle
+        }
+        angle = meanAnomalyFromTrue( angle, this.eccentricity )
+      } else {
+        ray.intersectPlane(EquatorialPlane, tmpV1)
+        angle = axis.x.angleTo( tmpV1 )
+        if ( tmpV1.z > 0 ){
+          angle = Pi2 - angle
+        }
       }
 
       this.$emit('drag', angle - this.yearAngle)

@@ -13,6 +13,16 @@ const NROPTIONS = {
   // verbose: true
 }
 
+export function meanAnomalyFromTrue( T, e ){
+  let g = Math.sqrt((1 - e)/(1 + e))
+  let E = 2 * Math.atan( g * Math.tan( 0.5 * T ) )
+  let M = E - e * Math.sin(E)
+  if ( M < 0 ){
+    M = Pi2 + M
+  }
+  return M
+}
+
 export function trueAnomaly( M, e ){
   let E
   let cosE
