@@ -1,29 +1,71 @@
 <template lang="pug">
 .chapter
   .controls
-    b-field(grouped)
-      b-select(v-model="cameraTarget")
-        option(value="earth") Focus on Earth
-        option(value="sun") Focus on Sun
-        option(value="meanSun") Focus on Mean Sun
-      b-switch(v-model="cameraFollow")
-        | Follow Orbit
-
-    label Eccentricity
-    vue-slider(
-      v-model="eccentricity"
-      , tooltip-dir="left"
-      , :max="0.5"
-      , :interval="0.01"
+    .level.is-mobile
+      .level-left
+        b-field
+          b-checkbox-button.checkbox-btn-dark(v-model="paused")
+            b-icon(:icon="paused ? 'play' : 'pause'")
+            span {{paused? 'paused' : 'running'}}
+      .level-right.has-text-right(@click="panelOpen = !panelOpen")
+        a {{ panelOpen ? 'hide' : 'show' }}
+    b-collapse(
+      :open="panelOpen"
+      , animation="expand"
     )
+      .extra-fields
+        label Animation Speed
+        vue-slider.slider(
+          v-model="playRate"
+          , tooltip-dir="left"
+          , :tooltip="false"
+          , :max="1"
+          , :min="0.01"
+          , :interval="0.01"
+        )
 
-    label Axial Tilt
-    vue-slider(
-      v-model="tiltAngle"
-      , tooltip-dir="left"
-      , :max="90"
-      , :interval="1"
-    )
+        label Days per Year
+        vue-slider.slider(
+          v-model="solarDaysPerYear"
+          , tooltip-dir="left"
+          , :max="365"
+          , :min="0"
+          , :interval="1"
+        )
+
+        b-field(grouped)
+          b-select(v-model="cameraTarget")
+            option(value="earth") Focus Earth
+            option(value="sun") Focus Sun
+            option(value="meanSun") Focus Mean Sun
+          b-switch(v-model="cameraFollow")
+            | Follow Orbit
+
+        label Eccentricity
+        vue-slider.slider(
+          v-model="eccentricity"
+          , tooltip-dir="left"
+          , :max="0.5"
+          , :interval="0.01"
+        )
+
+        label Axial Tilt
+        vue-slider.slider(
+          v-model="tiltAngle"
+          , tooltip-dir="left"
+          , :max="90"
+          , :interval="1"
+        )
+
+        br/
+
+        b-field(grouped)
+          b-checkbox(v-model="showGrid")
+            span Show Grid
+          b-checkbox(v-model="showEarthOrbits")
+            span Show Earth Orbits
+          b-checkbox(v-model="showSunOrbits")
+            span Show Solar Orbits
 
   DaySim(
     :viewWidth="viewWidth"
@@ -32,6 +74,8 @@
     , :showGrid="showGrid"
     , :cameraTarget="cameraTarget"
     , :cameraFollow="cameraFollow"
+    , :showEarthOrbits="showEarthOrbits"
+    , :showSunOrbits="showSunOrbits"
 
     , :tiltAngle="tiltAngle * deg"
     , :eccentricity="eccentricity"
@@ -48,6 +92,7 @@
 import DaySim from '@/components/entities/day-sim'
 import vueSlider from 'vue-slider-component'
 
+const Pi2 = Math.PI * 2
 const deg = Math.PI / 180
 
 export default {
@@ -63,15 +108,19 @@ export default {
   }
   , data: () => ({
     deg
+    , panelOpen: true
+
     , paused: false
     , yearAngleDrag: false
 
-    , daysPerYear: 10
+    , solarDaysPerYear: 10
     , day: 0
-    , rate: 1 / 100
+    , playRate: 0.1
 
     , showGrid: false
-    , cameraTarget: 'meanSun'
+    , showEarthOrbits: true
+    , showSunOrbits: false
+    , cameraTarget: 'sun'
     , cameraFollow: false
 
     , tiltAngle: 23.4
@@ -104,11 +153,16 @@ export default {
 
   }
   , watch: {
-
+    daysPerYear( newVal, oldVal ){
+      this.day = (this.day * Pi2 / oldVal) / this.radsPerYear
+    }
   }
   , computed: {
-    radsPerYear(){
-      return (2 * Math.PI / this.daysPerYear)
+    daysPerYear(){
+      return this.solarDaysPerYear + 1
+    }
+    , radsPerYear(){
+      return (Pi2 / this.daysPerYear)
     }
     , yearAngle(){
       return this.day * this.radsPerYear
@@ -118,9 +172,9 @@ export default {
     draw(){
       let day = this.day
       if ( !this.paused ){
-        day = day + this.rate
+        day = day + this.playRate * this.daysPerYear / 100
       } else if ( this.yearAngleDrag ){
-        let targetDay = (this.yearAngle + this.yearAngleDrag) / this.radsPerYear
+        let targetDay = (this.yearAngleDrag) / this.radsPerYear
         let halfYear = this.daysPerYear / 2
         let dayDelta = (targetDay - day)
         if ( Math.abs(dayDelta) > halfYear ){
@@ -136,14 +190,15 @@ export default {
       this.day = day
     }
     , dragStart(){
+      this.prevPauseState = this.paused
       this.paused = true
     }
     , drag( amount ){
-      this.yearAngleDrag = amount
+      this.yearAngleDrag = this.yearAngle + amount
     }
     , dragEnd(){
       this.yearAngleDrag = false
-      this.paused = false
+      this.paused = this.prevPauseState
     }
   }
 }
@@ -156,7 +211,9 @@ export default {
 
 .controls
   position: absolute
-  z-index: 1
+  z-index: 2
+  min-width: 320px
+  max-width: 100%
   top: 0
   right: 0
   padding: 1rem
@@ -165,4 +222,16 @@ export default {
   border: 1px solid $background
   border-top-width: 0
   border-right-width: 0
+
+  .level
+    margin-bottom: 0
+
+  .extra-fields
+    padding-top: 1rem
+
+  .slider
+    margin-bottom: 0.5rem
+
+  .checkbox:hover
+    color: $text
 </style>

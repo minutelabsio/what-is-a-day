@@ -14,23 +14,9 @@
     )
     v3-scene
       v3-light(type="ambient", :intensity="0.4")
-      v3-group(:visible="showGrid")
-        v3-polar-grid(
-          :radius="50"
-          , :color1="0x001e44"
-          , :color2="0x102b61"
-        )
-        v3-circle(
-          :rotation="[Math.PI/2, 0, 0]"
-          , :position="[0, -0.01, 0]"
-          , :radius="50"
-          , :transparent="true"
-          , :opacity="0.7"
-          , :color="0x000022"
-        )
 
-      v3-group(:rotation="[0, referenceFrameAngle + cameraPivot, 0]")
-        v3-group(:position="referenceFramePosition", :rotation="[0, -referenceFrameAngle, 0]")
+      v3-group(:position="referenceFramePosition", :rotation="[0, referenceFrameAngle , 0]")
+        v3-group(:rotation="[0, -referenceFrameAngle + cameraPivot, 0]")
           SkyBackground(:aspect="viewWidth/viewHeight")
           v3-camera(
             ref="camera"
@@ -46,33 +32,62 @@
             , :look-at="origin"
           )
 
+      v3-group(:position="referenceFramePosition")
+        v3-group(:visible="showGrid", :position="[0, -0.05, 0]", :rotation="cameraTarget === 'sun' ? [ -tiltAngle, -cameraPivot, 0] : origin")
+          v3-polar-grid(
+            :radius="50"
+            , :color1="0x001e44"
+            , :color2="0x102b61"
+          )
+          v3-circle(
+            :rotation="[Math.PI/2, 0, 0]"
+            , :radius="50"
+            , :transparent="true"
+            , :opacity="0.7"
+            , :color="0x000022"
+          )
+
       v3-group(:rotation="yearRotation")
         v3-group(:position="earthPosition", :rotation="[0, Math.PI, 0]")
           Earth3D(name="earth", ref="earth", :rotation="earthRotation")
           v3-dom(:position="[0, 1.5, 0]")
             .has-text-right
-              .scene-label Solar Day: {{ solarDay }}
+              .scene-label Mean Solar Day: {{ meanSolarDay }}
+              .scene-label True Solar Day: {{ trueSolarDay }}
               .scene-label Sidereal Day: {{ siderealDay }}
           v3-light(type="spot", :intensity="0.4", :position="lightPos")
 
+          //- Day arcs
           v3-line(:from="[1.2, 0, 0]", :to="[1.8, 0, 0]", :color="red")
           v3-ring(
             :innerRadius="1.2"
             , :outerRadius="1.4"
             , :segments="40"
-            , :thetaEnd="solarDayArcAngle"
+            , :thetaEnd="meanSolarDayArcAngle"
             , :color="red"
             , :opacity="0.8"
             , :rotation="[-90 * deg, 0, 0]"
             , :position="[0, 0.001, 0]"
           )
+          v3-group(:rotation="[0, -eot, 0]")
+            v3-line(:from="[1.2, 0, 0]", :to="[1.8, 0, 0]", :color="yellow")
+            v3-ring(
+              :innerRadius="1.4"
+              , :outerRadius="1.6"
+              , :segments="40"
+              , :thetaEnd="solarDayArcAngle"
+              , :color="yellow"
+              , :opacity="0.8"
+              , :rotation="[-90 * deg, 0, 0]"
+              , :position="[0, 0.001, 0]"
+            )
           v3-group(:rotation="[0, -yearAngle, 0]")
             v3-line(:position="[0, 0, 0.002]", :from="[1, 0, 0]", :to="[1.8, 0, 0]", :color="blue")
             v3-ring(
               :innerRadius="0.98"
               , :outerRadius="1.2"
               , :segments="40"
-              , :thetaEnd="dayAngle"
+              , :thetaEnd="dayArcAngle"
               , :opacity="0.8"
               , :color="blue"
               , :rotation="[-90 * deg, 0, 0]"
@@ -92,7 +107,8 @@
             )
             //- mean sun orbit
             Orbit(
-              :radius="sunDistance"
+              :visible="showSunOrbits"
+              , :radius="sunDistance"
               , :segments="50"
               , :rotation="[Math.PI/2, 0, 0]"
               , :dash-size="0.25"
@@ -100,7 +116,8 @@
               , :color="red"
             )
             Orbit(
-              :radius="sunDistance"
+              :visible="showSunOrbits"
+              , :radius="sunDistance"
               , :segments="50"
               , :rotation="[Math.PI/2, 0, 0]"
               , :dash-size="0.25"
@@ -116,7 +133,8 @@
                 , :color="yellow"
               )
               Orbit(
-                :radius="[majorAxis, semiMajorAxis]"
+                :visible="showSunOrbits"
+                , :radius="[majorAxis, semiMajorAxis]"
                 , :segments="50"
                 , :rotation="[Math.PI/2, Math.PI, 0]"
                 , :dash-size="0.25"
@@ -124,7 +142,8 @@
                 , :color="yellow"
               )
               Orbit(
-                :radius="[majorAxis, semiMajorAxis]"
+                :visible="showSunOrbits"
+                , :radius="[majorAxis, semiMajorAxis]"
                 , :segments="50"
                 , :rotation="[Math.PI/2, Math.PI, 0]"
                 , :dash-size="0.25"
@@ -136,28 +155,51 @@
       v3-group
         Sun3D(ref="meanSun", :isMean="true")
         v3-line(:from="sunPosProjection", :to="sunPosition", :color="yellow")
+        v3-line(:position="sunPosition"
+          , :from="origin"
+          , :to="[(1-eccentricity) * majorAxis, 0, 0]"
+          , :color="0xeeeeee"
+          , :opacity="0.3"
+        )
         Orbit(
-          :radius="sunDistance"
+          :visible="showEarthOrbits"
+          , :radius="sunDistance"
+          , :segments="50"
+          , :rotation="[Math.PI/2, Math.PI, 0]"
+          , :dash-size="0.25"
+          , :color="red"
+        )
+        Orbit(
+          :visible="showEarthOrbits"
+          , :radius="sunDistance"
           , :segments="50"
           , :rotation="[Math.PI/2, Math.PI, 0]"
           , :dash-size="0.25"
           , :gap-size="0.15"
-          , :color="0xaaaaaa"
+          , :color="0x333333"
         )
 
         //- true sun
       v3-group(:position="sunPosition")
         Sun3D(ref="sun", name="sun")
 
-        v3-group
-          Orbit(
-            :radius="[majorAxis, semiMajorAxis]"
-            , :segments="50"
-            , :rotation="[Math.PI/2 - tiltAngle, Math.PI, 0]"
-            , :dash-size="0.25"
-            , :gap-size="0.15"
-            , :color="0xaaaaaa"
-          )
+        Orbit(
+          :visible="showEarthOrbits"
+          , :radius="[majorAxis, semiMajorAxis]"
+          , :segments="50"
+          , :rotation="[Math.PI/2 - tiltAngle, Math.PI, 0]"
+          , :dash-size="0.25"
+          , :color="yellow"
+        )
+        Orbit(
+          :visible="showEarthOrbits"
+          , :radius="[majorAxis, semiMajorAxis]"
+          , :segments="50"
+          , :rotation="[Math.PI/2 - tiltAngle, Math.PI, 0]"
+          , :dash-size="0.25"
+          , :gap-size="0.15"
+          , :color="0x333333"
+        )
 </template>
 
 <script>
@@ -213,6 +255,8 @@ export default {
     , playerLoading: Boolean
 
     , showGrid: Boolean
+    , showEarthOrbits: Boolean
+    , showSunOrbits: Boolean
     , daysPerYear: {
       type: Number
       , default: 365
@@ -276,6 +320,8 @@ export default {
     , cameraPivot: 0
     , orthCameraPos: [ 0, 50, 50 ]
 
+    , vernalEquinoxPoint: [ sunDistance, 0, 0 ]
+
     , sunDistance
     , earthPosition: [sunDistance, 0, 0]
     , earthRotation: [0, 0, 0]
@@ -289,6 +335,7 @@ export default {
     , solarPlane: new THREE.Plane(new THREE.Vector3(0, 1, 0))
     , referenceFramePosition: new THREE.Vector3()
     , referenceFrameAngle: 0
+    , referenceFrameTilt: 0
     , timeDiffWedgeProps: null
   })
   , created(){
@@ -335,17 +382,6 @@ export default {
     controls.maxPolarAngle = Math.PI - epsilon
     // end controls
 
-    this.cameraTargetSetter = TransitionSetter({
-      hasSetter: true
-      , current: controls.target.clone()
-      , getCurrent: ( current ) => {
-        return this.getWorldPosition(this.cameraTarget, current)
-      }
-      , onUpdate: ( from, to, alpha ) => {
-        this.controls.target.lerpVectors( from, to, alpha )
-      }
-    })
-
     this.cameraOrbitSetter = TransitionSetter({
       current: this.yearAngle
       , getCurrent: () => {
@@ -361,7 +397,7 @@ export default {
       , current: this.referenceFramePosition.clone()
       , getCurrent: ( current ) => {
         if ( this.cameraTarget === 'earth' ){
-          return current.set( sunDistance, 0, 0 )
+          return current.set( sunDistance, 0, 0 ).applyAxisAngle( axis.y, this.yearAngle )
         }
         if ( this.cameraTarget === 'sun' ){
           return current.fromArray( this.sunPosition )
@@ -371,6 +407,7 @@ export default {
       }
       , onUpdate: ( from, to, alpha ) => {
         this.referenceFramePosition.lerpVectors( from, to, alpha )
+        this.controls.target.copy( this.referenceFramePosition )
       }
     })
 
@@ -381,6 +418,16 @@ export default {
       }
       , onUpdate: ( from, to, alpha ) => {
         this.referenceFrameAngle = Copilot.Interpolators.Linear( from, to, alpha )
+      }
+    })
+
+    this.referenceFrameTiltSetter = TransitionSetter({
+      current: this.referenceFrameTilt
+      , getCurrent: () => {
+        return this.cameraTarget === 'sun' ? this.tiltAngle : 0
+      }
+      , onUpdate: ( from, to, alpha ) => {
+        this.referenceFrameTilt = Copilot.Interpolators.Linear( from, to, alpha )
       }
     })
 
@@ -465,16 +512,25 @@ export default {
       return this.day * this.radsPerYear
     }
     , dayAngle(){
+      return this.daysPerYear > 1 ? (this.day % 1) * Pi2 : 0
+    }
+    , dayArcAngle(){
       return (this.day % 1) * Pi2
     }
+    , meanSolarDayArcAngle(){
+      return (this.dayArcAngle - this.yearAngle + Pi2) % Pi2
+    }
     , solarDayArcAngle(){
-      return (this.dayAngle - this.yearAngle + Pi2) % Pi2
+      return (this.dayArcAngle + this.eot - this.yearAngle + Pi2) % Pi2
     }
     , siderealDay(){
       return this.day | 0
     }
-    , solarDay(){
+    , meanSolarDay(){
       return (this.day * (1 - 1/this.daysPerYear)) | 0
+    }
+    , trueSolarDay(){
+      return (this.day * (1 - 1/this.daysPerYear) + this.eot / Pi2) | 0
     }
     , cursorStyle(){
       return this.dragTarget ?
@@ -499,21 +555,26 @@ export default {
         this.oldTarget = this.cameraTarget
       }
       if ( this.cameraTarget !== this.oldTarget ){
-        this.cameraTargetSetter.start( this.getWorldPosition(this.oldTarget, tmpV1) )
-
         if ( this.oldTarget === 'earth' ){
-          this.referenceFramePositionSetter.start( new THREE.Vector3( sunDistance, 0, 0 ) )
+          this.referenceFramePositionSetter.start( new THREE.Vector3( sunDistance, 0, 0 ).applyAxisAngle( axis.y, this.yearAngle ) )
         } else if ( this.oldTarget === 'sun' ){
           this.referenceFramePositionSetter.start( new THREE.Vector3().fromArray(this.sunPosition) )
         } else {
           this.referenceFramePositionSetter.start( vOrigin )
         }
 
+        if ( this.oldTarget === 'sun' ){
+          this.referenceFrameTiltSetter.start( this.tiltAngle )
+        } else if ( this.cameraTarget === 'sun' ){
+          this.referenceFrameTiltSetter.start( 0 )
+        }
+
         this.referenceFrameAngleSetter.start( this.referenceFrameAngle )
 
         this.oldTarget = this.cameraTarget
       }
-      this.cameraTargetSetter.update( delta )
+
+      this.referenceFrameTiltSetter.update( delta )
       this.referenceFrameAngleSetter.update( delta )
       this.referenceFramePositionSetter.update( delta )
     }

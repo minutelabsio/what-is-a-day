@@ -17,6 +17,8 @@ const materialProps = {
   , opacity: {
     default: 1
   }
+  , dashSize: Number
+  , gapSize: Number
 }
 
 export default {
@@ -38,21 +40,11 @@ export default {
   , data: () => ({
     geometry: null
   })
-  , created(){
-    let material = new THREE.LineBasicMaterial({ transparent: true })
-    let geometry = this.geometry = new THREE.Geometry()
-    geometry.vertices = [
-      new THREE.Vector3()
-      , new THREE.Vector3()
-    ]
-
-    this.v3object = new THREE.Line( geometry, material )
-    this.v3object.frustumCulled = false
-  }
   , watch: {
     vertices(){
       if ( !this.v3object ){ return }
       this.v3object.geometry.verticesNeedUpdate = true
+      this.v3object.computeLineDistances()
     }
   }
   , computed: {
@@ -71,7 +63,24 @@ export default {
     }
   }
   , methods: {
-    updateObjects(){
+    createObject(){
+      let material
+      if ( this.gapSize || this.dashSize ){
+        material = new THREE.LineDashedMaterial({ gapSize: this.gapSize, dashSize: this.dashSize })
+      } else {
+        material = new THREE.LineBasicMaterial({ transparent: true })
+      }
+      let geometry = this.geometry = new THREE.Geometry()
+      geometry.vertices = [
+        new THREE.Vector3()
+        , new THREE.Vector3()
+      ]
+
+      this.v3object = new THREE.Line( geometry, material )
+      this.v3object.frustumCulled = false
+      this.v3object.computeLineDistances()
+    }
+    , updateObjects(){
       this.assignProps( this.v3object, threeProps )
       this.assignProps( this.v3object.material, materialProps )
     }

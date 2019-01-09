@@ -20,6 +20,10 @@ body {
   margin: 0;
 }
 
+a:hover {
+  color: $text;
+}
+
 .select select {
   background-color: $background;
   border-color: lighten($background, 10);
@@ -110,6 +114,18 @@ body {
   &:hover,
   &:focus {
     box-shadow: 0 2px 3px transparentize($blue, 0.6), 0 0 0 1px transparentize($blue, 0.6);
+  }
+}
+
+.checkbox-btn-dark .button {
+  background: $background;
+  border-color: $grey-darker;
+  color: $text;
+  &:hover {
+    border-color: $text;
+  }
+  &.is-primary {
+    background: $primary;
   }
 }
 
