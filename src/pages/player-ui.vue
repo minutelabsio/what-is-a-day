@@ -74,7 +74,9 @@ export default {
   justify-content: flex-end
 .panel-bottom
   background: $background
+  padding-top: 2px
 .main
+  position: relative
   flex: 1
   overflow: hidden
 </style>

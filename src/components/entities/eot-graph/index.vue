@@ -1,11 +1,27 @@
 <script>
-import { calcEOT } from '@/lib/stellar-mechanics'
+import { calcEOT, VERNAL, PERHELION, euclideanModulo } from '@/lib/stellar-mechanics'
 import { Line } from 'vue-chartjs'
+import _sortBy from 'lodash/sortBy'
 import 'chartjs-plugin-annotation'
-import _filter from 'lodash/filter'
+
+const Pi2 = Math.PI * 2
+const startOfYear = new Date(2020, 0).getTime()
+const yearLength = new Date(2021, 0).getTime() - startOfYear
 
 function getRandomInt () {
   return Math.floor(Math.random() * (50 - 5 + 1)) + 5
+}
+
+function getDate( M ){
+  return new Date(Math.round((M + VERNAL) / Pi2 * yearLength + startOfYear))
+}
+
+function getZero( x1, y1, x2, y2 ){
+  let a = (y2-y1)/(x2-x1)
+  let b = y1 - a * x1
+  let x = -b/a
+
+  return x
 }
 
 export default {
@@ -24,17 +40,26 @@ export default {
       , labels: [getRandomInt()]
       , datasets: [
         {
-          label: 'Data two'
-          , backgroundColor: '#bada55'
+          label: 'Now'
+          , backgroundColor: '#2888e4'
           , data: [{ x: 0, y: 0 }]
           , type: 'scatter'
+          , pointRadius: 8
           , animation: {
             duration: 0
           }
         }
         , {
-          label: 'Data One'
+          label: 'Sundial Late'
           , backgroundColor: 'hsla(3, 80%, 55%, 0.5)'
+          , data: [{ x: 1, y: 1 }]
+          , type: 'line'
+          , pointRadius: 0
+          , fill: 'origin'
+        }
+        , {
+          label: 'Sundial Early'
+          , backgroundColor: 'hsla(60, 100%, 43%, 0.5)'
           , data: [{ x: 1, y: 1 }]
           , type: 'line'
           , pointRadius: 0
@@ -45,9 +70,9 @@ export default {
     , options: {
       responsive: true
       , maintainAspectRatio: false
-      , legend: {
-        display: false
-      }
+      // , legend: {
+      //   display: false
+      // }
       , animation: {
           duration: 0 // general animation time
       }
@@ -61,13 +86,25 @@ export default {
           type: 'linear'
           , position: 'bottom'
         }]
+        , yAxes: [{
+          type: 'time'
+          , time: {
+            unit: 'month'
+            , stepSize: 1
+            , displayFormats: {
+              month: 'MMM'
+            }
+            , min: getDate(0)
+            , max: getDate(Pi2)
+          }
+        }]
       }
       , annotation: {
         annotations: [{
           type: 'line'
           , mode: 'horizontal'
           , scaleID: 'y-axis-0'
-          , value: 5
+          , value: 0
           , borderColor: 'rgba(255,255,255,0.4)'
           , borderWidth: 1
         }]
@@ -85,6 +122,7 @@ export default {
     this.$watch(() => {
       return this.tilt + this.eccentricity
     }, () => {
+      this.setMarker()
       this.updateData()
     })
   }
@@ -95,26 +133,74 @@ export default {
   }
   , methods: {
     setMarker(){
-      let y = this.meanAnomaly
-      let x = calcEOT(y, this.eccentricity, this.tilt, 0)
+      let x = this.getEOT(this.meanAnomaly)
+      let y = this.getDate(this.meanAnomaly)
       this.chartData.datasets[0].data[0].x = x
       this.chartData.datasets[0].data[0].y = y
-      this.options.annotation.annotations[0].value = this.meanAnomaly
+      this.$data._chart.options.annotation.annotations[0].value = y
+    }
+
+    , getEOT( M ){
+      return calcEOT(euclideanModulo(M, Pi2), this.eccentricity, this.tilt, PERHELION)
+    }
+
+    , getDate( M ){
+      return getDate(M)
     }
 
     , updateData(){
-      let data = []
+      let ahead = []
+      let behind = []
       let l = 100
       let rad = 2 * Math.PI / l
-      for ( let i = 0; i < l; i++ ){
+      let lastEot
+      let lastM
+      for ( let i = 0; i < l + 1; i++ ){
         let M = i * rad
-        data.push({
-          x: calcEOT(M, this.eccentricity, this.tilt, 0)
-          , y: M
-        })
+        let time = this.getDate(M)
+        let eot = this.getEOT(M)
+
+        // check sign to add zero point to crispen
+        if ( i !== 0 && lastEot * eot < 0 ){
+          let x = getZero(lastM, lastEot, M, eot)
+          let t = this.getDate(x)
+          behind.push({
+            x: 0
+            , y: t
+          })
+          ahead.push({
+            x: 0
+            , y: t
+          })
+        }
+
+        if ( eot > 0 ){
+          ahead.push({
+            x: eot
+            , y: time
+          })
+          behind.push({
+            x: 0
+            , y: time
+          })
+        } else {
+          behind.push({
+            x: eot
+            , y: time
+          })
+          ahead.push({
+            x: 0
+            , y: time
+          })
+        }
+
+        lastEot = eot
+        lastM = M
       }
-      data.push({ x: 0, y: l * rad })
-      this.chartData.datasets[1].data = data
+      ahead.push({ x: 0, y: getDate(Pi2) })
+      behind.push({ x: 0, y: getDate(Pi2) })
+      this.chartData.datasets[1].data = behind
+      this.chartData.datasets[2].data = ahead
       this.$data._chart.update()
     }
   }

@@ -444,6 +444,11 @@ export default {
 
     this.yearAngleDrag = false
 
+    this.$on('hook:beforeDestroy', () => {
+      stop = true
+      controls.dispose()
+    })
+
     if ( !this.playerLoading ){
       draw()
     } else {

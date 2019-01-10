@@ -6,14 +6,17 @@
         b-field(grouped)
           b-field
             .control
-              b-checkbox-button.checkbox-btn-dark.icon-only(v-model="paused")
-                b-icon(:icon="paused ? 'play' : 'pause'")
+              b-checkbox-button.checkbox-btn-dark(v-model="paused")
+                b-icon.icon-only(:icon="paused ? 'play' : 'pause'")
           b-field
-            b-radio-button.checkbox-btn-dark(v-model="panelState", native-value="graph") Graph
-            b-radio-button.checkbox-btn-dark(v-model="panelState", native-value="controls") Controls
-            b-radio-button.checkbox-btn-dark(v-model="panelState", native-value="hide") Hidden
+            .control
+              .button.btn-dark(@click="graphOpen = !graphOpen", :class="{ 'is-primary': graphOpen }")
+                b-icon.icon-only(icon="chart-bell-curve")
+            .control
+              .button.btn-dark(@click="controlsOpen = !controlsOpen", :class="{ 'is-primary': controlsOpen }")
+                b-icon.icon-only(icon="tune")
 
-    .extra-fields(v-if="panelState === 'controls'")
+    .extra-fields(v-if="controlsOpen")
       label Animation Speed
       vue-slider.slider(
         v-model="playRate"
@@ -67,7 +70,7 @@
         b-checkbox(v-model="showSunOrbits")
           span Solar Orbits
 
-    .eot-graph(v-if="panelState === 'graph'")
+    .eot-graph(v-if="graphOpen")
       EOTGraph(:eccentricity="eccentricity", :tilt="tiltAngle * deg", :mean-anomaly="yearAngle")
 
   DaySim(
@@ -117,7 +120,8 @@ export default {
   }
   , data: () => ({
     deg
-    , panelState: 'hide'
+    , controlsOpen: true
+    , graphOpen: true
 
     , paused: false
     , yearAngleDrag: false
@@ -217,6 +221,7 @@ export default {
 .chapter
   background: $background
   cursor: crosshair
+  overflow: hidden
 
 .controls
   position: absolute
@@ -237,6 +242,9 @@ export default {
 
   .extra-fields
     padding-top: 1rem
+
+  .extra-fields + .eot-graph
+    margin-top: 2rem
 
   .slider
     margin-bottom: 0.5rem

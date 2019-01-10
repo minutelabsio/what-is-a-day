@@ -76,7 +76,7 @@ export default {
         this.top +
         this.bottom
     }, () => {
-      this.v3object.updateProjectionMatrix()
+      this.$nextTick(() => this.v3object.updateProjectionMatrix())
     })
   }
   , mounted(){

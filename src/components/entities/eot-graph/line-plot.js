@@ -80,9 +80,12 @@ export default {
   , methods: {
     updateData(){
       let data = []
-      for ( let i = 0; i < 100; i++ ){
+      let l = 100
+      let rad = 2 * Math.PI / l
+      for ( let i = 0; i < l; i++ ){
+        let M = i * rad
         data.push({
-          x: Math.sin(i/4)
+          x: calcEOT(M, this.eccentricity)
           , y: i
         })
       }

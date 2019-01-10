@@ -1,12 +1,16 @@
 import NR from 'newton-raphson-method'
 const Pi2 = Math.PI * 2
-// const vernal = 79 + 17/24
-// const perihelion = 3 + 14.5/24
+export const VERNAL = 79 * Pi2 / 365 // rads
+export const PERHELION = 4 * Pi2 / 365 // rads
 
 // to second order in e
 // https://en.wikipedia.org/wiki/True_anomaly#From_the_mean_anomaly
 function trueAnomalyFromMeanAnomaly( M, e ){
   return M + ( 2 * e * Math.sin(M) ) + ( 5 / 4 ) * e * e * Math.sin( 2 * M )
+}
+
+export function euclideanModulo( n, m ) {
+	return ( ( n % m ) + m ) % m
 }
 
 const NROPTIONS = {
@@ -54,12 +58,23 @@ export function trueAnomaly( M, e ){
   return theta
 }
 
+function normalizeAngle( ang, against ){
+  let rads = against/Math.PI
+  if ( rads <= 0.5 ){
+    return ang
+  }
+  if ( rads <= 1.5 ){
+    return ang + Math.PI
+  }
+  return ang + Pi2
+}
+
 function rightAscention( M, e, y, perhelionAngle ){
   let theta = trueAnomaly( M, e )
   let ang = theta + perhelionAngle
   let RA = Math.atan( Math.cos(y) * Math.tan( ang ) )
   // tan is discontinuous... so we make it continuous
-  RA += Math.floor(ang / Math.PI + 0.5) * Math.PI
+  RA = normalizeAngle( RA, ang )
   return RA
 }
 
