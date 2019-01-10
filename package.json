@@ -16,6 +16,8 @@
     "buefy": "^0.7.1",
     "bulma": "^0.7.1",
     "bulmaswatch": "^0.7.2",
+    "chart.js": "^2.7.3",
+    "chartjs-plugin-annotation": "^0.5.7",
     "element-ui": "^2.4.11",
     "howler": "^2.0.15",
     "lodash": "^4.17.10",
@@ -27,6 +29,7 @@
     "three-orbit-controls": "^82.1.0",
     "three-trackballcontrols": "^0.0.7",
     "vue": "^2.5.17",
+    "vue-chartjs": "^3.4.0",
     "vue-circle-slider": "^1.0.2",
     "vue-router": "^3.0.2",
     "vue-slider-component": "^2.8.3"

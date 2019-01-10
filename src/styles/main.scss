@@ -117,16 +117,39 @@ a:hover {
   }
 }
 
-.checkbox-btn-dark .button {
+.select {
+  &:not(.is-multiple):not(.is-loading):hover::after {
+    border-color: $primary;
+  }
+  select {
+    transition: border-color 0.15s ease;
+  }
+}
+
+.btn-dark {
   background: $background;
   border-color: $grey-darker;
   color: $text;
+
+  transition: border-color 0.15s ease;
+
   &:hover {
+    color: $text;
     border-color: $text;
+  }
+  &:active {
+    border-color: transparent;
   }
   &.is-primary {
     background: $primary;
   }
+}
+.checkbox-btn-dark .button {
+  @extend .btn-dark;
+}
+
+.icon-only .b-checkbox.button .icon:first-child {
+  margin: 0
 }
 
 // Icon stuff

@@ -14,7 +14,6 @@ export default {
 </script>
 
 <style lang="sass" scoped>
-@import '@/styles/_variables.scss'
 #app
   position: fixed
   top: 0

@@ -65,5 +65,6 @@ function rightAscention( M, e, y, perhelionAngle ){
 
 // mean anomaly (year angle), eccentricity, tilt, perhelion angle
 export function calcEOT( M, e, y, perhelionAngle ){
-  return M + perhelionAngle - rightAscention( M, e, y, perhelionAngle )
+  let eot = M + perhelionAngle - rightAscention( M, e, y, perhelionAngle )
+  return eot
 }
