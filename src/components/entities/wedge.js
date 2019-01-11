@@ -57,8 +57,8 @@ export default {
       let first = new THREE.Vector2( this.x1, this.y1 )
       let second = new THREE.Vector2( this.x2, this.y2 )
 
-      if ( Math.abs(second.cross(first)) < 0.01 ){
-        second.copy(first).rotateAround(origin, 0.01)
+      if ( Math.abs(second.cross(first)) < 0.001 ){
+        second.copy(first).rotateAround(origin, 0.001)
       }
 
       return new THREE.Shape([
