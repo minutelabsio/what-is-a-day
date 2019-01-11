@@ -1,16 +1,11 @@
 <script>
 import { calcEOT, VERNAL, PERHELION, euclideanModulo } from '@/lib/stellar-mechanics'
 import { Line } from 'vue-chartjs'
-import _sortBy from 'lodash/sortBy'
 import 'chartjs-plugin-annotation'
 
 const Pi2 = Math.PI * 2
 const startOfYear = new Date(2020, 0).getTime()
 const yearLength = new Date(2021, 0).getTime() - startOfYear
-
-function getRandomInt () {
-  return Math.floor(Math.random() * (50 - 5 + 1)) + 5
-}
 
 function getDate( M ){
   return new Date(Math.round((M + VERNAL) / Pi2 * yearLength + startOfYear))
@@ -37,7 +32,7 @@ export default {
   , data: () => ({
     chartData: {
       plugins: []
-      , labels: [getRandomInt()]
+      , labels: []
       , datasets: [
         {
           label: 'Now'

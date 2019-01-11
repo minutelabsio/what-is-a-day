@@ -167,6 +167,7 @@
           , :segments="50"
           , :rotation="[Math.PI/2, Math.PI, 0]"
           , :dash-size="0.25"
+          , :gap-size="0"
           , :color="red"
         )
         Orbit(
@@ -189,6 +190,7 @@
           , :segments="50"
           , :rotation="[Math.PI/2 - tiltAngle, Math.PI, 0]"
           , :dash-size="0.25"
+          , :gap-size="0"
           , :color="yellow"
         )
         Orbit(
