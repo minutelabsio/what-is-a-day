@@ -138,7 +138,7 @@ export default {
     , cameraFollow: false
 
     , tiltAngle: 23.4
-    , eccentricity: 0.3
+    , eccentricity: 0.02
   })
   , created(){
 

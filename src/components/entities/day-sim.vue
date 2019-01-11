@@ -380,6 +380,15 @@ export default {
       this.getSunPosition( tmpV2 )
       this.solarPlane.translate( tmpV2 )
     }, { immediate: true })
+
+    this.$watch(() => {
+      return this.tiltAngle + this.day + this.eccentricity
+    }, () => {
+      this.yearRotation.splice(1, 1, this.meanAnomaly)
+      this.invYearRotation.splice(1, 1, -this.meanAnomaly)
+      this.earthRotation.splice(1, 1, this.dayAngle)
+      this.setTimeDiffWedgeProps()
+    }, { immediate: true })
   }
   , mounted(){
     let stop = false
@@ -491,18 +500,6 @@ export default {
       let prev = this.cameraPivot
       this.cameraOrbitSetter.start( prev )
     }
-    , day: {
-      handler(){
-        this.setTimeDiffWedgeProps()
-      }
-      , immediate: true
-    }
-    , tiltAngle(){
-      this.setTimeDiffWedgeProps()
-    }
-    , eccentricity(){
-      this.setTimeDiffWedgeProps()
-    }
   }
   , computed: {
     day(){
@@ -527,20 +524,19 @@ export default {
       return r
     }
     , eot(){
-      let M = this.meanAnomaly
-      let e = this.eccentricity
-      let y = this.tiltAngle
-      let p = PERHELION - VERNAL
-      return calcEOT( M, e, y, p )
+      return this.getEOT()
     }
     , trueAnomaly(){
       return trueAnomaly( this.meanAnomaly, this.eccentricity )
     }
     , sunPosition(){
+      // only indirectly depends on tilt angle through quarternion
+      this.tiltAngle
       return this.getSunPosition( tmpV1 ).toArray()
     }
     , sunPosProjection(){
-      return this.getSunPosition(tmpV2).projectOnPlane( axis.y ).toArray()
+      this.tiltAngle
+      return this.getSunPosition( tmpV2 ).projectOnPlane( axis.y ).toArray()
     }
     , radsPerYear(){
       return (2 * Math.PI / this.daysPerYear)
@@ -577,9 +573,6 @@ export default {
   }
   , methods: {
     draw( delta ){
-      this.yearRotation.splice(1, 1, this.meanAnomaly)
-      this.invYearRotation.splice(1, 1, -this.meanAnomaly)
-      this.earthRotation.splice(1, 1, this.dayAngle)
       this.transitionCameraTarget( delta )
       this.cameraOrbitSetter.update( delta )
 
@@ -615,12 +608,19 @@ export default {
       this.referenceFrameAngleSetter.update( delta )
       this.referenceFramePositionSetter.update( delta )
     }
+    , getEOT(){
+      let M = this.meanAnomaly
+      let e = this.eccentricity
+      let y = this.tiltAngle
+      let p = PERHELION - VERNAL
+      return calcEOT( M, e, y, p )
+    }
     , setTimeDiffWedgeProps(){
       this.getEarthPosition( tmpV1 )
       let x1 = tmpV1.x
       let y1 = tmpV1.z
 
-      let eot = this.eot
+      let eot = this.getEOT()
 
       tmpV1.applyAxisAngle( axis.y, -eot )
         .projectOnPlane( axis.y )
@@ -655,9 +655,6 @@ export default {
             .negate()
         }
       })()
-    , getWorldPosition( ref, result ){
-      return this.$refs[ref].v3object.getWorldPosition( result )
-    }
     , onResize(){
     }
     , inIntersects( name, intersects ){
