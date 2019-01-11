@@ -81,7 +81,7 @@
               , :rotation="[-90 * deg, 0, 0]"
               , :position="[0, 0.001, 0]"
             )
-          v3-group(:rotation="[0, -yearAngle, 0]")
+          v3-group(:rotation="[0, -meanAnomaly, 0]")
             v3-line(:position="[0, 0, 0.002]", :from="[1, 0, 0]", :to="[1.8, 0, 0]", :color="blue")
             v3-ring(
               :innerRadius="0.98"
@@ -396,9 +396,9 @@ export default {
     // end controls
 
     this.cameraOrbitSetter = TransitionSetter({
-      current: this.yearAngle
+      current: this.meanAnomaly
       , getCurrent: () => {
-        return this.cameraFollow ? shortestAngle(this.yearAngle) : 0
+        return this.cameraFollow ? shortestAngle(this.meanAnomaly) : 0
       }
       , onUpdate: ( from, to, alpha ) => {
         this.cameraPivot = Copilot.Interpolators.Linear( from, to, alpha )
@@ -410,7 +410,7 @@ export default {
       , current: this.referenceFramePosition.clone()
       , getCurrent: ( current ) => {
         if ( this.cameraTarget === 'earth' ){
-          return current.set( sunDistance, 0, 0 ).applyAxisAngle( axis.y, this.yearAngle )
+          return current.set( sunDistance, 0, 0 ).applyAxisAngle( axis.y, this.meanAnomaly )
         }
         if ( this.cameraTarget === 'sun' ){
           return current.fromArray( this.sunPosition )
@@ -427,7 +427,7 @@ export default {
     this.referenceFrameAngleSetter = TransitionSetter({
       current: this.referenceFrameAngle
       , getCurrent: () => {
-        return this.cameraTarget === 'earth' ? this.yearAngle : 0
+        return this.cameraTarget === 'earth' ? this.meanAnomaly : 0
       }
       , onUpdate: ( from, to, alpha ) => {
         this.referenceFrameAngle = Copilot.Interpolators.Linear( from, to, alpha )
@@ -444,7 +444,7 @@ export default {
       }
     })
 
-    this.yearAngleDrag = false
+    this.meanAnomalyDrag = false
 
     this.$on('hook:beforeDestroy', () => {
       stop = true
@@ -501,14 +501,14 @@ export default {
       return r
     }
     , eot(){
-      let M = this.yearAngle
+      let M = this.meanAnomaly
       let e = this.eccentricity
       let y = this.tiltAngle
       let p = 0
       return calcEOT( M, e, y, p )
     }
     , trueAnomaly(){
-      return trueAnomaly( this.yearAngle, this.eccentricity )
+      return trueAnomaly( this.meanAnomaly, this.eccentricity )
     }
     , sunPosition(){
       return this.getSunPosition( tmpV1 ).toArray()
@@ -521,7 +521,7 @@ export default {
     , radsPerYear(){
       return (2 * Math.PI / this.daysPerYear)
     }
-    , yearAngle(){
+    , meanAnomaly(){
       return this.day * this.radsPerYear
     }
     , dayAngle(){
@@ -531,10 +531,10 @@ export default {
       return (this.day % 1) * Pi2
     }
     , meanSolarDayArcAngle(){
-      return (this.dayArcAngle - this.yearAngle + Pi2) % Pi2
+      return (this.dayArcAngle - this.meanAnomaly + Pi2) % Pi2
     }
     , solarDayArcAngle(){
-      return (this.dayArcAngle + this.eot - this.yearAngle + Pi2) % Pi2
+      return (this.dayArcAngle + this.eot - this.meanAnomaly + Pi2) % Pi2
     }
     , siderealDay(){
       return this.day | 0
@@ -553,8 +553,8 @@ export default {
   }
   , methods: {
     draw( delta ){
-      this.yearRotation.splice(1, 1, this.yearAngle)
-      this.invYearRotation.splice(1, 1, -this.yearAngle)
+      this.yearRotation.splice(1, 1, this.meanAnomaly)
+      this.invYearRotation.splice(1, 1, -this.meanAnomaly)
       this.earthRotation.splice(1, 1, this.dayAngle)
       this.transitionCameraTarget( delta )
       this.cameraOrbitSetter.update( delta )
@@ -569,7 +569,7 @@ export default {
       }
       if ( this.cameraTarget !== this.oldTarget ){
         if ( this.oldTarget === 'earth' ){
-          this.referenceFramePositionSetter.start( new THREE.Vector3( sunDistance, 0, 0 ).applyAxisAngle( axis.y, this.yearAngle ) )
+          this.referenceFramePositionSetter.start( new THREE.Vector3( sunDistance, 0, 0 ).applyAxisAngle( axis.y, this.meanAnomaly ) )
         } else if ( this.oldTarget === 'sun' ){
           this.referenceFramePositionSetter.start( new THREE.Vector3().fromArray(this.sunPosition) )
         } else {
@@ -623,7 +623,7 @@ export default {
     }
     , getEarthPosition( result ){
       return result.copy( axis.x )
-        .applyAxisAngle( axis.y, this.yearAngle )
+        .applyAxisAngle( axis.y, this.meanAnomaly )
         .setLength( sunDistance )
     }
     , getSunPosition: (function(){
@@ -680,7 +680,7 @@ export default {
         }
       }
 
-      this.$emit('drag', angle - this.yearAngle)
+      this.$emit('drag', angle - this.meanAnomaly)
     }
     , dragEnd(){
       this.dragTarget = false
