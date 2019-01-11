@@ -98,7 +98,7 @@
               Wedge(v-bind="timeDiffWedgeProps", :opacity="0.5", :rotation="[Math.PI/2, 0, 0]")
               v3-line(:to="[ timeDiffWedgeProps.x1, 0, timeDiffWedgeProps.y1 ]", :color="red")
               v3-line(:to="[ timeDiffWedgeProps.x2, 0, timeDiffWedgeProps.y2 ]", :color="yellow")
-            //- mean sun path on earth
+            //- mean sun path on earth (ecliptic)
             Orbit(
               :radius="1.01"
               , :segments="100"
@@ -125,31 +125,33 @@
               , :color="0x333333"
             )
 
-            v3-group(:rotation="[tiltAngle, 0, 0]")
-              Orbit(
-                :radius="1.01"
-                , :segments="100"
-                , :rotation="[Math.PI/2, 0, 0]"
-                , :color="yellow"
-              )
-              Orbit(
-                :visible="showSunOrbits"
-                , :radius="[majorAxis, semiMajorAxis]"
-                , :segments="50"
-                , :rotation="[Math.PI/2, Math.PI, 0]"
-                , :dash-size="0.25"
-                , :gap-size="0"
-                , :color="yellow"
-              )
-              Orbit(
-                :visible="showSunOrbits"
-                , :radius="[majorAxis, semiMajorAxis]"
-                , :segments="50"
-                , :rotation="[Math.PI/2, Math.PI, 0]"
-                , :dash-size="0.25"
-                , :gap-size="0.15"
-                , :color="0x333333"
-              )
+            v3-group(:rotation="[0, vernalEquinoxAngle, 0]")
+              v3-group(:rotation="[tiltAngle, -vernalEquinoxAngle, 0]")
+                //- solar path (celestial equator)
+                Orbit(
+                  :radius="1.01"
+                  , :segments="100"
+                  , :rotation="[Math.PI/2, 0, 0]"
+                  , :color="yellow"
+                )
+                Orbit(
+                  :visible="showSunOrbits"
+                  , :radius="[majorAxis, semiMajorAxis]"
+                  , :segments="50"
+                  , :rotation="[Math.PI/2, Math.PI, 0]"
+                  , :dash-size="0.25"
+                  , :gap-size="0"
+                  , :color="yellow"
+                )
+                Orbit(
+                  :visible="showSunOrbits"
+                  , :radius="[majorAxis, semiMajorAxis]"
+                  , :segments="50"
+                  , :rotation="[Math.PI/2, Math.PI, 0]"
+                  , :dash-size="0.25"
+                  , :gap-size="0.15"
+                  , :color="0x333333"
+                )
 
       //- mean sun (origin)
       v3-group
@@ -184,31 +186,33 @@
       v3-group(:position="sunPosition")
         Sun3D(ref="sun", name="sun")
 
-        Orbit(
-          :visible="showEarthOrbits"
-          , :radius="[majorAxis, semiMajorAxis]"
-          , :segments="50"
-          , :rotation="[Math.PI/2 - tiltAngle, Math.PI, 0]"
-          , :dash-size="0.25"
-          , :gap-size="0"
-          , :color="yellow"
-        )
-        Orbit(
-          :visible="showEarthOrbits"
-          , :radius="[majorAxis, semiMajorAxis]"
-          , :segments="50"
-          , :rotation="[Math.PI/2 - tiltAngle, Math.PI, 0]"
-          , :dash-size="0.25"
-          , :gap-size="0.15"
-          , :color="0x333333"
-        )
+        v3-group(:rotation="[0, vernalEquinoxAngle, 0]")
+          v3-group(:rotation="[-tiltAngle, -vernalEquinoxAngle, 0]")
+            Orbit(
+              :visible="showEarthOrbits"
+              , :radius="[majorAxis, semiMajorAxis]"
+              , :segments="50"
+              , :rotation="[Math.PI/2, Math.PI, 0]"
+              , :dash-size="0.25"
+              , :gap-size="0"
+              , :color="yellow"
+            )
+            Orbit(
+              :visible="showEarthOrbits"
+              , :radius="[majorAxis, semiMajorAxis]"
+              , :segments="50"
+              , :rotation="[Math.PI/2, Math.PI, 0]"
+              , :dash-size="0.25"
+              , :gap-size="0.15"
+              , :color="0x333333"
+            )
 </template>
 
 <script>
 import Copilot from 'copilot'
 import _find from 'lodash/find'
 import * as THREE from 'three'
-import { calcEOT, trueAnomaly, meanAnomalyFromTrue } from '@/lib/stellar-mechanics'
+import { calcEOT, trueAnomaly, meanAnomalyFromTrue, VERNAL, PERHELION, euclideanModulo } from '@/lib/stellar-mechanics'
 import TransitionSetter from '@/lib/transition-setter'
 import v3Renderer from '@/components/three-vue/v3-renderer'
 import v3Scene from '@/components/three-vue/v3-scene'
@@ -228,6 +232,11 @@ import v3Ring from '@/components/entities/v3-ring'
 import v3Line from '@/components/entities/line'
 const OrbitControls = require('three-orbit-controls')(THREE)
 
+
+const Pi2 = Math.PI * 2
+const deg = Math.PI / 180
+const angleModulo = (a) => euclideanModulo(a, Pi2)
+
 // mean sun distance
 const sunDistance = 10
 // const tmpSph = new THREE.Spherical()
@@ -241,8 +250,6 @@ const axis = {
   , z: new THREE.Vector3(0, 0, 1)
 }
 
-const Pi2 = Math.PI * 2
-const deg = Math.PI / 180
 function shortestAngle( ang ){
   return ((ang % Pi2) + Math.PI) % Pi2 - Math.PI
 }
@@ -323,6 +330,8 @@ export default {
     , orthCameraPos: [ 0, 50, 50 ]
 
     , vernalEquinoxPoint: [ sunDistance, 0, 0 ]
+    // relative to perhelion
+    , vernalEquinoxAngle: VERNAL - PERHELION
 
     , sunDistance
     , earthPosition: [sunDistance, 0, 0]
@@ -341,6 +350,22 @@ export default {
     , timeDiffWedgeProps: null
   })
   , created(){
+    // used to go from solar plane to ecliptic
+    this.solarPlaneQuarternion = new THREE.Quaternion()
+    this.$watch('tiltAngle', (function(){
+      // scoped
+      const euler = new THREE.Euler()
+      const q = new THREE.Quaternion()
+
+      return function(){
+        euler.set(-this.tiltAngle, -this.vernalEquinoxAngle, 0)
+        q.setFromEuler(euler)
+        this.solarPlaneQuarternion
+          .setFromAxisAngle(axis.y, this.vernalEquinoxAngle)
+          .multiply( q )
+      }
+    })(), { immediate: true })
+
     this.$watch(() => {
       return this.viewWidth + this.viewHeight
     }, () => {
@@ -350,7 +375,8 @@ export default {
       return this.tiltAngle + this.day + this.eccentricity
     }, () => {
       this.solarPlane.constant = 0
-      this.solarPlane.normal.set(0, 1, 0).applyAxisAngle(axis.x, -this.tiltAngle)
+      this.solarPlane.normal.set(0, 1, 0)
+        .applyQuaternion( this.solarPlaneQuarternion )
       this.getSunPosition( tmpV2 )
       this.solarPlane.translate( tmpV2 )
     }, { immediate: true })
@@ -504,7 +530,7 @@ export default {
       let M = this.meanAnomaly
       let e = this.eccentricity
       let y = this.tiltAngle
-      let p = 0
+      let p = PERHELION - VERNAL
       return calcEOT( M, e, y, p )
     }
     , trueAnomaly(){
@@ -514,15 +540,13 @@ export default {
       return this.getSunPosition( tmpV1 ).toArray()
     }
     , sunPosProjection(){
-      tmpV2.fromArray( this.sunPosition )
-
-      return tmpV2.projectOnPlane( axis.y ).toArray()
+      return this.getSunPosition(tmpV2).projectOnPlane( axis.y ).toArray()
     }
     , radsPerYear(){
       return (2 * Math.PI / this.daysPerYear)
     }
     , meanAnomaly(){
-      return this.day * this.radsPerYear
+      return angleModulo(this.day * this.radsPerYear - PERHELION)
     }
     , dayAngle(){
       return this.daysPerYear > 1 ? (this.day % 1) * Pi2 : 0
@@ -604,17 +628,9 @@ export default {
 
       let x2 = tmpV1.x
       let y2 = tmpV1.z
-      tmpV1.y = 0
 
-      // this.getWorldPosition( 'sun', tmpV2 ).sub( tmpV1 ).negate()
-      // tmpV2.y = 0
-      // tmpV2.setLength( len )
-      //
-      // let x2 = tmpV2.x
-      // let y2 = tmpV2.z
-
-      let sign = tmpV1.x * tmpV2.z - tmpV1.z * tmpV2.x
-      let color = sign > 0 ? this.red : this.yellow
+      let sign = x1 * y2 - y1 * x2
+      let color = sign < 0 ? this.red : this.yellow
 
       this.timeDiffWedgeProps = {
         x1, y1, x2, y2
@@ -629,11 +645,11 @@ export default {
     , getSunPosition: (function(){
         const v = new THREE.Vector3()
         return function( result ){
-          let sunPos = result.copy( axis.x ).setLength( sunDistance )
+          let sunPos = result.copy( axis.x )
           this.getEarthPosition( v )
 
           return sunPos.applyAxisAngle( axis.y, this.trueAnomaly )
-            .applyAxisAngle( axis.x, -this.tiltAngle )
+            .applyQuaternion( this.solarPlaneQuarternion )
             .setLength( this.earthDistance )
             .sub( v )
             .negate()
@@ -667,7 +683,8 @@ export default {
       if ( this.cameraTarget === 'sun' ){
         ray.intersectPlane(this.solarPlane, tmpV1)
         this.getSunPosition(tmpV2)
-        angle = axis.x.angleTo( tmpV1.sub(tmpV2).applyAxisAngle( axis.x, this.tiltAngle ) )
+        angle = axis.x.angleTo( tmpV1.sub(tmpV2).applyQuaternion( this.solarPlaneQuarternion.inverse() ) )
+        this.solarPlaneQuarternion.inverse()
         if ( tmpV1.z > 0 ){
           angle = Pi2 - angle
         }
