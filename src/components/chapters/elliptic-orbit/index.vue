@@ -71,7 +71,7 @@
           span Solar Orbits
 
     .eot-graph(v-if="graphOpen")
-      EOTGraph(:eccentricity="eccentricity", :tilt="tiltAngle * deg", :mean-anomaly="yearAngle")
+      EOTGraph(:eccentricity="eccentricity", :tilt="tiltAngle * deg", :mean-anomaly="meanAnomaly")
 
   DaySim(
     :viewWidth="viewWidth"
@@ -98,6 +98,7 @@
 import DaySim from '@/components/entities/day-sim'
 import EOTGraph from '@/components/entities/eot-graph'
 import vueSlider from 'vue-slider-component'
+import { PERHELION } from '@/lib/stellar-mechanics'
 
 const Pi2 = Math.PI * 2
 const deg = Math.PI / 180
@@ -177,8 +178,8 @@ export default {
     , radsPerYear(){
       return (Pi2 / this.daysPerYear)
     }
-    , yearAngle(){
-      return this.day * this.radsPerYear
+    , meanAnomaly(){
+      return this.day * this.radsPerYear - PERHELION
     }
   }
   , methods: {
@@ -207,7 +208,7 @@ export default {
       this.paused = true
     }
     , drag( amount ){
-      this.yearAngleDrag = this.yearAngle + amount
+      this.yearAngleDrag = this.meanAnomaly + amount
     }
     , dragEnd(){
       this.yearAngleDrag = false

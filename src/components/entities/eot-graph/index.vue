@@ -7,8 +7,12 @@ const Pi2 = Math.PI * 2
 const startOfYear = new Date(2020, 0).getTime()
 const yearLength = new Date(2021, 0).getTime() - startOfYear
 
+// mean anomaly is measured from perhelion, so we want to go from jan - jan
+const minAngle = -PERHELION
+const maxAngle = Pi2 - PERHELION
+
 function getDate( M ){
-  return new Date(Math.round((M + VERNAL) / Pi2 * yearLength + startOfYear))
+  return new Date(Math.round((M + PERHELION) / Pi2 * yearLength + startOfYear))
 }
 
 function getZero( x1, y1, x2, y2 ){
@@ -89,8 +93,8 @@ export default {
             , displayFormats: {
               month: 'MMM'
             }
-            , min: getDate(0)
-            , max: getDate(Pi2)
+            , min: getDate(minAngle)
+            , max: getDate(maxAngle)
           }
         }]
       }
@@ -136,7 +140,7 @@ export default {
     }
 
     , getEOT( M ){
-      return calcEOT(euclideanModulo(M, Pi2), this.eccentricity, this.tilt, PERHELION)
+      return calcEOT(euclideanModulo(M, Pi2), this.eccentricity, this.tilt, PERHELION - VERNAL)
     }
 
     , getDate( M ){
@@ -151,7 +155,7 @@ export default {
       let lastEot
       let lastM
       for ( let i = 0; i < l + 1; i++ ){
-        let M = i * rad
+        let M = i * rad - PERHELION
         let time = this.getDate(M)
         let eot = this.getEOT(M)
 
@@ -192,8 +196,9 @@ export default {
         lastEot = eot
         lastM = M
       }
-      ahead.push({ x: 0, y: getDate(Pi2) })
-      behind.push({ x: 0, y: getDate(Pi2) })
+
+      ahead.push({ x: 0, y: getDate(maxAngle) })
+      behind.push({ x: 0, y: getDate(maxAngle) })
       this.chartData.datasets[1].data = behind
       this.chartData.datasets[2].data = ahead
       this.$data._chart.update()
