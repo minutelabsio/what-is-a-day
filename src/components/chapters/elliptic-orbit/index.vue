@@ -25,6 +25,7 @@
         , :max="1"
         , :min="0.01"
         , :interval="0.01"
+        , :disabled="!player.paused"
       )
 
       label Days per Year
@@ -203,9 +204,12 @@ export default {
     , meanAnomaly(){
       return this.day * this.radsPerYear - PERHELION
     }
+    , day(){
+      return this.orbitalPosition * this.daysPerYear
+    }
     // copilot managed
     , ...meddleProps([
-      'day'
+      'orbitalPosition'
       , 'eccentricity'
       , 'tiltAngle'
       , 'solarDaysPerYear'
@@ -216,7 +220,7 @@ export default {
 
     // copilot
     let frames = this.frames = Copilot({
-      day: 0
+      orbitalPosition: 0 // {0, 1}
       , solarDaysPerYear: solarDaysPerYear
       , tiltAngle: 23.4
       , eccentricity: 0.3
@@ -235,7 +239,7 @@ export default {
     })
 
     frames.add({
-      day: solarDaysPerYear + 1
+      orbitalPosition: 1
     }, {
       time: '10s'
       , duration: '10s'
@@ -306,41 +310,35 @@ export default {
   , mounted(){
 
   }
-  , watch: {
-    daysPerYear( newVal, oldVal ){
-      // console.log('test')
-      // this.day = (this.day * Pi2 / oldVal) / this.radsPerYear
-    }
-  }
   , methods: {
     beforeFrame(){
-      let day = this.day
+      let orbitalPosition = this.orbitalPosition
       if ( this.player.paused && !this.paused ){
 
-        day = day + this.playRate * this.daysPerYear / 100
-        day = euclideanModulo(day, this.daysPerYear)
+        orbitalPosition = orbitalPosition + this.playRate / 100
+        orbitalPosition = euclideanModulo(orbitalPosition, 1)
         // ensure that the shortest path is taken to get to target
-        let playerDay = this.frames.getStateAt( this.frames.time ).day
-        day = playerDay + shortestDistance( playerDay, day, this.daysPerYear )
-        this.day = { $value: day, $meddleOptions: { relaxDelay: 0, relaxDuration: 200, freeze: this.dragging, easing: Copilot.Easing.Quadratic.InOut } }
+        let playerPosition = this.frames.getStateAt( this.frames.time ).orbitalPosition
+        orbitalPosition = playerPosition + shortestDistance( playerPosition, orbitalPosition, 1 )
+        this.orbitalPosition = { $value: orbitalPosition, $meddleOptions: { relaxDelay: 0, relaxDuration: 200, freeze: this.dragging, easing: Copilot.Easing.Quadratic.InOut } }
 
       } else if ( this.paused && this.yearAngleDrag ){
 
-        let targetDay = (this.yearAngleDrag) / this.radsPerYear
-        let halfYear = this.daysPerYear / 2
-        let dayDelta = (targetDay - day)
-        if ( Math.abs(dayDelta) > halfYear ){
-          if ( dayDelta > 0 ){
-            dayDelta -= this.daysPerYear
+        let targetPosition = (this.yearAngleDrag) / Pi2
+        let halfYear = 0.5
+        let delta = (targetPosition - orbitalPosition)
+        if ( Math.abs(delta) > halfYear ){
+          if ( delta > 0 ){
+            delta -= 1
           } else {
-            dayDelta += this.daysPerYear
+            delta += 1
           }
         }
-        day = day + dayDelta * 0.05
-        day = euclideanModulo(day, this.daysPerYear)
-        let playerDay = this.frames.getStateAt( this.frames.time ).day
-        day = playerDay + shortestDistance( playerDay, day, this.daysPerYear )
-        this.day = { $value: day, $meddleOptions: { relaxDelay: 1000, relaxDuration: 1000, easing: meddleEasing } }
+        orbitalPosition = orbitalPosition + delta * 0.05
+        orbitalPosition = euclideanModulo(orbitalPosition, this.daysPerYear)
+        let playerPosition = this.frames.getStateAt( this.frames.time ).orbitalPosition
+        orbitalPosition = playerPosition + shortestDistance( playerPosition, orbitalPosition, 1 )
+        this.orbitalPosition = { $value: orbitalPosition, $meddleOptions: { relaxDelay: 1000, relaxDuration: 1000, easing: meddleEasing } }
       }
     }
     , onFrame( state ){
