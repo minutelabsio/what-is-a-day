@@ -16,7 +16,7 @@
       v3-light(type="ambient", :intensity="0.4")
 
       v3-group(:position="referenceFramePosition", :rotation="[0, referenceFrameAngle , 0]")
-        v3-group(:rotation="[0, -referenceFrameAngle + cameraPivot, 0]")
+        v3-group(ref="cameraGroup", :rotation="[0, -referenceFrameAngle + cameraPivot, 0]")
           SkyBackground(:aspect="viewWidth/viewHeight")
           v3-camera(
             ref="camera"
@@ -404,9 +404,11 @@ export default {
       stop = true
     })
 
-    let camera = this.$refs.camera.v3object
+    // just to announce the controls interactions
     let renderer = this.$refs.renderer.renderer
+    let camera = new THREE.OrthographicCamera().copy(this.$refs.camera.v3object, true) // this.$refs.camera.v3object
 
+    this.$refs.cameraGroup.v3object.add(camera)
     // var helper = new THREE.PlaneHelper( this.solarPlane, 50, 0xffff00 )
     // this.$refs.renderer.scene.add( helper )
 
@@ -428,6 +430,30 @@ export default {
     let epsilon = 0.001
     controls.minPolarAngle = epsilon
     controls.maxPolarAngle = Math.PI - epsilon
+
+    this.cameraInteraction = true
+    controls.addEventListener('start', () => {
+      this.$emit('camera:start', {
+        position: camera.position
+        , rotation: camera.rotation
+        , zoom: camera.zoom
+      })
+    })
+    controls.addEventListener('change', () => {
+      if ( !this.cameraInteraction ){ return }
+      this.$emit('camera:change', {
+        position: camera.position
+        , rotation: camera.rotation
+        , zoom: camera.zoom
+      })
+    })
+    controls.addEventListener('end', () => {
+      this.$emit('camera:end', {
+        position: camera.position
+        , rotation: camera.rotation
+        , zoom: camera.zoom
+      })
+    })
     // end controls
 
     this.cameraOrbitSetter = TransitionSetter({
@@ -455,7 +481,10 @@ export default {
       }
       , onUpdate: ( from, to, alpha ) => {
         this.referenceFramePosition.lerpVectors( from, to, alpha )
+        this.cameraInteraction = false
         this.controls.target.copy( this.referenceFramePosition )
+        this.controls.update()
+        this.cameraInteraction = true
       }
     })
 
@@ -703,6 +732,27 @@ export default {
     }
     , mouseHover({ intersects }){
       this.canGrab = intersects.length
+    }
+    , setCameraProperties({ position, rotation, zoom }){
+      let cam = this.$refs.camera.v3object
+      // console.log(position, rotation, zoom)
+      if ( position ){
+        cam.position.copy(position)
+      }
+      if ( rotation ){
+        cam.rotation.setFromVector3(rotation)
+      } else {
+        cam.lookAt(this.referenceFramePosition)
+      }
+      if ( zoom !== cam.zoom ){
+        cam.zoom = zoom
+        cam.updateProjectionMatrix()
+      }
+
+      this.cameraInteraction = false
+      this.controls.object.copy( cam )
+      this.controls.update()
+      this.cameraInteraction = true
     }
   }
 }

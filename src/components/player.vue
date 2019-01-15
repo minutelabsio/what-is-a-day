@@ -133,9 +133,13 @@ export default {
     }
     , pause(){
       this.howl.pause()
+      this.$emit('pause')
+      this.$emit('togglePause', true)
     }
     , play(){
       this.howl.play()
+      this.$emit('play')
+      this.$emit('togglePause', false)
     }
     , previous(){
       this.setTrack( this.playIndex - 1 )
@@ -149,6 +153,7 @@ export default {
 
       let name = this.playlist[ index ].routeName
 
+      this.pause()
       this.$router.push({ name })
     }
     , seek( time ){

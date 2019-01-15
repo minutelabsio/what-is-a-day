@@ -74,7 +74,8 @@ export default {
         this.left +
         this.right +
         this.top +
-        this.bottom
+        this.bottom +
+        this.zoom
     }, () => {
       this.$nextTick(() => this.v3object.updateProjectionMatrix())
     })

@@ -6,7 +6,7 @@
         b-field(grouped)
           b-field
             .control
-              b-checkbox-button.checkbox-btn-dark(v-model="paused")
+              b-checkbox-button.checkbox-btn-dark(v-model="paused", :disabled="!player.paused")
                 b-icon.icon-only(:icon="paused ? 'play' : 'pause'")
           b-field
             .control
@@ -34,6 +34,8 @@
         , :max="365"
         , :min="0"
         , :interval="1"
+        , :formatter="tooltipPrecisionFormatter(0)"
+        , :speed="0"
       )
 
       b-field(grouped)
@@ -50,6 +52,8 @@
         , tooltip-dir="left"
         , :max="0.5"
         , :interval="0.01"
+        , :formatter="tooltipPrecisionFormatter(2)"
+        , :speed="0"
       )
 
       label Axial Tilt
@@ -58,6 +62,8 @@
         , tooltip-dir="left"
         , :max="90"
         , :interval="1"
+        , :formatter="tooltipPrecisionFormatter(0)"
+        , :speed="0"
       )
 
       br/
@@ -74,7 +80,8 @@
       EOTGraph(:eccentricity="eccentricity", :tilt="tiltAngle * deg", :mean-anomaly="meanAnomaly")
 
   DaySim(
-    :viewWidth="viewWidth"
+    ref="sim"
+    , :viewWidth="viewWidth"
     , :viewHeight="viewHeight"
     , :playerLoading="playerLoading"
     , :showGrid="showGrid"
@@ -90,11 +97,13 @@
     , @dragstart="dragStart"
     , @drag="drag"
     , @dragend="dragEnd"
+    , @camera:change="meddleCamera"
   )
 </template>
 
 <script>
-// import Copilot from 'copilot'
+import Copilot from 'copilot'
+import * as THREE from 'three'
 import DaySim from '@/components/entities/day-sim'
 import EOTGraph from '@/components/entities/eot-graph'
 import vueSlider from 'vue-slider-component'
@@ -107,8 +116,54 @@ function euclideanModulo( n, m ) {
 	return ( ( n % m ) + m ) % m
 }
 
+Copilot.registerType({
+  type: 'Vector3'
+  , default: new THREE.Vector3()
+  , interpolator: (from, to, t) => {
+    let v = new THREE.Vector3()
+    v.copy( from )
+    return v.lerp( to, t )
+  }
+})
+
+function shortestDistance( a0, a1, modulo ){
+  let moduloBy2 = 0.5 * modulo
+  let da = (a1 - a0) % modulo
+
+  return (da - moduloBy2) % modulo + moduloBy2
+}
+
+function meddleProps( props = [], meddleOptions = {} ){
+  return props.reduce(( result, key ) => {
+    result[key] = {
+      get: function(){
+        return this.copilotState[key]
+      }
+      , set: function( val ){
+        if ( val === this.copilotState[key] ){ return }
+        let opts = meddleOptions
+        if ( val.$meddleOptions ){
+          opts = val.$meddleOptions
+          val = val.$value
+        }
+        this.frames.meddle({ [key]: val }, opts)
+      }
+    }
+    return result
+  }, {})
+}
+
+function tooltipPrecisionFormatter( p ){
+  return function( v ){
+    return v && v.toFixed(p)
+  }
+}
+
+const meddleEasing = Copilot.Easing.Elastic.Out
+
 export default {
   name: 'elliptic-orbit'
+  , inject: [ 'player' ]
   , props: {
     viewWidth: Number
     , viewHeight: Number
@@ -121,14 +176,13 @@ export default {
   }
   , data: () => ({
     deg
+    , tooltipPrecisionFormatter
     , controlsOpen: true
     , graphOpen: true
 
     , paused: false
     , yearAngleDrag: false
 
-    , solarDaysPerYear: 10
-    , day: 0
     , playRate: 0.1
 
     , showGrid: false
@@ -137,40 +191,8 @@ export default {
     , cameraTarget: 'sun'
     , cameraFollow: false
 
-    , tiltAngle: 23.4
-    , eccentricity: 0.02
+    , copilotState: {}
   })
-  , created(){
-
-    let stop = false
-    const draw = () => {
-      if ( stop ) { return }
-      requestAnimationFrame( draw )
-
-      this.draw()
-    }
-
-    this.$on('hook:beforeDestroy', () => {
-      stop = true
-    })
-
-    if ( !this.playerLoading ){
-      draw()
-    } else {
-      let unwatch = this.$watch('playerLoading', () => {
-        unwatch()
-        draw()
-      })
-    }
-  }
-  , mounted(){
-
-  }
-  , watch: {
-    daysPerYear( newVal, oldVal ){
-      this.day = (this.day * Pi2 / oldVal) / this.radsPerYear
-    }
-  }
   , computed: {
     daysPerYear(){
       return this.solarDaysPerYear + 1
@@ -181,13 +203,129 @@ export default {
     , meanAnomaly(){
       return this.day * this.radsPerYear - PERHELION
     }
+    // copilot managed
+    , ...meddleProps([
+      'day'
+      , 'eccentricity'
+      , 'tiltAngle'
+      , 'solarDaysPerYear'
+    ], { relaxDelay: 1000, relaxDuration: 1000, easing: meddleEasing })
+  }
+  , created(){
+    const solarDaysPerYear = 10
+
+    // copilot
+    let frames = this.frames = Copilot({
+      day: 0
+      , solarDaysPerYear: solarDaysPerYear
+      , tiltAngle: 23.4
+      , eccentricity: 0.3
+
+      , cameraPosition: {
+        type: 'Vector3'
+        , default: new THREE.Vector3(0, 30, 30)
+      }
+      , cameraRotation: {
+        type: 'Vector3'
+        , default: new THREE.Vector3(0, 0, 0)
+      }
+      , cameraZoom: 30
+    }, {
+      defaultTransitionDuration: '3s'
+    })
+
+    frames.add({
+      day: solarDaysPerYear + 1
+    }, {
+      time: '10s'
+      , duration: '10s'
+    })
+
+    // last frame
+    frames.add({
+      ...this.frames._defaultState
+    }, {
+      time: '02:23'
+      , duration: '1s'
+    })
+
+    this.setState({ ...this.frames._defaultState })
+
+    let smoother = Copilot.Animation.Smoothener( frames, { duration: 0 } )
+
+    const onFrameUpdate = () => {
+      var state = frames.state
+
+      smoother.setState( state )
+    }
+
+    const onFrame = () => {
+
+      this.beforeFrame()
+      let state = frames.state //smoother.update()
+
+      this.onFrame( state )
+    }
+
+    const unwatch = this.player.$watch('time', ( time ) => {
+      frames.seek( time )
+    })
+
+    frames.on('update', onFrameUpdate)
+    this.player.$on('frame', onFrame)
+
+    this.$on('hook:beforeDestroy', () => {
+      unwatch()
+      frames.off()
+      this.player.$off('frame', onFrame)
+    })
+
+    // end copilot
+
+    // let stop = false
+    // const draw = () => {
+    //   if ( stop ) { return }
+    //   requestAnimationFrame( draw )
+    //
+    //   this.draw()
+    // }
+    //
+    // this.$on('hook:beforeDestroy', () => {
+    //   stop = true
+    // })
+    //
+    // if ( !this.playerLoading ){
+    //   draw()
+    // } else {
+    //   let unwatch = this.$watch('playerLoading', () => {
+    //     unwatch()
+    //     draw()
+    //   })
+    // }
+  }
+  , mounted(){
+
+  }
+  , watch: {
+    daysPerYear( newVal, oldVal ){
+      // console.log('test')
+      // this.day = (this.day * Pi2 / oldVal) / this.radsPerYear
+    }
   }
   , methods: {
-    draw(){
+    beforeFrame(){
       let day = this.day
-      if ( !this.paused ){
+      if ( this.player.paused && !this.paused ){
+
         day = day + this.playRate * this.daysPerYear / 100
-      } else if ( this.yearAngleDrag ){
+        day = euclideanModulo(day, this.daysPerYear)
+        // ensure that the shortest path is taken to get to target
+        let playerDay = this.frames.getStateAt( this.frames.time ).day
+        day = playerDay + shortestDistance( playerDay, day, this.daysPerYear )
+        this.day = { $value: day, $meddleOptions: { relaxDelay: 0, relaxDuration: 200, freeze: this.dragging, easing: Copilot.Easing.Quadratic.InOut } }
+
+      } else if ( this.paused && this.yearAngleDrag ){
+
         let targetDay = (this.yearAngleDrag) / this.radsPerYear
         let halfYear = this.daysPerYear / 2
         let dayDelta = (targetDay - day)
@@ -199,11 +337,36 @@ export default {
           }
         }
         day = day + dayDelta * 0.05
+        day = euclideanModulo(day, this.daysPerYear)
+        let playerDay = this.frames.getStateAt( this.frames.time ).day
+        day = playerDay + shortestDistance( playerDay, day, this.daysPerYear )
+        this.day = { $value: day, $meddleOptions: { relaxDelay: 1000, relaxDuration: 1000, easing: meddleEasing } }
+      }
+    }
+    , onFrame( state ){
+      this.setState( state )
+    }
+    , setState( state ){
+      // camera
+      if ( this.$refs.sim ){
+        this.$refs.sim.setCameraProperties({
+          position: state.cameraPosition
+          // , rotation: state.cameraRotation
+          , zoom: state.cameraZoom
+        })
       }
 
-      this.day = euclideanModulo(day, this.daysPerYear)
+      // component data
+      this.copilotState = state
+      // let keys = Object.keys( state )
+      // for ( let key of keys ){
+      //   if ( key in this ){
+      //     this[key] = state[key]
+      //   }
+      // }
     }
     , dragStart(){
+      this.dragging = true
       this.prevPauseState = this.paused
       this.paused = true
     }
@@ -211,8 +374,16 @@ export default {
       this.yearAngleDrag = this.meanAnomaly + amount
     }
     , dragEnd(){
+      this.dragging = false
       this.yearAngleDrag = false
       this.paused = this.prevPauseState
+    }
+    , meddleCamera(params){
+      this.frames.meddle({
+        cameraPosition: params.position.clone()
+        // , cameraRotation: params.rotation.clone()
+        , cameraZoom: params.zoom
+      }, { easing: meddleEasing })
     }
   }
 }
