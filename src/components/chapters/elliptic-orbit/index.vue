@@ -9,9 +9,9 @@
               b-checkbox-button.checkbox-btn-dark(v-model="paused", :disabled="!player.paused")
                 b-icon.icon-only(:icon="paused ? 'play' : 'pause'")
           b-field
-            .control
-              .button.btn-dark(@click="graphOpen = !graphOpen", :class="{ 'is-primary': graphOpen }")
-                b-icon.icon-only(icon="chart-bell-curve")
+            //- .control
+            //-   .button.btn-dark(@click="graphOpen = !graphOpen", :class="{ 'is-primary': graphOpen }")
+            //-     b-icon.icon-only(icon="chart-bell-curve")
             .control
               .button.btn-dark(@click="controlsOpen = !controlsOpen", :class="{ 'is-primary': controlsOpen }")
                 b-icon.icon-only(icon="tune")
@@ -90,6 +90,12 @@
     , :cameraFollow="cameraFollow"
     , :showEarthOrbits="showEarthOrbits"
     , :showSunOrbits="showSunOrbits"
+    , :showEOTWedge="showEOTWedge"
+    , :showSun="showSun"
+    , :showMeanSun="showMeanSun"
+    , :showSiderialDayArc="showSiderialDayArc"
+    , :showMeanDayArc="showMeanDayArc"
+    , :showSolarDayArc="showSolarDayArc"
 
     , :tiltAngle="tiltAngle * deg"
     , :eccentricity="eccentricity"
@@ -98,8 +104,11 @@
     , @dragstart="dragStart"
     , @drag="drag"
     , @dragend="dragEnd"
+    , @camera:start="cameraDragging = true"
+    , @camera:end="cameraDragging = false; meddleCamera()"
     , @camera:change="meddleCamera"
   )
+    .blank(slot="earth-labels")
 </template>
 
 <script>
@@ -177,19 +186,18 @@ export default {
   }
   , data: () => ({
     deg
+    , cameraDragging: false
     , tooltipPrecisionFormatter
     , controlsOpen: true
-    , graphOpen: true
+    , graphOpen: false
 
-    , paused: false
+    , paused: true
     , yearAngleDrag: false
 
     , playRate: 0.1
 
     , showGrid: false
-    , showEarthOrbits: true
-    , showSunOrbits: false
-    , cameraTarget: 'sun'
+    , cameraTarget: 'earth'
     , cameraFollow: false
 
     , copilotState: {}
@@ -213,6 +221,14 @@ export default {
       , 'eccentricity'
       , 'tiltAngle'
       , 'solarDaysPerYear'
+      , 'showEarthOrbits'
+      , 'showSunOrbits'
+      , 'showEOTWedge'
+      , 'showSun'
+      , 'showMeanSun'
+      , 'showSiderialDayArc'
+      , 'showMeanDayArc'
+      , 'showSolarDayArc'
     ], { relaxDelay: 1000, relaxDuration: 1000, easing: meddleEasing })
   }
   , created(){
@@ -220,37 +236,132 @@ export default {
 
     // copilot
     let frames = this.frames = Copilot({
-      orbitalPosition: 0 // {0, 1}
+      orbitalPosition: 0.5 // {0, 1}
       , solarDaysPerYear: solarDaysPerYear
-      , tiltAngle: 23.4
-      , eccentricity: 0.3
+      , tiltAngle: 0
+      , eccentricity: 0
+      , showEarthOrbits: false
+      , showSunOrbits: false
+      , showEOTWedge: false
+      , showSun: false
+      , showMeanSun: false
+      , showSiderialDayArc: false
+      , showMeanDayArc: false
+      , showSolarDayArc: false
 
       , cameraPosition: {
         type: 'Vector3'
-        , default: new THREE.Vector3(0, 30, 30)
+        , default: new THREE.Vector3(-5, 20, 30)
       }
       , cameraRotation: {
         type: 'Vector3'
         , default: new THREE.Vector3(0, 0, 0)
       }
-      , cameraZoom: 30
+      , cameraZoom: 80
     }, {
       defaultTransitionDuration: '3s'
     })
 
     frames.add({
-      orbitalPosition: 1
+      solarDaysPerYear: 9
+      , orbitalPosition: 0.4
     }, {
-      time: '10s'
-      , duration: '10s'
+      time: 0
+      , duration: 1
+    })
+
+    frames.add({
+      showSiderialDayArc: true
+    }, {
+      time: '6.5s'
+      , duration: 100
+    })
+
+    frames.add({
+      orbitalPosition: 0.6
+    }, {
+      time: '12s'
+      , duration: '12s'
+    })
+
+    frames.add({
+      cameraZoom: 30
+      , showSun: true
+    }, {
+      time: '14s'
+      , duration: '1s'
+      , easing: Copilot.Easing.Quadratic.InOut
+    })
+
+    frames.add({
+      orbitalPosition: 1.4423
+    }, {
+      time: '32s'
+      , duration: '20s'
+    })
+
+    frames.add({
+      showSolarDayArc: true
+      , cameraPosition: new THREE.Vector3(0, 30, 1)
+    }, {
+      time: '25s'
+      , duration: '1s'
+      , easing: Copilot.Easing.Quadratic.InOut
+    })
+
+    frames.add({
+      showSiderialDayArc: false
+    }, {
+      time: '31s'
+      , duration: 100
+    })
+
+    frames.add({
+      orbitalPosition: 1.554
+    }, {
+      time: '37s'
+      , duration: '3s'
+      , easing: Copilot.Easing.Quadratic.InOut
+    })
+
+    frames.add({
+      showSiderialDayArc: true
+      , showSolarDayArc: false
+    }, {
+      time: '39s'
+      , duration: 100
+    })
+
+    frames.add({
+      orbitalPosition: 1.6
+    }, {
+      time: '42s'
+      , duration: '3s'
+      , easing: Copilot.Easing.Quadratic.InOut
+    })
+
+    frames.add({
+      orbitalPosition: 1.7
+    }, {
+      time: '47s'
+      , duration: '3s'
+      , easing: Copilot.Easing.Quadratic.InOut
+    })
+
+    frames.add({
+      showSiderialDayArc: true
+      , showSolarDayArc: true
+    }, {
+      time: '49s'
+      , duration: 100
     })
 
     // last frame
     frames.add({
-      ...this.frames._defaultState
+      orbitalPosition: 3
     }, {
-      time: '02:23'
-      , duration: '1s'
+      time: '01:25'
+      , duration: '36s'
     })
 
     this.setState({ ...this.frames._defaultState })
@@ -263,12 +374,15 @@ export default {
       smoother.setState( state )
     }
 
-    const onFrame = () => {
+    let lastTime = 0
+    const onFrame = ( now ) => {
 
       this.beforeFrame()
       let state = frames.state //smoother.update()
 
-      this.onFrame( state )
+      let dt = lastTime ? 1000/60 : lastTime - now
+      lastTime = now
+      this.onFrame( state, dt )
     }
 
     const unwatch = this.player.$watch('time', ( time ) => {
@@ -276,7 +390,10 @@ export default {
     })
 
     frames.on('update', onFrameUpdate)
-    this.player.$on('frame', onFrame)
+
+    this.$on('hook:mounted', () => {
+      this.player.$on('frame', onFrame)
+    })
 
     this.$on('hook:beforeDestroy', () => {
       unwatch()
@@ -341,7 +458,7 @@ export default {
         this.orbitalPosition = { $value: orbitalPosition, $meddleOptions: { relaxDelay: 1000, relaxDuration: 1000, easing: meddleEasing } }
       }
     }
-    , onFrame( state ){
+    , onFrame( state, dt ){
       this.setState( state )
     }
     , setState( state ){
@@ -377,11 +494,14 @@ export default {
       this.paused = this.prevPauseState
     }
     , meddleCamera(params){
-      this.frames.meddle({
-        cameraPosition: params.position.clone()
-        // , cameraRotation: params.rotation.clone()
-        , cameraZoom: params.zoom
-      }, { easing: meddleEasing })
+      let state = {}
+      if ( params ){
+        state.cameraPosition = params.position.clone()
+        // state.cameraRotation = params.rotation.clone()
+        state.cameraZoom = params.zoom
+      }
+
+      this.frames.meddle(state, { relaxDuration: 1000, freeze: this.cameraDragging, easing: meddleEasing })
     }
   }
 }

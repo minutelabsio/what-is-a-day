@@ -51,16 +51,18 @@
         v3-group(:position="earthPosition", :rotation="[0, Math.PI, 0]")
           Earth3D(name="earth", ref="earth", :rotation="earthRotation")
           v3-dom(:position="[0, 1.5, 0]")
-            .has-text-right
-              .scene-label Mean Solar Day: {{ meanSolarDay }}
-              .scene-label True Solar Day: {{ trueSolarDay }}
-              .scene-label Sidereal Day: {{ siderealDay }}
+            slot(name="earth-labels")
+              .has-text-right
+                .scene-label Mean Solar Day: {{ meanSolarDay }}
+                .scene-label True Solar Day: {{ trueSolarDay }}
+                .scene-label Sidereal Day: {{ siderealDay }}
           v3-light(type="spot", :intensity="0.4", :position="lightPos")
 
           //- Day arcs
-          v3-line(:from="[1.2, 0, 0]", :to="[1.8, 0, 0]", :color="red")
+          v3-line(:visible="showMeanDayArc", :from="[1.2, 0, 0]", :to="[1.8, 0, 0]", :color="red")
           v3-ring(
-            :innerRadius="1.2"
+            :visible="showMeanDayArc",
+            , :innerRadius="1.2"
             , :outerRadius="1.4"
             , :segments="40"
             , :thetaEnd="meanSolarDayArcAngle"
@@ -69,7 +71,7 @@
             , :rotation="[-90 * deg, 0, 0]"
             , :position="[0, 0.001, 0]"
           )
-          v3-group(:rotation="[0, -eot, 0]")
+          v3-group(:visible="showSolarDayArc", :rotation="[0, -eot, 0]")
             v3-line(:from="[1.2, 0, 0]", :to="[1.8, 0, 0]", :color="yellow")
             v3-ring(
               :innerRadius="1.4"
@@ -81,7 +83,7 @@
               , :rotation="[-90 * deg, 0, 0]"
               , :position="[0, 0.001, 0]"
             )
-          v3-group(:rotation="[0, -meanAnomaly, 0]")
+          v3-group(:visible="showSiderialDayArc", :rotation="[0, -meanAnomaly, 0]")
             v3-line(:position="[0, 0, 0.002]", :from="[1, 0, 0]", :to="[1.8, 0, 0]", :color="blue")
             v3-ring(
               :innerRadius="0.98"
@@ -94,13 +96,14 @@
             )
 
           v3-group(:position="[0, -0.001, 0]", :rotation="invYearRotation")
-            template(v-if="timeDiffWedgeProps")
+            template(v-if="timeDiffWedgeProps && showEOTWedge")
               Wedge(v-bind="timeDiffWedgeProps", :opacity="0.5", :rotation="[Math.PI/2, 0, 0]")
               v3-line(:to="[ timeDiffWedgeProps.x1, 0, timeDiffWedgeProps.y1 ]", :color="red")
               v3-line(:to="[ timeDiffWedgeProps.x2, 0, timeDiffWedgeProps.y2 ]", :color="yellow")
             //- mean sun path on earth (ecliptic)
             Orbit(
-              :radius="1.01"
+              :visible="showMeanSun"
+              , :radius="1.01"
               , :segments="100"
               , :rotation="[Math.PI/2, 0, 0]"
               , :color="red"
@@ -129,7 +132,8 @@
               v3-group(:rotation="[tiltAngle, -vernalEquinoxAngle, 0]")
                 //- solar path (celestial equator)
                 Orbit(
-                  :radius="1.01"
+                  :visible="showSun"
+                  , :radius="1.01"
                   , :segments="100"
                   , :rotation="[Math.PI/2, 0, 0]"
                   , :color="yellow"
@@ -154,15 +158,9 @@
                 )
 
       //- mean sun (origin)
-      v3-group
+      v3-group(:visible="showMeanSun")
         Sun3D(ref="meanSun", :isMean="true")
-        v3-line(:from="sunPosProjection", :to="sunPosition", :color="yellow")
-        v3-line(:position="sunPosition"
-          , :from="origin"
-          , :to="[(1-eccentricity) * majorAxis, 0, 0]"
-          , :color="0xeeeeee"
-          , :opacity="0.3"
-        )
+        v3-line(:visible="showEOTWedge", :from="sunPosProjection", :to="sunPosition", :color="yellow")
         Orbit(
           :visible="showEarthOrbits"
           , :radius="sunDistance"
@@ -183,11 +181,18 @@
         )
 
         //- true sun
-      v3-group(:position="sunPosition")
+      v3-group(:visible="showSun", :position="sunPosition")
         Sun3D(ref="sun", name="sun")
 
         v3-group(:rotation="[0, vernalEquinoxAngle, 0]")
           v3-group(:rotation="[-tiltAngle, -vernalEquinoxAngle, 0]")
+            v3-line(
+              :visible="showEarthOrbits"
+              , :from="origin"
+              , :to="[(1-eccentricity) * majorAxis, 0, 0]"
+              , :color="0xeeeeee"
+              , :opacity="0.3"
+            )
             Orbit(
               :visible="showEarthOrbits"
               , :radius="[majorAxis, semiMajorAxis]"
@@ -266,6 +271,13 @@ export default {
     , showGrid: Boolean
     , showEarthOrbits: Boolean
     , showSunOrbits: Boolean
+    , showEOTWedge: Boolean
+    , showSun: Boolean
+    , showMeanSun: Boolean
+    , showSiderialDayArc: Boolean
+    , showMeanDayArc: Boolean
+    , showSolarDayArc: Boolean
+
     , daysPerYear: {
       type: Number
       , default: 365
