@@ -13,7 +13,7 @@
       , @hover="mouseHover"
     )
     v3-scene
-      v3-light(type="ambient", :intensity="0.2")
+      v3-light(type="ambient", :intensity="showSun ? 0.2 : 0.7")
 
       v3-group(:position="referenceFramePosition", :rotation="[0, referenceFrameAngle , 0]")
         v3-group(ref="cameraGroup", :rotation="[0, -referenceFrameAngle + cameraPivot, 0]")

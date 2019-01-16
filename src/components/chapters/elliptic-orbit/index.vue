@@ -9,9 +9,9 @@
               b-checkbox-button.checkbox-btn-dark(v-model="paused", :disabled="!player.paused")
                 b-icon.icon-only(:icon="paused ? 'play' : 'pause'")
           b-field
-            //- .control
-            //-   .button.btn-dark(@click="graphOpen = !graphOpen", :class="{ 'is-primary': graphOpen }")
-            //-     b-icon.icon-only(icon="chart-bell-curve")
+            .control
+              .button.btn-dark(@click="graphOpen = !graphOpen", :class="{ 'is-primary': graphOpen }")
+                b-icon.icon-only(icon="chart-bell-curve")
             .control
               .button.btn-dark(@click="controlsOpen = !controlsOpen", :class="{ 'is-primary': controlsOpen }")
                 b-icon.icon-only(icon="tune")
@@ -76,6 +76,14 @@
           span Earth Orbits
         b-checkbox(v-model="showSunOrbits")
           span Solar Orbits
+
+      b-field(grouped)
+        b-checkbox(v-model="showSun")
+          span Sun
+        b-checkbox(v-model="showMeanSun")
+          span Mean Sun
+        b-checkbox(v-model="showEOTWedge")
+          span EOT Wedge
 
     .eot-graph(v-if="graphOpen")
       EOTGraph(:eccentricity="eccentricity", :tilt="tiltAngle * deg", :mean-anomaly="meanAnomaly")
@@ -188,7 +196,7 @@ export default {
     deg
     , cameraDragging: false
     , tooltipPrecisionFormatter
-    , controlsOpen: true
+    , controlsOpen: false
     , graphOpen: false
 
     , paused: true
@@ -345,7 +353,7 @@ export default {
     })
 
     frames.add({
-      orbitalPosition: 1.7
+      orbitalPosition: 1.699
     }, {
       time: '47s'
       , duration: '3s'
@@ -520,8 +528,8 @@ export default {
 .controls
   position: absolute
   z-index: 2
-  min-width: 320px
-  max-width: 100%
+  max-width: 480px
+  width: 100%
   top: 0
   right: 0
   padding: 1rem
