@@ -13,7 +13,7 @@
       , @hover="mouseHover"
     )
     v3-scene
-      v3-light(type="ambient", :intensity="0.4")
+      v3-light(type="ambient", :intensity="0.2")
 
       v3-group(:position="referenceFramePosition", :rotation="[0, referenceFrameAngle , 0]")
         v3-group(ref="cameraGroup", :rotation="[0, -referenceFrameAngle + cameraPivot, 0]")
@@ -56,7 +56,7 @@
                 .scene-label Mean Solar Day: {{ meanSolarDay }}
                 .scene-label True Solar Day: {{ trueSolarDay }}
                 .scene-label Sidereal Day: {{ siderealDay }}
-          v3-light(type="spot", :intensity="0.4", :position="lightPos")
+          //- v3-light(type="spot", :intensity="0.4", :position="lightPos")
 
           //- Day arcs
           v3-line(:visible="showMeanDayArc", :from="[1.2, 0, 0]", :to="[1.8, 0, 0]", :color="red")
@@ -183,6 +183,7 @@
         //- true sun
       v3-group(:visible="showSun", :position="sunPosition")
         Sun3D(ref="sun", name="sun")
+        v3-light(type="point", :intensity="0.7")
 
         v3-group(:rotation="[0, vernalEquinoxAngle, 0]")
           v3-group(:rotation="[-tiltAngle, -vernalEquinoxAngle, 0]")
