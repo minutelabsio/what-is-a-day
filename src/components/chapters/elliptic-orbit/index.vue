@@ -236,7 +236,11 @@ export default {
 
     // copilot
     let frames = this.frames = Copilot({
-      orbitalPosition: 0.5 // {0, 1}
+      orbitalPosition: {
+        type: Number
+        , default: 0.5 // {0, 1}
+        , interpolatorOpts: { modulo: 1 }
+      }
       , solarDaysPerYear: solarDaysPerYear
       , tiltAngle: 0
       , eccentricity: 0
@@ -366,7 +370,7 @@ export default {
 
     this.setState({ ...this.frames._defaultState })
 
-    let smoother = Copilot.Animation.Smoothener( frames, { duration: 0 } )
+    let smoother = Copilot.Animation.Smoothener( frames, { duration: 80 } )
 
     const onFrameUpdate = () => {
       var state = frames.state
@@ -501,7 +505,7 @@ export default {
         state.cameraZoom = params.zoom
       }
 
-      this.frames.meddle(state, { relaxDuration: 1000, freeze: this.cameraDragging, easing: meddleEasing })
+      this.frames.meddle(state, { relaxDelay: 10, relaxDuration: 1000, freeze: this.cameraDragging, easing: meddleEasing })
     }
   }
 }

@@ -439,9 +439,9 @@ export default {
     controls.dampingFactor = 0.1
     controls.minZoom = 10
     controls.maxZoom = 500
-    let epsilon = 0.001
-    controls.minPolarAngle = epsilon
-    controls.maxPolarAngle = Math.PI - epsilon
+    // let epsilon = 0.001
+    // controls.minPolarAngle = epsilon
+    // controls.maxPolarAngle = Math.PI - epsilon
 
     this.cameraInteraction = true
     controls.addEventListener('start', () => {
@@ -493,10 +493,6 @@ export default {
       }
       , onUpdate: ( from, to, alpha ) => {
         this.referenceFramePosition.lerpVectors( from, to, alpha )
-        this.cameraInteraction = false
-        this.controls.target.copy( this.referenceFramePosition )
-        this.controls.update()
-        this.cameraInteraction = true
       }
     })
 
