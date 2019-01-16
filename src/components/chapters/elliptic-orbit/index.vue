@@ -449,7 +449,7 @@ export default {
         // ensure that the shortest path is taken to get to target
         let playerPosition = this.frames.getStateAt( this.frames.time ).orbitalPosition
         orbitalPosition = playerPosition + shortestDistance( playerPosition, orbitalPosition, 1 )
-        this.orbitalPosition = { $value: orbitalPosition, $meddleOptions: { relaxDelay: 0, relaxDuration: 200, freeze: this.dragging, easing: Copilot.Easing.Quadratic.InOut } }
+        this.orbitalPosition = { $value: orbitalPosition, $meddleOptions: { relaxDelay: 0, relaxDuration: 1, freeze: this.dragging, easing: Copilot.Easing.Quadratic.InOut } }
 
       } else if ( this.paused && this.yearAngleDrag ){
 
@@ -513,7 +513,7 @@ export default {
         state.cameraZoom = params.zoom
       }
 
-      this.frames.meddle(state, { relaxDelay: 10, relaxDuration: 1000, freeze: this.cameraDragging, easing: meddleEasing })
+      this.frames.meddle('camera', state, { relaxDelay: 1000, relaxDuration: 1000, freeze: this.cameraDragging, easing: Copilot.Easing.Cubic.InOut })
     }
   }
 }
