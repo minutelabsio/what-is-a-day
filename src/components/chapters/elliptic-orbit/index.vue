@@ -125,24 +125,10 @@ import * as THREE from 'three'
 import DaySim from '@/components/entities/day-sim'
 import EOTGraph from '@/components/entities/eot-graph'
 import vueSlider from 'vue-slider-component'
-import { PERHELION } from '@/lib/stellar-mechanics'
+import { PERHELION, euclideanModulo } from '@/lib/stellar-mechanics'
 
 const Pi2 = Math.PI * 2
 const deg = Math.PI / 180
-
-function euclideanModulo( n, m ) {
-	return ( ( n % m ) + m ) % m
-}
-
-Copilot.registerType({
-  type: 'Vector3'
-  , default: new THREE.Vector3()
-  , interpolator: (from, to, t) => {
-    let v = new THREE.Vector3()
-    v.copy( from )
-    return v.lerp( to, t )
-  }
-})
 
 function shortestDistance( a0, a1, modulo ){
   let moduloBy2 = 0.5 * modulo
@@ -414,27 +400,6 @@ export default {
     })
 
     // end copilot
-
-    // let stop = false
-    // const draw = () => {
-    //   if ( stop ) { return }
-    //   requestAnimationFrame( draw )
-    //
-    //   this.draw()
-    // }
-    //
-    // this.$on('hook:beforeDestroy', () => {
-    //   stop = true
-    // })
-    //
-    // if ( !this.playerLoading ){
-    //   draw()
-    // } else {
-    //   let unwatch = this.$watch('playerLoading', () => {
-    //     unwatch()
-    //     draw()
-    //   })
-    // }
   }
   , mounted(){
 
@@ -485,12 +450,6 @@ export default {
 
       // component data
       this.copilotState = state
-      // let keys = Object.keys( state )
-      // for ( let key of keys ){
-      //   if ( key in this ){
-      //     this[key] = state[key]
-      //   }
-      // }
     }
     , dragStart(){
       this.dragging = true

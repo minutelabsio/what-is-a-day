@@ -14,10 +14,11 @@ void main() {
 
 const glowFragmentShader = `
 uniform vec3 color;
+uniform float opacity;
 varying float intensity;
 void main() {
   vec3 glow = color * intensity;
-  gl_FragColor = vec4( glow, 1.0 );
+  gl_FragColor = vec4( glow, opacity );
 }`
 
 const textureUrl = require('@/assets/sol.jpg')
@@ -84,6 +85,10 @@ export default {
           type: 'v3'
           , value: new THREE.Color( bloomColor )
         }
+        , opacity: {
+          type: 'float'
+          , value: 1.0
+        }
       }
       , vertexShader: glowVertexShader
       , fragmentShader: glowFragmentShader
@@ -112,6 +117,7 @@ export default {
         // for orthographic cam
         .projectOnVector( camera.getWorldDirection(camDir) )
       this.glowMesh.material.uniforms.viewVector.value = viewVector
+      this.glowMesh.material.uniforms.opacity.value = material.opacity
 
       this.v3object.rotation.y += 0.001
     })
