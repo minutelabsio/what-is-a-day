@@ -191,7 +191,6 @@ export default {
     , playRate: 0.1
 
     , showGrid: false
-    , cameraTarget: 'earth'
     , cameraFollow: false
 
     , copilotState: {}
@@ -214,6 +213,7 @@ export default {
       'orbitalPosition'
       , 'eccentricity'
       , 'tiltAngle'
+      , 'cameraTarget'
       , 'solarDaysPerYear'
       , 'showEarthOrbits'
       , 'showSunOrbits'
@@ -238,6 +238,12 @@ export default {
       , solarDaysPerYear: solarDaysPerYear
       , tiltAngle: 0
       , eccentricity: 0
+      , cameraTarget: {
+        type: String
+        , default: 'earth'
+        , interpolator: Copilot.Interpolators.Step
+        , interpolatorOpts: { threshold: 0 }
+      }
       , showEarthOrbits: false
       , showSunOrbits: false
       , showEOTWedge: false
