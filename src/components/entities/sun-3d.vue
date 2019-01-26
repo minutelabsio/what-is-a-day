@@ -21,7 +21,7 @@ void main() {
   gl_FragColor = vec4( glow, opacity );
 }`
 
-const textureUrl = require('@/assets/sol.jpg')
+const textureUrl = require('@/assets/sol.png')
 const TextureLoader = new THREE.TextureLoader()
 TextureLoader.crossOrigin = 'anonymous'
 
