@@ -183,7 +183,7 @@
       //- true sun
       v3-group(:position="sunPosition")
         fadeTransition
-          Sun3D(v-if="showSun", ref="sun", name="sun")
+          Sun3D(v-if="showSun", ref="sun", name="sun", :rotation="[0, sunSpin, 0]")
         v3-light(type="point", :intensity="0.7")
 
         v3-group(:rotation="[0, vernalEquinoxAngle, 0]")
@@ -546,6 +546,11 @@ export default {
   , computed: {
     day(){
       return THREE.Math.euclideanModulo(this.days, this.daysPerYear)
+    }
+    , sunSpin(){
+      // amount sun rotates
+      // usually once per 24 days ~ 15 times per year
+      return this.meanAnomaly * 15
     }
     , semiMajorAxis(){
       let e = this.eccentricity
