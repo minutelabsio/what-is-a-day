@@ -1,5 +1,6 @@
 import NR from 'newton-raphson-method'
 const Pi2 = Math.PI * 2
+const nearlyZero = 1e-8
 export const VERNAL = 79 * Pi2 / 365 // rads
 export const PERHELION = 4 * Pi2 / 365 // rads
 
@@ -81,5 +82,8 @@ function rightAscention( M, e, y, perhelionAngle ){
 // mean anomaly (year angle), eccentricity, tilt, perhelion angle
 export function calcEOT( M, e, y, perhelionAngle ){
   let eot = M + perhelionAngle - rightAscention( M, e, y, perhelionAngle )
+  if ( Math.abs(eot) < nearlyZero ){
+    eot = 0
+  }
   return eot
 }

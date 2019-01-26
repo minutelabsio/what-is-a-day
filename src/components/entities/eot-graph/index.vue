@@ -23,6 +23,28 @@ function getZero( x1, y1, x2, y2 ){
   return x
 }
 
+// input seconds
+function formatDuration( n ){
+  let sign = n < 0 ? '-' : ''
+  n = Math.abs(n)
+  let hours   = Math.floor(n / 3600)
+  let minutes = Math.floor((n - (hours * 3600)) / 60)
+  let seconds = n - (hours * 3600) - (minutes * 60)
+  var fmt = ''
+
+  if ( hours !== 0 ){
+    fmt = hours + 'h'
+  }
+
+  if ( minutes !== 0 ){
+    fmt += `${minutes}m`
+  } else if ( minutes === 0 && hours === 0 ) {
+    fmt = `${seconds}s`
+  }
+
+  return sign + fmt
+}
+
 export default {
   name: 'LinePlot'
   , extends: Line
@@ -73,7 +95,7 @@ export default {
       //   display: false
       // }
       , animation: {
-          duration: 0 // general animation time
+        duration: 0 // general animation time
       }
       , elements: {
         line: {
@@ -84,6 +106,15 @@ export default {
         xAxes: [{
           type: 'linear'
           , position: 'bottom'
+          , ticks: {
+            fontFamily: 'latin-modern-mono, monospace'
+            , callback( v ){
+              return formatDuration( v )
+            }
+          }
+          , gridLines: {
+            color: 'rgba(255, 255, 255, 0.05)'
+          }
         }]
         , yAxes: [{
           type: 'time'
@@ -95,6 +126,12 @@ export default {
             }
             , min: getDate(minAngle)
             , max: getDate(maxAngle)
+          }
+          , ticks: {
+            fontFamily: 'latin-modern-mono, monospace'
+          }
+          , gridLines: {
+            color: 'rgba(255, 255, 255, 0.05)'
           }
         }]
       }
@@ -140,7 +177,9 @@ export default {
     }
 
     , getEOT( M ){
-      return calcEOT(euclideanModulo(M, Pi2), this.eccentricity, this.tilt, PERHELION - VERNAL)
+      let eot = calcEOT(euclideanModulo(M, Pi2), this.eccentricity, this.tilt, PERHELION - VERNAL)
+      let seconds = eot * (24 * 60 * 60) / Pi2
+      return seconds
     }
 
     , getDate( M ){
