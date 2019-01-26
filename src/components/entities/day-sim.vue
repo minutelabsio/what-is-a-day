@@ -180,9 +180,10 @@
           , :color="0x333333"
         )
 
-        //- true sun
-      v3-group(:visible="showSun", :position="sunPosition")
-        Sun3D(ref="sun", name="sun")
+      //- true sun
+      v3-group(:position="sunPosition")
+        fadeTransition
+          Sun3D(v-if="showSun", ref="sun", name="sun")
         v3-light(type="point", :intensity="0.7")
 
         v3-group(:rotation="[0, vernalEquinoxAngle, 0]")
@@ -228,6 +229,8 @@ import v3Group from '@/components/three-vue/v3-group'
 import v3Dom from '@/components/three-vue/v3-dom'
 import v3PolarGrid from '@/components/three-vue/v3-polar-grid'
 import v3Circle from '@/components/three-vue/v3-circle'
+import fadeTransition from '@/components/three-vue/fade.transition'
+
 import Gestures from '@/components/entities/gestures'
 import Earth3D from '@/components/entities/earth-3d'
 import Sun3D from '@/components/entities/sun-3d'
@@ -313,6 +316,7 @@ export default {
     , v3Dom
     , v3PolarGrid
     , v3Circle
+    , fadeTransition
 
     , Gestures
     , SkyBackground
