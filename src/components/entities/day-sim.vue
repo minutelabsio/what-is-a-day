@@ -161,6 +161,8 @@
       v3-group(:visible="showMeanSun")
         Sun3D(ref="meanSun", :isMean="true")
         v3-line(:visible="showEOTWedge", :from="sunPosProjection", :to="sunPosition", :color="yellow")
+        v3-dom(v-if="showMonthLabels", v-for="(month, index) in months", :position="[(sunDistance + 2) * Math.cos(Pi2 * index / 12), 0, -(sunDistance + 2) * Math.sin(Pi2 * index / 12)]")
+          .month-marker {{ month }}
         Orbit(
           :visible="showEarthOrbits"
           , :radius="sunDistance"
@@ -240,7 +242,20 @@ import Wedge from '@/components/entities/wedge'
 import v3Ring from '@/components/entities/v3-ring'
 import v3Line from '@/components/entities/line'
 const OrbitControls = require('three-orbit-controls')(THREE)
-
+const months = [
+  'Jan'
+  , 'Feb'
+  , 'Mar'
+  , 'Apr'
+  , 'May'
+  , 'Jun'
+  , 'Jul'
+  , 'Aug'
+  , 'Sep'
+  , 'Oct'
+  , 'Nov'
+  , 'Dec'
+]
 
 const Pi2 = Math.PI * 2
 const deg = Math.PI / 180
@@ -281,6 +296,10 @@ export default {
     , showSiderialDayArc: Boolean
     , showMeanDayArc: Boolean
     , showSolarDayArc: Boolean
+    , showMonthLabels: {
+      type: Boolean
+      , default: true
+    }
 
     , daysPerYear: {
       type: Number
@@ -331,6 +350,7 @@ export default {
     // helper constants
     Pi2
     , deg
+    , months
     , origin: [0, 0, 0]
 
     , yellow: 0xdddd00
@@ -779,7 +799,9 @@ export default {
 <style scoped lang="sass">
 .day-sim
   cursor: crosshair
-
+.month-marker
+  font-family: $family-monospace
+  color: rgba(200, 200, 255, 0.25)
 .scene-label
   font-family: $family-monospace
   text-shadow: 0 0 3px rgba(0, 0, 0, 1)
