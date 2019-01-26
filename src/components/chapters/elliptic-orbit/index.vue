@@ -1,6 +1,6 @@
 <template lang="pug">
 .chapter
-  .controls
+  .controls.scrollbars
     .level.is-mobile
       .level-left
         b-field(grouped)
@@ -28,10 +28,11 @@
         , :disabled="!player.paused"
       )
 
-      label Days per Year
+      label Days per Year: {{ solarDaysPerYear }}
       vue-slider.slider(
         v-model="solarDaysPerYear"
         , tooltip-dir="left"
+        , :tooltip="false"
         , :max="365"
         , :min="0"
         , :interval="1"
@@ -47,20 +48,22 @@
         b-switch(v-model="cameraFollow")
           | Follow Orbit
 
-      label Eccentricity
+      label Eccentricity: {{ eccentricity }}
       vue-slider.slider(
         v-model="eccentricity"
         , tooltip-dir="left"
+        , :tooltip="false"
         , :max="0.5"
         , :interval="0.01"
         , :formatter="tooltipPrecisionFormatter(2)"
         , :speed="0"
       )
 
-      label Axial Tilt
+      label Axial Tilt: {{ tiltAngle }}&deg;
       vue-slider.slider(
         v-model="tiltAngle"
         , tooltip-dir="left"
+        , :tooltip="false"
         , :max="90"
         , :interval="1"
         , :formatter="tooltipPrecisionFormatter(0)"
@@ -494,6 +497,8 @@ export default {
   position: absolute
   z-index: 2
   max-width: 480px
+  max-height: 100%
+  overflow: visible auto
   width: 100%
   top: 0
   right: 0

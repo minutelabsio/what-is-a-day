@@ -59,7 +59,8 @@ export default {
         , color: 0xaa2222
       })
       material.opacity = 0.3
-      material.depthTest = false
+      // material.depthTest = false
+      material.depthWrite = false
     } else {
       bloomColor = 0xbbaa00
       material = new THREE.MeshBasicMaterial({
@@ -96,7 +97,7 @@ export default {
       , blending: THREE.AdditiveBlending
       , transparent: true
     })
-    glowMaterial.depthTest = false
+    glowMaterial.depthWrite = false
 
     let glowGeometry = new THREE.SphereGeometry( 1.5, 32, 32 )
     let glowMesh = new THREE.Mesh(glowGeometry, glowMaterial)
@@ -118,8 +119,6 @@ export default {
         .projectOnVector( camera.getWorldDirection(camDir) )
       this.glowMesh.material.uniforms.viewVector.value = viewVector
       this.glowMesh.material.uniforms.opacity.value = material.opacity
-
-      this.v3object.rotation.y += 0.001
     })
   }
   , computed: {
