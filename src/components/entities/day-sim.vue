@@ -49,7 +49,7 @@
 
       v3-group(:rotation="yearRotation")
         v3-group(:position="earthPosition", :rotation="[0, Math.PI, 0]")
-          Earth3D(name="earth", ref="earth", :rotation="earthRotation")
+          Earth3D(name="earth", ref="earth", :rotation="earthRotation", :showPM="showPM")
           v3-dom(:position="[0, 1.5, 0]")
             slot(name="earth-labels")
               .has-text-right
@@ -161,7 +161,7 @@
       v3-group(:visible="showMeanSun")
         Sun3D(ref="meanSun", :isMean="true")
         v3-line(:visible="showEOTWedge", :from="sunPosProjection", :to="sunPosition", :color="yellow")
-        v3-dom(v-if="showMonthLabels", v-for="(month, index) in months", :position="[(sunDistance + 2) * Math.cos(Pi2 * index / 12), 0, -(sunDistance + 2) * Math.sin(Pi2 * index / 12)]")
+        v3-dom(v-if="showEarthOrbits && showMonthLabels", v-for="(month, index) in months", :position="[(sunDistance + 2) * Math.cos(Pi2 * index / 12), 0, -(sunDistance + 2) * Math.sin(Pi2 * index / 12)]")
           .month-marker {{ month }}
         Orbit(
           :visible="showEarthOrbits"
@@ -186,7 +186,7 @@
       v3-group(:position="sunPosition")
         fadeTransition
           Sun3D(v-if="showSun", ref="sun", name="sun", :rotation="[0, sunSpin, 0]")
-        v3-light(type="point", :intensity="0.7")
+        v3-light(v-if="showSun", type="point", :intensity="0.7")
 
         v3-group(:rotation="[0, vernalEquinoxAngle, 0]")
           v3-group(:rotation="[-tiltAngle, -vernalEquinoxAngle, 0]")
@@ -296,6 +296,7 @@ export default {
     , showSiderialDayArc: Boolean
     , showMeanDayArc: Boolean
     , showSolarDayArc: Boolean
+    , showPM: Boolean
     , showMonthLabels: {
       type: Boolean
       , default: true
@@ -423,7 +424,7 @@ export default {
     }, () => {
       this.yearRotation.splice(1, 1, this.meanAnomaly)
       this.invYearRotation.splice(1, 1, -this.meanAnomaly)
-      this.earthRotation.splice(1, 1, this.dayAngle)
+      this.earthRotation.splice(1, 1, this.dayAngle - this.meanAnomaly)
       this.setTimeDiffWedgeProps()
     }, { immediate: true })
   }
