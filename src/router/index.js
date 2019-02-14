@@ -10,16 +10,16 @@ export default new Router({
       path: '/'
       , name: 'player'
       , component: PlayerUI
-      , redirect: { name: 'elliptic-orbit' }
+      , redirect: { name: 'stellar-v-solar' }
       , children: [
         {
           path: 'stellar-v-solar'
           , name: 'stellar-v-solar'
-          , component: () => import('@/components/chapters/stellar-v-solar')
+          , component: () => import('@/components/chapters/sidereal-v-solar')
           , meta: {
-            title: 'Stellar Time vs. Solar Time'
+            title: 'Sidereal vs. Solar Days'
             , audio: [
-              require('@/assets/equation-of-time.mp3')
+              require('@/assets/v1/Siderial vs Solar days.mp3')
             ]
           }
         }
@@ -30,7 +30,7 @@ export default new Router({
           , meta: {
             title: 'The Earth\'s Elliptic Orbit'
             , audio: [
-              require('@/assets/stellar-v-solar.mp3')
+              require('@/assets/v1/Eccentricity.mp3')
             ]
           }
         }
@@ -41,7 +41,7 @@ export default new Router({
           , meta: {
             title: 'Axial Tilt'
             , audio: [
-              require('@/assets/equation-of-time.mp3')
+              require('@/assets/v1/Axial Tilt.mp3')
             ]
           }
         }

@@ -40,6 +40,10 @@ a:hover {
   font-size: 1em;
 }
 
+.loading-overlay .loading-background {
+  background: transparentize($background, 0.5);
+}
+
 .toolbar {
   width: 100%;
   display: flex;
