@@ -15,8 +15,8 @@
     v3-scene
       v3-light(type="ambient", :intensity="showSun ? 0.2 : 0.7")
 
-      v3-group(:position="referenceFramePosition", :rotation="[0, referenceFrameAngle , 0]")
-        v3-group(ref="cameraGroup", :rotation="[0, -referenceFrameAngle + cameraPivot, 0]")
+      v3-group(ref="cameraGroupOuter")
+        v3-group(ref="cameraGroup")
           SkyBackground(:aspect="viewWidth/viewHeight")
           v3-camera(
             ref="camera"
@@ -32,8 +32,8 @@
             , :look-at="origin"
           )
 
-      v3-group(:position="referenceFramePosition")
-        v3-group(:visible="showGrid", :position="[0, -0.05, 0]", :rotation="cameraTarget === 'sun' ? [ -tiltAngle, -cameraPivot, 0] : origin")
+      v3-group(ref="gridOuter")
+        v3-group(ref="gridInner", :visible="showGrid", :position="[0, -0.05, 0]")
           v3-polar-grid(
             :radius="50"
             , :color1="0x001e44"
@@ -644,9 +644,28 @@ export default {
       this.transitionCameraTarget( delta )
       this.cameraOrbitSetter.update( delta )
 
+      this.setReferenceFrame()
       this.controls.update()
-
       this.$refs.renderer.draw()
+    }
+    , setReferenceFrame(){
+      const outer = this.$refs.cameraGroupOuter
+      const inner = this.$refs.cameraGroup
+      const gridOuter = this.$refs.gridOuter
+      const gridInner = this.$refs.gridInner
+
+      outer.v3object.position.copy(this.referenceFramePosition)
+
+      outer.v3object.rotation.set( 0, this.referenceFrameAngle , 0 )
+      inner.v3object.rotation.set(0, -this.referenceFrameAngle + this.cameraPivot, 0)
+
+      gridOuter.v3object.position.copy(this.referenceFramePosition)
+
+      if ( this.cameraTarget === 'sun' ){
+        gridInner.v3object.rotation.set( -this.tiltAngle, -this.cameraPivot, 0 )
+      } else {
+        gridInner.v3object.rotation.set( 0, 0, 0 )
+      }
     }
     , transitionCameraTarget( delta ){
       if ( !this.oldTarget ){
@@ -781,6 +800,7 @@ export default {
       if ( rotation ){
         cam.rotation.setFromVector3(rotation)
       } else {
+        this.setReferenceFrame()
         cam.lookAt(this.referenceFramePosition)
       }
       if ( zoom !== cam.zoom ){
