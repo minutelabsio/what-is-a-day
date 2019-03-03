@@ -6,7 +6,7 @@
         b-field(grouped)
           b-field
             .control
-              b-checkbox-button.checkbox-btn-dark(v-model="paused", :disabled="!player.paused")
+              b-checkbox-button.checkbox-btn-dark(v-model="paused", :disabled="!handsOff")
                 b-icon.icon-only(:icon="paused ? 'play' : 'pause'")
           b-field
             .control
@@ -249,6 +249,9 @@ export default {
       let minutes = minutesPerDay * dayFrac
       return clockFromMinutes( minutes )
     }
+    , handsOff(){
+      return this.player.paused || this.copilotState.handsOff
+    }
     // copilot managed
     , ...meddleProps([
       'orbitalPosition'
@@ -271,7 +274,9 @@ export default {
     ], { relaxDelay: 1000, relaxDuration: 1000, easing: meddleEasing })
   }
   , created(){
-    const solarDaysPerYear = 9
+    this.queues = []
+
+    const solarDaysPerYear = 8
 
     function solarDaysToOrbitalPos( days ){
       const dpy = solarDaysPerYear + 1
@@ -280,7 +285,12 @@ export default {
 
     // copilot
     let frames = this.frames = Copilot({
-      orbitalPosition: {
+      handsOff: {
+        type: Boolean
+        , default: false
+        , interpolatorOpts: { threshold: 0 }
+      }
+      , orbitalPosition: {
         type: Number
         , default: 0.5 // {0, 1}
         , interpolatorOpts: { modulo: 1 }
@@ -338,7 +348,7 @@ export default {
     })
 
     frames.add({
-      orbitalPosition: 0.61
+      orbitalPosition: 0.6
     }, {
       time: '23s'
       , duration: '23s'
@@ -360,7 +370,7 @@ export default {
     })
 
     frames.add({
-      orbitalPosition: 0.9
+      orbitalPosition: solarDaysPerYear / (solarDaysPerYear + 1)
     }, {
       time: '38s'
       , duration: '15s'
@@ -425,10 +435,10 @@ export default {
     })
 
     frames.add({
-      orbitalPosition: 2.1
+      orbitalPosition: 2 + 1 / (solarDaysPerYear + 1)
     }, {
       time: '01:30'
-      , duration: '6s'
+      , duration: '100%'
       , easing: Copilot.Easing.Quadratic.InOut
     })
 
@@ -442,10 +452,15 @@ export default {
 
     // last frame
     frames.add({
-      orbitalPosition: 3
+      handsOff: true
     }, {
       time: '02:08'
-      , duration: '1s'
+      , duration: '20s'
+      // , startTime: '01:48'
+    })
+
+    this.setQueue('02:08', () => {
+      this.paused = false
     })
 
     this.setState({ ...this.frames._defaultState })
@@ -471,6 +486,7 @@ export default {
 
     const unwatch = this.player.$watch('time', ( time ) => {
       frames.seek( time )
+      this.execQueues( time )
     })
 
     frames.on('update', onFrameUpdate)
@@ -493,7 +509,7 @@ export default {
   , methods: {
     beforeFrame(){
       let orbitalPosition = this.orbitalPosition
-      if ( this.player.paused && !this.paused ){
+      if ( this.handsOff && !this.paused ){
 
         orbitalPosition = orbitalPosition + this.playRate / 100
         orbitalPosition = euclideanModulo(orbitalPosition, 1)
@@ -518,7 +534,7 @@ export default {
         orbitalPosition = euclideanModulo(orbitalPosition, this.daysPerYear)
         let playerPosition = this.frames.getStateAt( this.frames.time ).orbitalPosition
         orbitalPosition = playerPosition + shortestDistance( playerPosition, orbitalPosition, 1 )
-        this.orbitalPosition = { $value: orbitalPosition, $meddleOptions: { relaxDelay: 1000, relaxDuration: 1000, easing: meddleEasing } }
+        this.orbitalPosition = { $value: orbitalPosition, $meddleOptions: { freeze: this.handsOff, relaxDelay: 1000, relaxDuration: 1000, easing: meddleEasing } }
       }
     }
     , onFrame( state, dt ){
@@ -558,7 +574,31 @@ export default {
         state.cameraZoom = params.zoom
       }
 
-      this.frames.meddle('camera', state, { relaxDelay: 1000, relaxDuration: 1000, freeze: this.cameraDragging, easing: Copilot.Easing.Cubic.InOut })
+      this.frames.meddle('camera', state, { relaxDelay: 1000, relaxDuration: 1000, freeze: this.handsOff || this.cameraDragging, easing: Copilot.Easing.Cubic.InOut })
+    }
+    , setQueue(ts, fn){
+      let time = Copilot.Parsers.timeParser( ts )
+
+      this.queues.push({
+        time
+        , fn
+      })
+    }
+    , execQueues( time ){
+      let lastTime = this.lastQueueTime || 0
+
+      this.lastQueueTime = time
+
+      if ( lastTime >= time ){
+        return
+      }
+
+      this.queues.forEach( q => {
+        if ( time < q.time || q.time <= lastTime ){ return }
+        console.log(q)
+
+        q.fn()
+      })
     }
   }
 }
