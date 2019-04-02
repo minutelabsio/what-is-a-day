@@ -273,6 +273,11 @@ export default {
       , 'showSolarClock'
     ], { relaxDelay: 1000, relaxDuration: 1000, easing: meddleEasing })
   }
+  , watch: {
+    handsOff(){
+      this.frames.freeze( false, true )
+    }
+  }
   , created(){
     this.queues = []
 
@@ -516,7 +521,7 @@ export default {
         // ensure that the shortest path is taken to get to target
         let playerPosition = this.frames.getStateAt( this.frames.time ).orbitalPosition
         orbitalPosition = playerPosition + shortestDistance( playerPosition, orbitalPosition, 1 )
-        this.orbitalPosition = { $value: orbitalPosition, $meddleOptions: { relaxDelay: 0, relaxDuration: 1, freeze: this.dragging, easing: Copilot.Easing.Quadratic.InOut } }
+        this.orbitalPosition = { $value: orbitalPosition, $meddleOptions: { relaxDelay: 0, relaxDuration: 1, easing: Copilot.Easing.Quadratic.InOut } }
 
       } else if ( this.paused && this.yearAngleDrag ){
 
