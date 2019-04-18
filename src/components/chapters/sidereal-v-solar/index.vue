@@ -276,7 +276,6 @@ export default {
   , watch: {
     handsOff(){
       this.frames.freeze( false, true )
-      console.log(this.frames._meddles)
     }
   }
   , created(){
@@ -588,7 +587,6 @@ export default {
 
       this.queues.forEach( q => {
         if ( time < q.time || q.time <= lastTime ){ return }
-        console.log(q)
 
         q.fn()
       })
