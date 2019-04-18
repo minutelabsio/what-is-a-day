@@ -26,7 +26,7 @@ export default new Router({
         , {
           path: 'solar'
           , name: 'solar'
-          , component: () => import('@/components/chapters/elliptic-orbit')
+          , component: () => import('@/components/chapters/solar-days')
           , meta: {
             title: 'Solar Days'
             , audio: [

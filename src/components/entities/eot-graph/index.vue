@@ -170,7 +170,7 @@ export default {
   , methods: {
     setMarker(){
       let x = this.getEOT(this.meanAnomaly)
-      let y = this.getDate(this.meanAnomaly)
+      let y = this.getDate(euclideanModulo(this.meanAnomaly, Pi2))
       this.chartData.datasets[0].data[0].x = x
       this.chartData.datasets[0].data[0].y = y
       this.$data._chart.options.annotation.annotations[0].value = y
