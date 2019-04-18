@@ -122,8 +122,8 @@
   )
     .earth-labels(slot="earth-labels")
       transition(name="fade")
-        .clock(v-if="showSiderealClock")
-          label Sidereal Time
+        .clock(v-if="showStellarClock")
+          label Stellar Time
           .time {{siderealClock}}
       transition(name="fade")
         .clock(v-if="showSolarClock")
@@ -269,13 +269,14 @@ export default {
       , 'showSolarDayArc'
       , 'showPM'
 
-      , 'showSiderealClock'
+      , 'showStellarClock'
       , 'showSolarClock'
     ], { relaxDelay: 1000, relaxDuration: 1000, easing: meddleEasing })
   }
   , watch: {
     handsOff(){
       this.frames.freeze( false, true )
+      console.log(this.frames._meddles)
     }
   }
   , created(){
@@ -319,7 +320,7 @@ export default {
       , showSolarDayArc: false
       , showPM: true
 
-      , showSiderealClock: false
+      , showStellarClock: false
       , showSolarClock: false
 
       , cameraPosition: {
@@ -337,7 +338,7 @@ export default {
 
     frames.add({
       solarDaysPerYear
-      , orbitalPosition: 0.4
+      , orbitalPosition: 0
       , showPM: false
     }, {
       time: 0
@@ -345,126 +346,113 @@ export default {
     })
 
     frames.add({
-      showSiderialDayArc: true
-      , cameraPosition: new THREE.Vector3(0, 30, 1)
+      orbitalPosition: 0.135
     }, {
-      time: '23s'
-      , duration: '1s'
+      time: '8s'
+      , duration: '8s'
     })
 
     frames.add({
-      orbitalPosition: 0.6
+      cameraPosition: new THREE.Vector3(-5, 50, 30)
     }, {
-      time: '23s'
-      , duration: '23s'
+      time: '8s'
+      , duration: '1s'
+      , easing: Copilot.Easing.Quadratic.InOut
     })
 
     frames.add({
       showPM: true
-      , showSiderialDayArc: false
     }, {
-      time: '30s'
+      time: '8s'
       , duration: '1s'
     })
 
     frames.add({
-      showSiderialDayArc: true
+      cameraPosition: new THREE.Vector3(-5, -50, 30)
     }, {
-      time: '35s'
-      , duration: '1s'
+      time: '16s'
+      , duration: '100%'
+      , easing: Copilot.Easing.Sinusoidal.InOut
     })
 
     frames.add({
-      orbitalPosition: solarDaysPerYear / (solarDaysPerYear + 1)
+      orbitalPosition: 0.222
+      , cameraPosition: new THREE.Vector3(0, 20, 0)
+    }, {
+      time: '17s'
+      , duration: '1s'
+      , easing: Copilot.Easing.Quadratic.InOut
+    })
+
+    frames.add({
+      orbitalPosition: 0.333
+    }, {
+      time: '23s'
+      , duration: '100%'
+      , easing: Copilot.Easing.Quadratic.InOut
+    })
+
+    frames.add({
+      orbitalPosition: 1
     }, {
       time: '38s'
       , duration: '15s'
     })
 
     frames.add({
-      orbitalPosition: 1
+      showSiderialDayArc: true
     }, {
-      time: '42s'
-      , duration: '2s'
-    })
-
-    frames.add({
-      cameraZoom: 40
-      , showSun: true
-    }, {
-      time: '44s'
+      time: '34s'
       , duration: '1s'
-      , easing: Copilot.Easing.Quadratic.InOut
     })
 
     frames.add({
-      showSiderealClock: true
+      showStellarClock: true
     }, {
-      time: '48s'
+      time: '40s'
     })
 
     frames.add({
       orbitalPosition: 1.5
     }, {
+      startTime: '00:44'
+      , time: '01:03'
+    })
+
+    frames.add({
+      cameraZoom: 20
+      , showSun: true
+    }, {
       time: '55s'
-      , duration: '5s'
+      , duration: '1s'
       , easing: Copilot.Easing.Quadratic.InOut
     })
 
     frames.add({
-      showSiderealClock: false
-      , showSiderialDayArc: false
-      , showSolarDayArc: true
+      cameraZoom: 40
     }, {
-      time: '01:01'
-    })
-
-    frames.add({
-      orbitalPosition: solarDaysToOrbitalPos(solarDaysPerYear * 2)
-    }, {
-      time: '01:20'
-      , duration: '20s'
-    })
-
-    frames.add({
-      showSolarClock: true
-    }, {
-      time: '01:20'
-    })
-
-    frames.add({
-      showSiderialDayArc: true
-      , showSolarClock: false
-    }, {
-      time: '01:24'
-    })
-
-    frames.add({
-      orbitalPosition: 2 + 1 / (solarDaysPerYear + 1)
-    }, {
-      time: '01:30'
-      , duration: '100%'
+      time: '01:05'
+      , duration: '1s'
       , easing: Copilot.Easing.Quadratic.InOut
     })
 
     frames.add({
-      orbitalPosition: solarDaysToOrbitalPos(solarDaysPerYear * 2 + 1)
+      cameraPosition: new THREE.Vector3(-5, 20, 30)
     }, {
-      time: '01:42'
-      , duration: '2s'
-      , easing: Copilot.Easing.Quadratic.InOut
+      time: '01:11'
+      , duration: '1s'
+      , easing: Copilot.Easing.Sinusoidal.InOut
     })
 
     // last frame
     frames.add({
       handsOff: true
     }, {
-      time: '02:08'
-      , duration: '20s'
-      // , startTime: '01:48'
+      time: '01:29'
+      , startTime: '01:11'
     })
 
-    this.setQueue('02:08', () => {
+    this.setQueue('01:11', () => {
       this.paused = false
     })
 

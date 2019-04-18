@@ -13,7 +13,7 @@
       , @hover="mouseHover"
     )
     v3-scene
-      v3-light(type="ambient", :intensity="showSun ? 0.2 : 0.7")
+      v3-light(type="ambient", :intensity="showSun ? 0.4 : 0.7")
 
       v3-group(ref="cameraGroupOuter")
         v3-group(ref="cameraGroup")
@@ -469,8 +469,9 @@ export default {
     // controls.minPolarAngle = epsilon
     // controls.maxPolarAngle = Math.PI - epsilon
 
-    this.cameraInteraction = true
+    this.cameraInteraction = false
     controls.addEventListener('start', () => {
+      this.cameraInteraction = true
       this.$emit('camera:start', {
         position: camera.position
         , rotation: camera.rotation
@@ -491,6 +492,9 @@ export default {
         , rotation: camera.rotation
         , zoom: camera.zoom
       })
+      setTimeout(() => {
+        this.cameraInteraction = false
+      }, 500)
     })
     // end controls
 
@@ -808,10 +812,10 @@ export default {
         cam.updateProjectionMatrix()
       }
 
-      this.cameraInteraction = false
+      // this.cameraInteraction = false
       this.controls.object.copy( cam )
       this.controls.update()
-      this.cameraInteraction = true
+      // this.cameraInteraction = true
     }
   }
 }
