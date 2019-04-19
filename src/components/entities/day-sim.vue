@@ -469,8 +469,10 @@ export default {
     // controls.minPolarAngle = epsilon
     // controls.maxPolarAngle = Math.PI - epsilon
 
+    let timer = null
     this.cameraInteraction = false
     controls.addEventListener('start', () => {
+      clearTimeout( timer )
       this.cameraInteraction = true
       this.$emit('camera:start', {
         position: camera.position
@@ -492,7 +494,7 @@ export default {
         , rotation: camera.rotation
         , zoom: camera.zoom
       })
-      setTimeout(() => {
+      timer = setTimeout(() => {
         this.cameraInteraction = false
       }, 500)
     })
