@@ -139,7 +139,6 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped lang="sass">
-@import '@/styles/_variables.scss'
 .scene
   width: 200px
   height: 200px

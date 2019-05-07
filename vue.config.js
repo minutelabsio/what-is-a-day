@@ -17,7 +17,7 @@ module.exports = {
     loaderOptions: {
       // pass options to sass-loader
       sass: {
-        data: `@import '@/styles/_variables.scss';`
+        data: `@import '@/styles/_variables.scss'`
       }
     }
   }

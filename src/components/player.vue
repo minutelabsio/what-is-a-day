@@ -171,7 +171,6 @@ export default {
 </script>
 
 <style scoped lang="sass">
-@import '@/styles/_variables.scss'
 .loading-overlay
   z-index: 100
 </style>

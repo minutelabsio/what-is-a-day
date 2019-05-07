@@ -1,12 +1,13 @@
 // Common
-/* @import "~bulmaswatch/solar/_variables"; */
+// @import "~bulmaswatch/solar/_variables";
+;
 @import "./_variables";
 @import "./_fonts";
 @import "~bulma/sass/utilities/initial-variables";
 @import "~buefy/src/scss/utils/_all";
 @import "~bulma/bulma";
 @import "~buefy/src/scss/buefy";
-/* @import "~bulmaswatch/solar/_overrides"; */
+// @import "~bulmaswatch/solar/_overrides";
 
 * > * {
   box-sizing: border-box;

@@ -137,6 +137,7 @@ import * as THREE from 'three'
 import DaySim from '@/components/entities/day-sim'
 import EOTGraph from '@/components/entities/eot-graph'
 import vueSlider from 'vue-slider-component'
+import 'vue-slider-component/theme/default.css'
 import { PERHELION, euclideanModulo } from '@/lib/stellar-mechanics'
 
 const Pi2 = Math.PI * 2
