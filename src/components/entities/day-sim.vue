@@ -50,15 +50,18 @@
       v3-group(:rotation="yearRotation")
         v3-group(:position="earthPosition", :rotation="[0, Math.PI, 0]")
           Earth3D(name="earth", ref="earth", :rotation="earthRotation", :showPM="showPM")
-          v3-dom(:position="[0, 1.5, 0]")
-            slot(name="earth-labels")
-              .has-text-right
-                .scene-label Mean Solar Day: {{ meanSolarDay }}
-                .scene-label True Solar Day: {{ trueSolarDay }}
-                .scene-label Sidereal Day: {{ siderealDay }}
+          v3-group(:rotation="labelUnrotation")
+            v3-dom(:position="earthLabelsPosition")
+              slot(name="earth-label")
+                .has-text-right
+                  .scene-label Mean Solar Day: {{ meanSolarDay }}
+                  .scene-label True Solar Day: {{ trueSolarDay }}
+                  .scene-label Sidereal Day: {{ siderealDay }}
           //- v3-light(type="spot", :intensity="0.4", :position="lightPos")
 
           //- Day arcs
+          v3-dom(:position="[2, 0, 0]")
+            slot(name="mean-label")
           v3-line(:visible="showMeanDayArc", :from="[1.2, 0, 0]", :to="[1.8, 0, 0]", :color="red")
           v3-ring(
             :visible="showMeanDayArc",
@@ -72,6 +75,8 @@
             , :position="[0, 0.001, 0]"
           )
           v3-group(:visible="showSolarDayArc", :rotation="[0, -eot, 0]")
+            v3-dom(:position="[2, 0, 0]")
+              slot(name="solar-label")
             v3-line(:from="[1.2, 0, 0]", :to="[1.8, 0, 0]", :color="yellow")
             v3-ring(
               :innerRadius="1.4"
@@ -84,6 +89,8 @@
               , :position="[0, 0.001, 0]"
             )
           v3-group(:visible="showSiderialDayArc", :rotation="[0, -meanAnomaly, 0]")
+            v3-dom(:position="[2, 0, 0]")
+              slot(name="stellar-label")
             v3-line(:position="[0, 0, 0.002]", :from="[1, 0, 0]", :to="[1.8, 0, 0]", :color="blue")
             v3-ring(
               :innerRadius="0.98"
@@ -326,6 +333,11 @@ export default {
       type: Number
       , default: 0.02
     }
+
+    , earthLabelsPosition: {
+      type: Object
+      , default: () => new THREE.Vector3(0, 1, 0)
+    }
   }
   , components: {
     v3Renderer
@@ -388,6 +400,7 @@ export default {
     , timeDiffWedgeProps: null
   })
   , created(){
+    this.labelUnrotation = new THREE.Euler()
     // used to go from solar plane to ecliptic
     this.solarPlaneQuarternion = new THREE.Quaternion()
     this.$watch('tiltAngle', (function(){
@@ -481,6 +494,7 @@ export default {
       })
     })
     controls.addEventListener('change', () => {
+      this.updateLabelRotations()
       if ( !this.cameraInteraction ){ return }
       this.$emit('camera:change', {
         position: camera.position
@@ -796,6 +810,10 @@ export default {
     }
     , mouseHover({ intersects }){
       this.canGrab = intersects.length
+    }
+    , updateLabelRotations(){
+      let cam = this.$refs.camera.v3object
+      this.labelUnrotation.copy(cam.rotation)
     }
     , setCameraProperties({ position, rotation, zoom }){
       let cam = this.$refs.camera.v3object

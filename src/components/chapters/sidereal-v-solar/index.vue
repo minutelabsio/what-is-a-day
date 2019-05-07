@@ -21,7 +21,7 @@
       vue-slider.slider(
         v-model="playRate"
         , tooltip-dir="left"
-        , :tooltip="false"
+        , tooltip="none"
         , :max="1"
         , :min="0.01"
         , :interval="0.01"
@@ -32,7 +32,7 @@
       vue-slider.slider(
         v-model="solarDaysPerYear"
         , tooltip-dir="left"
-        , :tooltip="false"
+        , tooltip="none"
         , :max="365"
         , :min="0"
         , :interval="1"
@@ -52,7 +52,7 @@
       vue-slider.slider(
         v-model="eccentricity"
         , tooltip-dir="left"
-        , :tooltip="false"
+        , tooltip="none"
         , :max="0.5"
         , :interval="0.01"
         , :formatter="tooltipPrecisionFormatter(2)"
@@ -63,7 +63,7 @@
       vue-slider.slider(
         v-model="tiltAngle"
         , tooltip-dir="left"
-        , :tooltip="false"
+        , tooltip="none"
         , :max="90"
         , :interval="1"
         , :formatter="tooltipPrecisionFormatter(0)"
@@ -120,11 +120,13 @@
     , @camera:end="cameraDragging = false; meddleCamera()"
     , @camera:change="meddleCamera"
   )
-    .earth-labels(slot="earth-labels")
+    .earth-label(slot="earth-label")
+      | &nbsp;
+    .stellar-label(slot="stellar-label")
       transition(name="fade")
         .clock(v-if="showStellarClock")
-          label Stellar Time
           .time {{siderealClock}}
+    .solar-label(slot="solar-label")
       transition(name="fade")
         .clock(v-if="showSolarClock")
           label Solar Time
@@ -633,6 +635,14 @@ export default {
   .checkbox:hover
     color: $text
 
+.earth-label,
+.stellar-label,
+.solar-label
+  text-shadow: 0 0 5px rgba(0, 0, 0, 1)
+.earth-label
+  margin-bottom: 50%
+.stellar-label
+  color: $blue
 .clock
   font-family: $family-monospace
   text-align: center
