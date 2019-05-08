@@ -113,6 +113,8 @@
     , :eccentricity="eccentricity"
     , :days="day"
     , :daysPerYear="daysPerYear"
+
+    , :enableDragging="enableDragging"
     , @dragstart="dragStart"
     , @drag="drag"
     , @dragend="dragEnd"
@@ -255,6 +257,9 @@ export default {
     , handsOff(){
       return this.player.paused || this.copilotState.handsOff
     }
+    , enableDragging(){
+      return this.showSun || this.showEarthOrbits
+    }
     // copilot managed
     , ...meddleProps([
       'orbitalPosition'
@@ -378,7 +383,14 @@ export default {
     })
 
     frames.add({
-      orbitalPosition: 0.222
+      showSiderialDayArc: true
+    }, {
+      time: '16.9s'
+      , duration: '1s'
+    })
+
+    frames.add({
+      orbitalPosition: 2 / (solarDaysPerYear + 1)
       , cameraPosition: new THREE.Vector3(0, 20, 0)
     }, {
       time: '17s'
@@ -387,47 +399,48 @@ export default {
     })
 
     frames.add({
-      orbitalPosition: 0.333
+      orbitalPosition: 3 / (solarDaysPerYear + 1)
     }, {
       time: '23s'
-      , duration: '100%'
+      , startTime: '17s'
       , easing: Copilot.Easing.Quadratic.InOut
     })
 
     frames.add({
-      orbitalPosition: 1
+      showStellarClock: true
+    }, {
+      time: '24s'
+    })
+
+    frames.add({
+      orbitalPosition: 8 / (solarDaysPerYear + 1)
     }, {
       time: '38s'
       , duration: '15s'
     })
 
     frames.add({
-      showSiderialDayArc: true
+      orbitalPosition: 1
     }, {
-      time: '34s'
-      , duration: '1s'
-    })
-
-    frames.add({
-      showStellarClock: true
-    }, {
-      time: '40s'
-    })
-
-    frames.add({
-      orbitalPosition: 1.5
-    }, {
-      startTime: '00:44'
-      , time: '01:03'
+      time: '56s'
+      , startTime: '45s'
     })
 
     frames.add({
       cameraZoom: 20
       , showSun: true
+      , showEarthOrbits: true
     }, {
       time: '55s'
       , duration: '1s'
       , easing: Copilot.Easing.Quadratic.InOut
+    })
+
+    frames.add({
+      orbitalPosition: 1.5
+    }, {
+      startTime: '00:58'
+      , time: '01:03'
     })
 
     frames.add({

@@ -6,7 +6,7 @@
     , :height="viewHeight"
   )
     Gestures(
-      :names="['earth', 'sun']"
+      :names="interactiveObjects"
       , @dragstart="dragStart"
       , @drag="drag"
       , @dragend="dragEnd"
@@ -26,7 +26,7 @@
             , :top="viewHeight/2"
             , :bottom="-viewHeight/2"
             , :zoom="30"
-            , :near="1"
+            , :near="0.01"
             , :far="1000"
             , :position="orthCameraPos"
             , :look-at="origin"
@@ -35,13 +35,13 @@
       v3-group(ref="gridOuter")
         v3-group(ref="gridInner", :visible="showGrid", :position="[0, -0.05, 0]")
           v3-polar-grid(
-            :radius="50"
+            :radius="30"
             , :color1="0x001e44"
             , :color2="0x102b61"
           )
           v3-circle(
             :rotation="[Math.PI/2, 0, 0]"
-            , :radius="50"
+            , :radius="30"
             , :transparent="true"
             , :opacity="0.7"
             , :color="0x000022"
@@ -89,7 +89,7 @@
               , :position="[0, 0.001, 0]"
             )
           v3-group(:visible="showSiderialDayArc", :rotation="[0, -meanAnomaly, 0]")
-            v3-dom(:position="[2, 0, 0]")
+            v3-dom(:position="[2, 0, 0]", anchorDir="[-1, 0, 0]")
               slot(name="stellar-label")
             v3-line(:position="[0, 0, 0.002]", :from="[1, 0, 0]", :to="[1.8, 0, 0]", :color="blue")
             v3-ring(
@@ -168,7 +168,7 @@
       v3-group(:visible="showMeanSun")
         Sun3D(ref="meanSun", :isMean="true")
         v3-line(:visible="showEOTWedge", :from="sunPosProjection", :to="sunPosition", :color="yellow")
-        v3-dom(v-if="showEarthOrbits && showMonthLabels", v-for="(month, index) in months", :position="[(sunDistance + 2) * Math.cos(Pi2 * index / 12), 0, -(sunDistance + 2) * Math.sin(Pi2 * index / 12)]")
+        v3-dom(v-if="showEarthOrbits && showMonthLabels", v-for="(month, index) in months", :key="index", :position="[(sunDistance + 2) * Math.cos(Pi2 * index / 12), 0, -(sunDistance + 2) * Math.sin(Pi2 * index / 12)]")
           .month-marker {{ month }}
         Orbit(
           :visible="showEarthOrbits"
@@ -198,7 +198,7 @@
         v3-group(:rotation="[0, vernalEquinoxAngle, 0]")
           v3-group(:rotation="[-tiltAngle, -vernalEquinoxAngle, 0]")
             v3-line(
-              :visible="showEarthOrbits"
+              :visible="showEarthOrbits && showSun"
               , :from="origin"
               , :to="[(1-eccentricity) * majorAxis, 0, 0]"
               , :color="0xeeeeee"
@@ -305,6 +305,11 @@ export default {
     , showSolarDayArc: Boolean
     , showPM: Boolean
     , showMonthLabels: {
+      type: Boolean
+      , default: true
+    }
+
+    , enableDragging: {
       type: Boolean
       , default: true
     }
@@ -657,6 +662,9 @@ export default {
       return this.dragTarget ?
         'grabbing' :
         this.canGrab ? 'grab' : ''
+    }
+    , interactiveObjects(){
+      return this.enableDragging ? ['earth'] : []
     }
   }
   , methods: {
