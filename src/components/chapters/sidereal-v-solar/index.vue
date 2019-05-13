@@ -123,7 +123,9 @@
     , @camera:change="meddleCamera"
   )
     .earth-label(slot="earth-label")
-      | &nbsp;
+      transition(name="fade")
+        label(v-if="showDegrees") {{dayAngle.toFixed(0)}}
+          span.degrees &deg;
     .stellar-label(slot="stellar-label")
       transition(name="fade")
         .clock(v-if="showStellarClock")
@@ -240,6 +242,9 @@ export default {
     , day(){
       return this.orbitalPosition * this.daysPerYear
     }
+    , dayAngle(){
+      return (this.day * 360) % 360
+    }
     , siderealClock(){
       const minutesPerDay = 24 * 60
       let dayFrac = (this.day + 0.5) % 1
@@ -279,6 +284,7 @@ export default {
 
       , 'showStellarClock'
       , 'showSolarClock'
+      , 'showDegrees'
     ], { relaxDelay: 1000, relaxDuration: 1000, easing: meddleEasing })
   }
   , watch: {
@@ -329,6 +335,7 @@ export default {
 
       , showStellarClock: false
       , showSolarClock: false
+      , showDegrees: false
 
       , cameraPosition: {
         type: 'Vector3'
@@ -384,6 +391,7 @@ export default {
 
     frames.add({
       showSiderialDayArc: true
+      , showDegrees: true
     }, {
       time: '16.9s'
       , duration: '1s'
@@ -652,13 +660,20 @@ export default {
 .stellar-label,
 .solar-label
   text-shadow: 0 0 5px rgba(0, 0, 0, 1)
+  font-family: $family-monospace
 .earth-label
-  margin-bottom: 50%
+  position: relative
+  bottom: 1em
 .stellar-label
   color: $blue
 .clock
+  position: absolute
+  margin-top: -1rem
+  right: 0
   font-family: $family-monospace
   text-align: center
+.degrees
+  letter-spacing: -1em
 
 .fade-enter-active,
 .fade-leave-active

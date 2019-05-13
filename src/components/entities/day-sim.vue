@@ -50,13 +50,14 @@
       v3-group(:rotation="yearRotation")
         v3-group(:position="earthPosition", :rotation="[0, Math.PI, 0]")
           Earth3D(name="earth", ref="earth", :rotation="earthRotation", :showPM="showPM")
-          v3-group(:rotation="labelUnrotation")
-            v3-dom(:position="earthLabelsPosition")
-              slot(name="earth-label")
-                .has-text-right
-                  .scene-label Mean Solar Day: {{ meanSolarDay }}
-                  .scene-label True Solar Day: {{ trueSolarDay }}
-                  .scene-label Sidereal Day: {{ siderealDay }}
+          v3-group(:rotation="invYearRotation")
+            v3-group(:rotation="labelUnrotation")
+              v3-dom(:position="earthLabelsPosition")
+                slot(name="earth-label")
+                  .has-text-right
+                    .scene-label Mean Solar Day: {{ meanSolarDay }}
+                    .scene-label True Solar Day: {{ trueSolarDay }}
+                    .scene-label Sidereal Day: {{ siderealDay }}
           //- v3-light(type="spot", :intensity="0.4", :position="lightPos")
 
           //- Day arcs
@@ -403,9 +404,10 @@ export default {
     , referenceFrameAngle: 0
     , referenceFrameTilt: 0
     , timeDiffWedgeProps: null
+
+    , labelUnrotation: new THREE.Euler()
   })
   , created(){
-    this.labelUnrotation = new THREE.Euler()
     // used to go from solar plane to ecliptic
     this.solarPlaneQuarternion = new THREE.Quaternion()
     this.$watch('tiltAngle', (function(){
@@ -821,7 +823,7 @@ export default {
     }
     , updateLabelRotations(){
       let cam = this.$refs.camera.v3object
-      this.labelUnrotation.copy(cam.rotation)
+      this.labelUnrotation.set(-cam.rotation.x, cam.rotation.y, -cam.rotation.z)
     }
     , setCameraProperties({ position, rotation, zoom }){
       let cam = this.$refs.camera.v3object
