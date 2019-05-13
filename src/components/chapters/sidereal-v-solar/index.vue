@@ -1,92 +1,107 @@
 <template lang="pug">
 .chapter
+  b-modal(:active.sync="showEarthOptionsModal", scroll="keep")
+    .modal-options
+      .columns
+        .column
+          label Days per Year: {{ solarDaysPerYear }}
+          vue-slider.slider(
+            v-model="solarDaysPerYear"
+            , tooltip-dir="left"
+            , tooltip="none"
+            , :max="365"
+            , :min="0"
+            , :interval="1"
+            , :formatter="tooltipPrecisionFormatter(0)"
+            , :speed="0"
+          )
+
+          label Eccentricity: {{ eccentricity }}
+          vue-slider.slider(
+            v-model="eccentricity"
+            , tooltip-dir="left"
+            , tooltip="none"
+            , :max="0.5"
+            , :interval="0.01"
+            , :formatter="tooltipPrecisionFormatter(2)"
+            , :speed="0"
+          )
+
+          label Axial Tilt: {{ tiltAngle }}&deg;
+          vue-slider.slider(
+            v-model="tiltAngle"
+            , tooltip-dir="left"
+            , tooltip="none"
+            , :max="90"
+            , :interval="1"
+            , :formatter="tooltipPrecisionFormatter(0)"
+            , :speed="0"
+          )
+
+          br/
+
+          b-field(grouped)
+            b-checkbox(v-model="showGrid")
+              span Grid
+            b-checkbox(v-model="showEarthOrbits")
+              span Earth Orbits
+            b-checkbox(v-model="showSunOrbits")
+              span Solar Orbits
+
+          b-field(grouped)
+            b-checkbox(v-model="showSun")
+              span Sun
+            b-checkbox(v-model="showMeanSun")
+              span Mean Sun
+            b-checkbox(v-model="showEOTWedge")
+              span EOT Wedge
+
+        .column.is-two-fifths.mini-graph
+          EOTGraph(:eccentricity="eccentricity", :tilt="tiltAngle * deg", :mean-anomaly="meanAnomaly")
+
   .controls.scrollbars
-    .level.is-mobile
-      .level-left
+    .columns
+      .column
         b-field(grouped)
           b-field
             .control
               b-checkbox-button.checkbox-btn-dark(v-model="paused", :disabled="!handsOff")
-                b-icon.icon-only(:icon="paused ? 'play' : 'pause'")
+                b-icon.icon-only(:icon="paused ? 'orbit' : 'cancel'")
+
+            .control
+              b-dropdown(:mobile-modal="false", :hoverable="true")
+                .button.btn-dark(slot="trigger")
+                  b-icon(icon="clock-fast")
+
+                b-dropdown-item(custom)
+                  label Orbit Speed
+                  vue-slider.slider(
+                    v-model="playRate"
+                    , tooltip-dir="left"
+                    , tooltip="none"
+                    , :max="1"
+                    , :min="0.01"
+                    , :interval="0.01"
+                    , :disabled="!player.paused"
+                  )
+
           b-field
             .control
               .button.btn-dark(@click="graphOpen = !graphOpen", :class="{ 'is-primary': graphOpen }")
                 b-icon.icon-only(icon="chart-bell-curve")
+
             .control
-              .button.btn-dark(@click="controlsOpen = !controlsOpen", :class="{ 'is-primary': controlsOpen }")
-                b-icon.icon-only(icon="tune")
+              .button.btn-dark(@click="showEarthOptionsModal = !showEarthOptionsModal")
+                b-icon.icon-only(icon="settings")
 
-    .extra-fields(v-if="controlsOpen")
-      label Animation Speed
-      vue-slider.slider(
-        v-model="playRate"
-        , tooltip-dir="left"
-        , tooltip="none"
-        , :max="1"
-        , :min="0.01"
-        , :interval="0.01"
-        , :disabled="!player.paused"
-      )
-
-      label Days per Year: {{ solarDaysPerYear }}
-      vue-slider.slider(
-        v-model="solarDaysPerYear"
-        , tooltip-dir="left"
-        , tooltip="none"
-        , :max="365"
-        , :min="0"
-        , :interval="1"
-        , :formatter="tooltipPrecisionFormatter(0)"
-        , :speed="0"
-      )
-
-      b-field(grouped)
-        b-select(v-model="cameraTarget")
-          option(value="earth") Focus Earth
-          option(value="sun") Focus Sun
-          option(value="meanSun") Focus Mean Sun
-        b-switch(v-model="cameraFollow")
-          | Follow Orbit
-
-      label Eccentricity: {{ eccentricity }}
-      vue-slider.slider(
-        v-model="eccentricity"
-        , tooltip-dir="left"
-        , tooltip="none"
-        , :max="0.5"
-        , :interval="0.01"
-        , :formatter="tooltipPrecisionFormatter(2)"
-        , :speed="0"
-      )
-
-      label Axial Tilt: {{ tiltAngle }}&deg;
-      vue-slider.slider(
-        v-model="tiltAngle"
-        , tooltip-dir="left"
-        , tooltip="none"
-        , :max="90"
-        , :interval="1"
-        , :formatter="tooltipPrecisionFormatter(0)"
-        , :speed="0"
-      )
-
-      br/
-
-      b-field(grouped)
-        b-checkbox(v-model="showGrid")
-          span Grid
-        b-checkbox(v-model="showEarthOrbits")
-          span Earth Orbits
-        b-checkbox(v-model="showSunOrbits")
-          span Solar Orbits
-
-      b-field(grouped)
-        b-checkbox(v-model="showSun")
-          span Sun
-        b-checkbox(v-model="showMeanSun")
-          span Mean Sun
-        b-checkbox(v-model="showEOTWedge")
-          span EOT Wedge
+      .column
+        b-field(grouped)
+          b-select(v-model="cameraTarget", icon="camera-control")
+            option(value="earth") Focus Earth
+            option(value="sun") Focus Sun
+            option(value="meanSun") Focus Mean Sun
+          b-switch(v-model="cameraFollow")
+            | Follow Orbit
 
     .eot-graph(v-if="graphOpen")
       EOTGraph(:eccentricity="eccentricity", :tilt="tiltAngle * deg", :mean-anomaly="meanAnomaly")
@@ -123,6 +138,9 @@
     , @camera:change="meddleCamera"
   )
     .earth-label(slot="earth-label")
+      .tools
+        .icon-btn(@click="showEarthOptionsModal = true")
+          b-icon(icon="settings")
       transition(name="fade")
         label(v-if="showDegrees") {{dayAngle.toFixed(0)}}
           span.degrees &deg;
@@ -214,6 +232,8 @@ export default {
   }
   , data: () => ({
     deg
+    , showEarthOptionsModal: false
+
     , cameraDragging: false
     , tooltipPrecisionFormatter
     , controlsOpen: false
@@ -311,7 +331,7 @@ export default {
       }
       , orbitalPosition: {
         type: Number
-        , default: 0.5 // {0, 1}
+        , default: 0 // {0, 1}
         , interpolatorOpts: { modulo: 1 }
       }
       , solarDaysPerYear: solarDaysPerYear
@@ -323,19 +343,19 @@ export default {
         , interpolator: Copilot.Interpolators.Step
         , interpolatorOpts: { threshold: 0 }
       }
-      , showEarthOrbits: false
+      , showEarthOrbits: true
       , showSunOrbits: false
       , showEOTWedge: false
-      , showSun: false
+      , showSun: true
       , showMeanSun: false
-      , showSiderialDayArc: false
+      , showSiderialDayArc: true
       , showMeanDayArc: false
       , showSolarDayArc: false
       , showPM: true
 
-      , showStellarClock: false
+      , showStellarClock: true
       , showSolarClock: false
-      , showDegrees: false
+      , showDegrees: true
 
       , cameraPosition: {
         type: 'Vector3'
@@ -345,7 +365,7 @@ export default {
         type: 'Vector3'
         , default: new THREE.Vector3(0, 0, 0)
       }
-      , cameraZoom: 80
+      , cameraZoom: 40
     }, {
       defaultTransitionDuration: '3s'
     })
@@ -354,8 +374,14 @@ export default {
       solarDaysPerYear
       , orbitalPosition: 0
       , showPM: false
+      , showSiderialDayArc: false
+      , showSun: false
+      , showEarthOrbits: false
+      , showDegrees: false
+      , showStellarClock: false
+      , cameraZoom: 80
     }, {
-      time: 0
+      time: 1
       , duration: 1
     })
 
@@ -363,7 +389,7 @@ export default {
       orbitalPosition: 0.135
     }, {
       time: '8s'
-      , duration: '8s'
+      , duration: '100%'
     })
 
     frames.add({
@@ -625,21 +651,50 @@ export default {
   cursor: crosshair
   overflow: hidden
 
+.modal-options
+  padding: 1em
+
+  .mini-graph
+    max-width: 400px
+
+.tools
+  position: absolute
+  z-index: 1
+  left: 3em
+  bottom: -1em
+  pointer-events: all
+
+  .icon-btn
+    cursor: pointer
+    transition: color 0.15s ease
+    color: $red
+    &:hover,
+    &:active
+      color: lighten($red, 10)
+
 .controls
   position: absolute
-  z-index: 2
-  max-width: 480px
+  z-index: 15
   max-height: 100%
-  overflow: visible auto
   width: 100%
   top: 0
   right: 0
-  padding: 1rem
+  padding: 0.75rem
   background: transparentize($background, 0.4)
   border-radius: 0 0 0 3px
   border: 1px solid $background
   border-top-width: 0
   border-right-width: 0
+
+  .eot-graph
+    position: absolute
+    right: 0
+    margin-top: 0.75em
+    max-width: 480px
+    background: transparentize($background, 0.2)
+
+  .field
+    margin: 0
 
   .level
     margin-bottom: 0
