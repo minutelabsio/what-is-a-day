@@ -98,7 +98,7 @@
           b-select(v-model="cameraTarget", icon="camera-control")
             option(value="earth") Focus Earth
             option(value="sun") Focus Sun
-            option(value="meanSun") Focus Mean Sun
+            //- option(value="meanSun") Focus Mean Sun
           b-switch(v-model="cameraFollow")
             | Follow Orbit
 

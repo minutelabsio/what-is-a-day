@@ -26,36 +26,36 @@
             , :formatter="tooltipPrecisionFormatter(2)"
             , :speed="0"
           )
-        //-
-        //-   label Axial Tilt: {{ tiltAngle }}&deg;
-        //-   vue-slider.slider(
-        //-     v-model="tiltAngle"
-        //-     , tooltip-dir="left"
-        //-     , tooltip="none"
-        //-     , :max="90"
-        //-     , :interval="1"
-        //-     , :formatter="tooltipPrecisionFormatter(0)"
-        //-     , :speed="0"
-        //-   )
-        //-
-        //-   br/
-        //-
-        //-   b-field(grouped)
-        //-     b-checkbox(v-model="showGrid")
-        //-       span Grid
-        //-     b-checkbox(v-model="showEarthOrbits")
-        //-       span Earth Orbits
-        //-     b-checkbox(v-model="showSunOrbits")
-        //-       span Solar Orbits
-        //-
-        //-   b-field(grouped)
-        //-     b-checkbox(v-model="showSun")
-        //-       span Sun
-        //-     b-checkbox(v-model="showMeanSun")
-        //-       span Mean Sun
-        //-     b-checkbox(v-model="showEOTWedge")
-        //-       span EOT Wedge
-        //-
+
+          //- label Axial Tilt: {{ tiltAngle }}&deg;
+          //- vue-slider.slider(
+          //-   v-model="tiltAngle"
+          //-   , tooltip-dir="left"
+          //-   , tooltip="none"
+          //-   , :max="90"
+          //-   , :interval="1"
+          //-   , :formatter="tooltipPrecisionFormatter(0)"
+          //-   , :speed="0"
+          //- )
+          //-
+          //- br/
+          //-
+          //- b-field(grouped)
+          //-   b-checkbox(v-model="showGrid")
+          //-     span Grid
+          //-   b-checkbox(v-model="showEarthOrbits")
+          //-     span Earth Orbits
+          //-   b-checkbox(v-model="showSunOrbits")
+          //-     span Solar Orbits
+
+          b-field(grouped)
+            b-checkbox(v-model="showSun")
+              span Sun
+            b-checkbox(v-model="showMeanSun")
+              span Mean Sun
+            b-checkbox(v-model="showEOTWedge")
+              span Punctuality Wedge
+
         .column.is-two-fifths.mini-graph
           EOTGraph(:eccentricity="eccentricity", :tilt="tiltAngle * deg", :mean-anomaly="meanAnomaly")
 
@@ -361,7 +361,7 @@ export default {
       , showSunOrbits: false
       , showEOTWedge: false
       , showSun: true
-      , showMeanSun: false
+      , showMeanSun: true
       , showMonthLabels: true
       , showSiderialDayArc: false
       , showMeanDayArc: true
