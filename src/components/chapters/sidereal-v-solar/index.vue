@@ -142,7 +142,7 @@
         .icon-btn(@click="showEarthOptionsModal = true")
           b-icon(icon="settings")
       transition(name="fade")
-        label(v-if="showDegrees") {{dayAngle.toFixed(0)}}
+        label.angle-label(v-if="showDegrees") {{dayAngle.toFixed(0)}}
           span.degrees &deg;
     .stellar-label(slot="stellar-label")
       transition(name="fade")
@@ -726,6 +726,10 @@ export default {
   margin-top: -1rem
   right: 0
   font-family: $family-monospace
+  text-align: center
+.angle-label
+  display: inline-block
+  width: 2.5em
   text-align: center
 .degrees
   letter-spacing: -1em
