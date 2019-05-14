@@ -16,48 +16,48 @@
             , :speed="0"
           )
 
-          label Eccentricity: {{ eccentricity }}
-          vue-slider.slider(
-            v-model="eccentricity"
-            , tooltip-dir="left"
-            , tooltip="none"
-            , :max="0.5"
-            , :interval="0.01"
-            , :formatter="tooltipPrecisionFormatter(2)"
-            , :speed="0"
-          )
-
-          label Axial Tilt: {{ tiltAngle }}&deg;
-          vue-slider.slider(
-            v-model="tiltAngle"
-            , tooltip-dir="left"
-            , tooltip="none"
-            , :max="90"
-            , :interval="1"
-            , :formatter="tooltipPrecisionFormatter(0)"
-            , :speed="0"
-          )
-
-          br/
-
-          b-field(grouped)
-            b-checkbox(v-model="showGrid")
-              span Grid
-            b-checkbox(v-model="showEarthOrbits")
-              span Earth Orbits
-            b-checkbox(v-model="showSunOrbits")
-              span Solar Orbits
-
-          b-field(grouped)
-            b-checkbox(v-model="showSun")
-              span Sun
-            b-checkbox(v-model="showMeanSun")
-              span Mean Sun
-            b-checkbox(v-model="showEOTWedge")
-              span EOT Wedge
-
-        .column.is-two-fifths.mini-graph
-          EOTGraph(:eccentricity="eccentricity", :tilt="tiltAngle * deg", :mean-anomaly="meanAnomaly")
+        //-   label Eccentricity: {{ eccentricity }}
+        //-   vue-slider.slider(
+        //-     v-model="eccentricity"
+        //-     , tooltip-dir="left"
+        //-     , tooltip="none"
+        //-     , :max="0.5"
+        //-     , :interval="0.01"
+        //-     , :formatter="tooltipPrecisionFormatter(2)"
+        //-     , :speed="0"
+        //-   )
+        //-
+        //-   label Axial Tilt: {{ tiltAngle }}&deg;
+        //-   vue-slider.slider(
+        //-     v-model="tiltAngle"
+        //-     , tooltip-dir="left"
+        //-     , tooltip="none"
+        //-     , :max="90"
+        //-     , :interval="1"
+        //-     , :formatter="tooltipPrecisionFormatter(0)"
+        //-     , :speed="0"
+        //-   )
+        //-
+        //-   br/
+        //-
+        //-   b-field(grouped)
+        //-     b-checkbox(v-model="showGrid")
+        //-       span Grid
+        //-     b-checkbox(v-model="showEarthOrbits")
+        //-       span Earth Orbits
+        //-     b-checkbox(v-model="showSunOrbits")
+        //-       span Solar Orbits
+        //-
+        //-   b-field(grouped)
+        //-     b-checkbox(v-model="showSun")
+        //-       span Sun
+        //-     b-checkbox(v-model="showMeanSun")
+        //-       span Mean Sun
+        //-     b-checkbox(v-model="showEOTWedge")
+        //-       span EOT Wedge
+        //-
+        //- .column.is-two-fifths.mini-graph
+        //-   EOTGraph(:eccentricity="eccentricity", :tilt="tiltAngle * deg", :mean-anomaly="meanAnomaly")
 
   .controls.scrollbars
     .columns
@@ -82,13 +82,12 @@
                     , :max="1"
                     , :min="0.01"
                     , :interval="0.01"
-                    , :disabled="!player.paused"
                   )
 
           b-field
-            .control
-              .button.btn-dark(@click="graphOpen = !graphOpen", :class="{ 'is-primary': graphOpen }")
-                b-icon.icon-only(icon="chart-bell-curve")
+            //- .control
+            //-   .button.btn-dark(@click="graphOpen = !graphOpen", :class="{ 'is-primary': graphOpen }")
+            //-     b-icon.icon-only(icon="chart-bell-curve")
 
             .control
               .button.btn-dark(@click="showEarthOptionsModal = !showEarthOptionsModal")
@@ -152,7 +151,7 @@
       transition(name="fade")
         .clock(v-if="showSolarClock")
           label Solar Time
-          .time {{solarClock}}
+          .time {{meanClock}}
 </template>
 
 <script>
@@ -218,7 +217,7 @@ function clockFromMinutes( n ){
 const meddleEasing = Copilot.Easing.Elastic.Out
 
 export default {
-  name: 'elliptic-orbit'
+  name: 'stellar-days'
   , inject: [ 'player' ]
   , props: {
     viewWidth: Number
@@ -244,9 +243,6 @@ export default {
 
     , playRate: 0.1
 
-    , showGrid: false
-    , cameraFollow: false
-
     , copilotState: {}
   })
   , computed: {
@@ -271,7 +267,7 @@ export default {
       let minutes = minutesPerDay * dayFrac
       return clockFromMinutes( minutes )
     }
-    , solarClock(){
+    , meanClock(){
       const minutesPerDay = 24 * 60
       // perhelion should not matter for realistic days per year
       // but need this to correct for weird days per year
@@ -291,6 +287,7 @@ export default {
       , 'eccentricity'
       , 'tiltAngle'
       , 'cameraTarget'
+      , 'cameraFollow'
       , 'solarDaysPerYear'
       , 'showEarthOrbits'
       , 'showSunOrbits'
@@ -301,6 +298,7 @@ export default {
       , 'showMeanDayArc'
       , 'showSolarDayArc'
       , 'showPM'
+      , 'showGrid'
 
       , 'showStellarClock'
       , 'showSolarClock'
@@ -343,6 +341,7 @@ export default {
         , interpolator: Copilot.Interpolators.Step
         , interpolatorOpts: { threshold: 0 }
       }
+      , cameraFollow: false
       , showEarthOrbits: true
       , showSunOrbits: false
       , showEOTWedge: false
@@ -352,6 +351,7 @@ export default {
       , showMeanDayArc: false
       , showSolarDayArc: false
       , showPM: true
+      , showGrid: false
 
       , showStellarClock: true
       , showSolarClock: false
@@ -410,54 +410,47 @@ export default {
     frames.add({
       cameraPosition: new THREE.Vector3(-5, -50, 30)
     }, {
-      time: '16s'
-      , duration: '100%'
+      time: '13s'
+      , duration: '5s'
       , easing: Copilot.Easing.Sinusoidal.InOut
-    })
-
-    frames.add({
-      showSiderialDayArc: true
-      , showDegrees: true
-    }, {
-      time: '16.9s'
-      , duration: '1s'
     })
 
     frames.add({
       orbitalPosition: 2 / (solarDaysPerYear + 1)
       , cameraPosition: new THREE.Vector3(0, 20, 0)
     }, {
-      time: '17s'
+      time: '14s'
       , duration: '1s'
       , easing: Copilot.Easing.Quadratic.InOut
     })
 
     frames.add({
+      showSiderialDayArc: true
+      , showDegrees: true
+    }, {
+      time: '15s'
+      , duration: '1s'
+    })
+
+    frames.add({
       orbitalPosition: 3 / (solarDaysPerYear + 1)
     }, {
-      time: '23s'
-      , startTime: '17s'
+      time: '19s'
+      , startTime: '15s'
       , easing: Copilot.Easing.Quadratic.InOut
     })
 
     frames.add({
       showStellarClock: true
     }, {
-      time: '24s'
+      time: '20s'
     })
 
     frames.add({
       orbitalPosition: 8 / (solarDaysPerYear + 1)
     }, {
       time: '38s'
-      , duration: '15s'
-    })
-
-    frames.add({
-      orbitalPosition: 1
-    }, {
-      time: '56s'
-      , startTime: '45s'
+      , startTime: '19s'
     })
 
     frames.add({
@@ -465,22 +458,29 @@ export default {
       , showSun: true
       , showEarthOrbits: true
     }, {
-      time: '55s'
+      time: '56s'
       , duration: '1s'
       , easing: Copilot.Easing.Quadratic.InOut
     })
 
     frames.add({
+      orbitalPosition: 1
+    }, {
+      time: '01:00'
+      , startTime: '56s'
+    })
+
+    frames.add({
       orbitalPosition: 1.5
     }, {
-      startTime: '00:58'
-      , time: '01:03'
+      startTime: '01:11'
+      , time: '01:16'
     })
 
     frames.add({
       cameraZoom: 40
     }, {
-      time: '01:05'
+      time: '01:16'
       , duration: '1s'
       , easing: Copilot.Easing.Quadratic.InOut
     })
@@ -488,7 +488,7 @@ export default {
     frames.add({
       cameraPosition: new THREE.Vector3(-5, 20, 30)
     }, {
-      time: '01:11'
+      time: '01:29'
       , duration: '1s'
       , easing: Copilot.Easing.Sinusoidal.InOut
     })
@@ -497,11 +497,11 @@ export default {
     frames.add({
       handsOff: true
     }, {
-      time: '01:29'
-      , startTime: '01:11'
+      time: '03:06'
+      , startTime: '01:29'
     })
 
-    this.setQueue('01:11', () => {
+    this.setQueue('01:29', () => {
       this.paused = false
     })
 
@@ -558,7 +558,7 @@ export default {
         // ensure that the shortest path is taken to get to target
         let playerPosition = this.frames.getStateAt( this.frames.time ).orbitalPosition
         orbitalPosition = playerPosition + shortestDistance( playerPosition, orbitalPosition, 1 )
-        this.orbitalPosition = { $value: orbitalPosition, $meddleOptions: { relaxDelay: 0, relaxDuration: 1, easing: Copilot.Easing.Quadratic.InOut } }
+        this.orbitalPosition = { $value: orbitalPosition, $meddleOptions: { freeze: this.handsOff, relaxDelay: 0, relaxDuration: 1, easing: Copilot.Easing.Quadratic.InOut } }
 
       } else if ( this.paused && this.yearAngleDrag ){
 

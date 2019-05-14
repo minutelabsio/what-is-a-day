@@ -118,7 +118,7 @@
             )
             //- mean sun orbit
             Orbit(
-              :visible="showSunOrbits"
+              :visible="showSunOrbits && showMeanSun"
               , :radius="sunDistance"
               , :segments="50"
               , :rotation="[Math.PI/2, 0, 0]"
@@ -127,7 +127,7 @@
               , :color="red"
             )
             Orbit(
-              :visible="showSunOrbits"
+              :visible="showSunOrbits && showMeanSun"
               , :radius="sunDistance"
               , :segments="50"
               , :rotation="[Math.PI/2, 0, 0]"
@@ -147,7 +147,7 @@
                   , :color="yellow"
                 )
                 Orbit(
-                  :visible="showSunOrbits"
+                  :visible="showSunOrbits && showSun"
                   , :radius="[majorAxis, semiMajorAxis]"
                   , :segments="50"
                   , :rotation="[Math.PI/2, Math.PI, 0]"
@@ -156,7 +156,7 @@
                   , :color="yellow"
                 )
                 Orbit(
-                  :visible="showSunOrbits"
+                  :visible="showSunOrbits && showSun"
                   , :radius="[majorAxis, semiMajorAxis]"
                   , :segments="50"
                   , :rotation="[Math.PI/2, Math.PI, 0]"
@@ -172,7 +172,7 @@
         v3-dom(v-if="showEarthOrbits && showMonthLabels", v-for="(month, index) in months", :key="index", :position="[(sunDistance + 2) * Math.cos(Pi2 * index / 12), 0, -(sunDistance + 2) * Math.sin(Pi2 * index / 12)]")
           .month-marker {{ month }}
         Orbit(
-          :visible="showEarthOrbits"
+          :visible="showEarthOrbits && showMeanSun"
           , :radius="sunDistance"
           , :segments="50"
           , :rotation="[Math.PI/2, Math.PI, 0]"
@@ -181,7 +181,7 @@
           , :color="red"
         )
         Orbit(
-          :visible="showEarthOrbits"
+          :visible="showEarthOrbits && showMeanSun"
           , :radius="sunDistance"
           , :segments="50"
           , :rotation="[Math.PI/2, Math.PI, 0]"
@@ -206,7 +206,7 @@
               , :opacity="0.3"
             )
             Orbit(
-              :visible="showEarthOrbits"
+              :visible="showEarthOrbits && showSun"
               , :radius="[majorAxis, semiMajorAxis]"
               , :segments="50"
               , :rotation="[Math.PI/2, Math.PI, 0]"
@@ -215,7 +215,7 @@
               , :color="yellow"
             )
             Orbit(
-              :visible="showEarthOrbits"
+              :visible="showEarthOrbits && showSun"
               , :radius="[majorAxis, semiMajorAxis]"
               , :segments="50"
               , :rotation="[Math.PI/2, Math.PI, 0]"

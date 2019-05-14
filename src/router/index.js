@@ -19,7 +19,7 @@ export default new Router({
           , meta: {
             title: 'Stellar Days'
             , audio: [
-              require('@/assets/v2/ML11-stellar-days.mp3')
+              require('@/assets/v3/01-stellar-days.mp3')
             ]
           }
         }
@@ -30,7 +30,29 @@ export default new Router({
           , meta: {
             title: 'Solar Days'
             , audio: [
-              require('@/assets/v2/ML11-solar-days.mp3')
+              require('@/assets/v3/02-solar-days.mp3')
+            ]
+          }
+        }
+        , {
+          path: 'elliptic-orbit'
+          , name: 'elliptic-orbit'
+          , component: () => import('@/components/chapters/elliptic-orbit')
+          , meta: {
+            title: 'Earth\'s Elliptic Orbit'
+            , audio: [
+              require('@/assets/v3/03-elliptical-orbit.mp3')
+            ]
+          }
+        }
+        , {
+          path: 'axial-tilt'
+          , name: 'axial-tilt'
+          , component: () => import('@/components/chapters/axial-tilt')
+          , meta: {
+            title: 'Earth\'s Axial Tilt'
+            , audio: [
+              require('@/assets/v3/04-axial-tilt.mp3')
             ]
           }
         }
