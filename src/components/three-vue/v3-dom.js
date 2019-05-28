@@ -52,7 +52,7 @@ export default {
   , mounted(){
     this.$el.style.position = 'absolute'
     this.v3object.element = this.$el
-    this.threeVue.$el.appendChild( this.$el )
+    // this.threeVue.$el.appendChild( this.$el )
   }
   , methods: {
     updateObjects(){
