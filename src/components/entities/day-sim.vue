@@ -138,14 +138,16 @@
 
             v3-group(:rotation="[0, vernalEquinoxAngle, 0]")
               v3-group(:rotation="[tiltAngle, -vernalEquinoxAngle, 0]")
+                v3-dom(v-if="showSunOrbits && showMonthLabels", v-for="(month, index) in months", :key="index", :position="[(sunDistance + 2) * Math.cos(Pi2 * index / 12), 0, -(sunDistance + 2) * Math.sin(Pi2 * index / 12)]")
+                  .month-marker(:class="{ active: currentMonth === month }") {{ month }}
                 //- solar path (celestial equator)
-                Orbit(
-                  :visible="showSun"
-                  , :radius="1.01"
-                  , :segments="100"
-                  , :rotation="[Math.PI/2, 0, 0]"
-                  , :color="yellow"
-                )
+                //- Orbit(
+                //-   :visible="showSun"
+                //-   , :radius="1.01"
+                //-   , :segments="100"
+                //-   , :rotation="[Math.PI/2, 0, 0]"
+                //-   , :color="yellow"
+                //- )
                 Orbit(
                   :visible="showSunOrbits && showSun"
                   , :radius="[majorAxis, semiMajorAxis]"
@@ -170,7 +172,7 @@
         Sun3D(ref="meanSun", :isMean="true")
         v3-line(:visible="showEOTWedge", :from="sunPosProjection", :to="sunPosition", :color="yellow")
         v3-dom(v-if="showEarthOrbits && showMonthLabels", v-for="(month, index) in months", :key="index", :position="[(sunDistance + 2) * Math.cos(Pi2 * index / 12), 0, -(sunDistance + 2) * Math.sin(Pi2 * index / 12)]")
-          .month-marker {{ month }}
+          .month-marker(:class="{ active: currentMonth === month }") {{ month }}
         Orbit(
           :visible="showEarthOrbits && showMeanSun"
           , :radius="sunDistance"
@@ -639,6 +641,10 @@ export default {
     , meanAnomaly(){
       return angleModulo(this.day * this.radsPerYear - PERHELION)
     }
+    , currentMonth(){
+      let idx = euclideanModulo(this.day * 12 / this.daysPerYear, 12)
+      return months[ idx | 0 ]
+    }
     , dayAngle(){
       return (this.day % 1) * Pi2
     }
@@ -856,7 +862,10 @@ export default {
   cursor: crosshair
 .month-marker
   font-family: $family-monospace
+  transition: color .15s ease
   color: rgba(200, 200, 255, 0.25)
+  &.active
+    color: rgba(255, 255, 255, 0.6)
 .scene-label
   font-family: $family-monospace
   text-shadow: 0 0 3px rgba(0, 0, 0, 1)

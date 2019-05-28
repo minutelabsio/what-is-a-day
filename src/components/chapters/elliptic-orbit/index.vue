@@ -38,7 +38,7 @@
     , :showEOTWedge="showEOTWedge"
     , :showSun="showSun"
     , :showMeanSun="showMeanSun"
-    , :showMonthLabels="showMonthLabels"
+    , :showMonthLabels="showMeanSun"
     , :showSiderialDayArc="showSiderialDayArc"
     , :showMeanDayArc="showMeanDayArc"
     , :showSolarDayArc="showSolarDayArc"

@@ -38,7 +38,7 @@
     , :showEOTWedge="showEOTWedge"
     , :showSun="showSun"
     , :showMeanSun="showMeanSun"
-    , :showMonthLabels="showMonthLabels"
+    , :showMonthLabels="showMeanSun"
     , :showSiderialDayArc="showSiderialDayArc"
     , :showMeanDayArc="showMeanDayArc"
     , :showSolarDayArc="showSolarDayArc"
@@ -700,12 +700,6 @@ export default {
   cursor: crosshair
   overflow: hidden
 
-.modal-options
-  padding: 1em
-
-  .mini-graph
-    max-width: 400px
-
 .tools
   position: absolute
   z-index: 1
@@ -720,48 +714,6 @@ export default {
     &:hover,
     &:active
       color: lighten($red, 10)
-
-.controls
-  position: absolute
-  z-index: 15
-  max-height: 100%
-  width: 100%
-  top: 0
-  right: 0
-  padding: 0.75rem
-  background: transparentize($background, 0.4)
-  border-radius: 0 0 0 3px
-  border: 1px solid $background
-  border-top-width: 0
-  border-right-width: 0
-
-  & > .columns
-    margin-bottom: -0.75em
-
-  .eot-graph
-    position: absolute
-    right: 0
-    margin-top: 0.75em
-    max-width: 480px
-    background: transparentize($background, 0.2)
-
-  .field
-    margin: 0
-
-  .level
-    margin-bottom: 0
-
-  .extra-fields
-    padding-top: 1rem
-
-  .extra-fields + .eot-graph
-    margin-top: 2rem
-
-  .slider
-    margin-bottom: 0.5rem
-
-  .checkbox:hover
-    color: $text
 
 .earth-label,
 .stellar-label,
