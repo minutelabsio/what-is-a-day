@@ -1,9 +1,9 @@
 import * as THREE from 'three'
-import { CSS2DObject } from 'three/examples/js/renderers/CSS2DRenderer'
+import { CSS2DObject } from 'three/examples/js/renderers/CSS2DRenderer' // eslint-disable-line no-unused-vars
 import THREEObjectMixin from '@/components/three-vue/v3-object.mixin'
 
 const dummyEl = document.createElement('div')
-const origin2d = new THREE.Vector2()
+const origin2d = new THREE.Vector2() // eslint-disable-line no-unused-vars
 
 const threeProps = {
   position: {
