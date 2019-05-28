@@ -8,6 +8,7 @@
 // import PubSub from '@/lib/pubsub'
 import Copilot from 'copilot'
 import { Howl, Howler } from 'howler'
+import NoSleep from 'nosleep.js'
 import _throttle from 'lodash/throttle'
 
 export default {
@@ -61,6 +62,20 @@ export default {
     this.$once('hook:beforeDestroy', () => {
       cleanup()
     })
+
+    this.$on('end', () => {
+      this.paused = true
+    })
+
+    const noSleep = new NoSleep()
+
+    this.$on('change:paused', isPaused => {
+      if ( isPaused ){
+        noSleep.disable()
+      } else {
+        noSleep.enable()
+      }
+    })
   }
   , destroyed(){
     if ( this.howls ){
@@ -83,7 +98,7 @@ export default {
         newHowl.on('loaderror', this.announceError.bind(this))
         newHowl.on('play', () => { this.paused = false })
         newHowl.on('pause', () => { this.paused = true })
-        newHowl.on('end', () => { this.paused = true })
+        newHowl.on('end', () => { this.$emit('end') })
         newHowl.load().seek(0)
       }
       , immediate: true
