@@ -352,7 +352,7 @@ export default {
       , eccentricity: 0
       , cameraTarget: {
         type: String
-        , default: 'earth'
+        , default: 'meanSun'
         , interpolator: Copilot.Interpolators.Step
         , interpolatorOpts: { threshold: 0 }
       }
@@ -475,6 +475,7 @@ export default {
     frames.add({
       cameraPosition: new THREE.Vector3(0, 20, 0.1)
       , cameraZoom: 80
+      , cameraTarget: 'earth'
     }, {
       time: '01:29'
       , duration: '2s'
@@ -489,6 +490,7 @@ export default {
 
     frames.add({
       cameraZoom: 20
+      , cameraTarget: 'meanSun'
     }, {
       time: '01:42'
       , duration: '2s'
@@ -511,10 +513,11 @@ export default {
 
     frames.add({
       showSun: true
+      , cameraTarget: 'sun'
       , showMeanSun: false
       , showMonthLabels: false
     }, {
-      time: '01:50'
+      time: '01:49'
       , duration: 1
     })
 
@@ -527,6 +530,7 @@ export default {
 
     frames.add({
       showMeanSun: true
+      , cameraTarget: 'meanSun'
       , showMonthLabels: true
     }, {
       time: '02:12'
@@ -796,10 +800,10 @@ export default {
   transition: bottom 0.3s ease
   &.up
     position: relative
-    bottom: 0.75em
+    bottom: 0.85em
   &.down
     position: relative
-    bottom: -0.75em
+    bottom: -0.85em
 .earth-label
   position: relative
   bottom: 1em
