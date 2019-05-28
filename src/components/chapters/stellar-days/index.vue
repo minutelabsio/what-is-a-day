@@ -4,7 +4,7 @@
     .modal-options
       .columns
         .column
-          label Days per Year: {{ solarDaysPerYear }}
+          label Stellar days per Year: {{ solarDaysPerYear + 1 }}
           vue-slider.slider(
             v-model="solarDaysPerYear"
             , tooltip-dir="left"

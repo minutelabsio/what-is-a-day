@@ -15,7 +15,7 @@ export default new Router({
         {
           path: 'stellar'
           , name: 'stellar'
-          , component: () => import('@/components/chapters/sidereal-v-solar')
+          , component: () => import('@/components/chapters/stellar-days')
           , meta: {
             title: 'Stellar Days'
             , audio: [
