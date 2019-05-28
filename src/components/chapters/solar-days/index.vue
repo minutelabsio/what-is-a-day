@@ -1,109 +1,17 @@
 <template lang="pug">
 .chapter
-  b-modal(:active.sync="showEarthOptionsModal", scroll="keep")
-    .modal-options
-      .columns
-        .column
-          label Solar days per Year: {{ solarDaysPerYear }}
-          vue-slider.slider(
-            v-model="solarDaysPerYear"
-            , tooltip-dir="left"
-            , tooltip="none"
-            , :max="365"
-            , :min="0"
-            , :interval="1"
-            , :formatter="tooltipPrecisionFormatter(0)"
-            , :speed="0"
-          )
+  SimControls(
+    :handsOff="handsOff"
 
-        //-   label Eccentricity: {{ eccentricity }}
-        //-   vue-slider.slider(
-        //-     v-model="eccentricity"
-        //-     , tooltip-dir="left"
-        //-     , tooltip="none"
-        //-     , :max="0.5"
-        //-     , :interval="0.01"
-        //-     , :formatter="tooltipPrecisionFormatter(2)"
-        //-     , :speed="0"
-        //-   )
-        //-
-        //-   label Axial Tilt: {{ tiltAngle }}&deg;
-        //-   vue-slider.slider(
-        //-     v-model="tiltAngle"
-        //-     , tooltip-dir="left"
-        //-     , tooltip="none"
-        //-     , :max="90"
-        //-     , :interval="1"
-        //-     , :formatter="tooltipPrecisionFormatter(0)"
-        //-     , :speed="0"
-        //-   )
-        //-
-        //-   br/
-        //-
-        //-   b-field(grouped)
-        //-     b-checkbox(v-model="showGrid")
-        //-       span Grid
-        //-     b-checkbox(v-model="showEarthOrbits")
-        //-       span Earth Orbits
-        //-     b-checkbox(v-model="showSunOrbits")
-        //-       span Solar Orbits
-        //-
-        //-   b-field(grouped)
-        //-     b-checkbox(v-model="showSun")
-        //-       span Sun
-        //-     b-checkbox(v-model="showMeanSun")
-        //-       span Mean Sun
-        //-     b-checkbox(v-model="showEOTWedge")
-        //-       span EOT Wedge
-        //-
-        //- .column.is-two-fifths.mini-graph
-        //-   EOTGraph(:eccentricity="eccentricity", :tilt="tiltAngle * deg", :mean-anomaly="meanAnomaly")
+    , :paused.sync="paused"
+    , :playRate.sync="playRate"
+    , :graphOpen.sync="graphOpen"
+    , :cameraTarget.sync="cameraTarget"
+    , :cameraFollow.sync="cameraFollow"
+    , :solarDaysPerYear.sync="solarDaysPerYear"
 
-  .controls.scrollbars
-    .columns
-      .column
-        b-field(grouped)
-          b-field
-            .control
-              b-checkbox-button.checkbox-btn-dark(v-model="paused", :disabled="!handsOff")
-                b-icon.icon-only(:icon="paused ? 'orbit' : 'cancel'")
-
-            .control
-              b-dropdown(:mobile-modal="false", :hoverable="true")
-                .button.btn-dark(slot="trigger")
-                  b-icon(icon="clock-fast")
-
-                b-dropdown-item(custom)
-                  label Orbit Speed
-                  vue-slider.slider(
-                    v-model="playRate"
-                    , tooltip-dir="left"
-                    , tooltip="none"
-                    , :max="1"
-                    , :min="0.01"
-                    , :interval="0.01"
-                  )
-
-          b-field
-            //- .control
-            //-   .button.btn-dark(@click="graphOpen = !graphOpen", :class="{ 'is-primary': graphOpen }")
-            //-     b-icon.icon-only(icon="chart-bell-curve")
-
-            .control
-              .button.btn-dark(@click="showEarthOptionsModal = !showEarthOptionsModal")
-                b-icon.icon-only(icon="settings")
-
-      .column
-        b-field(grouped)
-          b-select(v-model="cameraTarget", icon="camera-control")
-            option(value="earth") Focus Earth
-            option(value="sun") Focus Sun
-            //- option(value="meanSun") Focus Mean Sun
-          b-switch(v-model="cameraFollow")
-            | Follow Orbit
-
-    .eot-graph(v-if="graphOpen")
-      EOTGraph(:eccentricity="eccentricity", :tilt="tiltAngle * deg", :mean-anomaly="meanAnomaly")
+    , :useStellarDays="true"
+  )
 
   DaySim(
     ref="sim"
@@ -158,8 +66,7 @@ import Copilot from 'copilot'
 import * as THREE from 'three'
 import DaySim from '@/components/entities/day-sim'
 import EOTGraph from '@/components/entities/eot-graph'
-import vueSlider from 'vue-slider-component'
-import 'vue-slider-component/theme/default.css'
+import SimControls from '@/components/sim-controls'
 import { PERHELION, VERNAL, euclideanModulo } from '@/lib/stellar-mechanics'
 
 const Pi2 = Math.PI * 2
@@ -226,7 +133,7 @@ export default {
   , components: {
     DaySim
     , EOTGraph
-    , vueSlider
+    , SimControls
   }
   , data: () => ({
     deg

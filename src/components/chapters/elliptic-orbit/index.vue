@@ -1,109 +1,29 @@
 <template lang="pug">
 .chapter
-  b-modal(:active.sync="showEarthOptionsModal", scroll="keep")
-    .modal-options
-      .columns
-        .column
-          label Days per Year: {{ solarDaysPerYear }}
-          vue-slider.slider(
-            v-model="solarDaysPerYear"
-            , tooltip-dir="left"
-            , tooltip="none"
-            , :max="365"
-            , :min="0"
-            , :interval="1"
-            , :formatter="tooltipPrecisionFormatter(0)"
-            , :speed="0"
-          )
+  SimControls(
+    :handsOff="handsOff"
 
-          label Eccentricity: {{ eccentricity }}
-          vue-slider.slider(
-            v-model="eccentricity"
-            , tooltip-dir="left"
-            , tooltip="none"
-            , :max="0.5"
-            , :interval="0.01"
-            , :formatter="tooltipPrecisionFormatter(2)"
-            , :speed="0"
-          )
+    , :paused.sync="paused"
+    , :playRate.sync="playRate"
+    , :graphOpen.sync="graphOpen"
+    , :cameraTarget.sync="cameraTarget"
+    , :cameraFollow.sync="cameraFollow"
+    , :solarDaysPerYear.sync="solarDaysPerYear"
+    , :eccentricity.sync="eccentricity"
 
-          //- label Axial Tilt: {{ tiltAngle }}&deg;
-          //- vue-slider.slider(
-          //-   v-model="tiltAngle"
-          //-   , tooltip-dir="left"
-          //-   , tooltip="none"
-          //-   , :max="90"
-          //-   , :interval="1"
-          //-   , :formatter="tooltipPrecisionFormatter(0)"
-          //-   , :speed="0"
-          //- )
-          //-
-          //- br/
-          //-
-          //- b-field(grouped)
-          //-   b-checkbox(v-model="showGrid")
-          //-     span Grid
-          //-   b-checkbox(v-model="showEarthOrbits")
-          //-     span Earth Orbits
-          //-   b-checkbox(v-model="showSunOrbits")
-          //-     span Solar Orbits
+    , :showGrid.sync="showGrid"
+    , :showEarthOrbits.sync="showEarthOrbits"
+    , :showSunOrbits.sync="showSunOrbits"
 
-          b-field(grouped)
-            b-checkbox(v-model="showSun")
-              span Sun
-            b-checkbox(v-model="showMeanSun")
-              span Mean Sun
-            b-checkbox(v-model="showEOTWedge")
-              span Punctuality Wedge
-
-        .column.is-two-fifths.mini-graph
-          EOTGraph(:eccentricity="eccentricity", :tilt="tiltAngle * deg", :mean-anomaly="meanAnomaly")
-
-  .controls.scrollbars
-    .columns
-      .column
-        b-field(grouped)
-          b-field
-            .control
-              b-checkbox-button.checkbox-btn-dark(v-model="paused", :disabled="!handsOff")
-                b-icon.icon-only(:icon="paused ? 'orbit' : 'cancel'")
-
-            .control
-              b-dropdown(:mobile-modal="false", :hoverable="true")
-                .button.btn-dark(slot="trigger")
-                  b-icon(icon="clock-fast")
-
-                b-dropdown-item(custom)
-                  label Orbit Speed
-                  vue-slider.slider(
-                    v-model="playRate"
-                    , tooltip-dir="left"
-                    , tooltip="none"
-                    , :max="1"
-                    , :min="0.01"
-                    , :interval="0.01"
-                  )
-
-          b-field
-            .control
-              .button.btn-dark(@click="graphOpen = !graphOpen", :class="{ 'is-primary': graphOpen }")
-                b-icon.icon-only(icon="chart-bell-curve")
-
-            .control
-              .button.btn-dark(@click="showEarthOptionsModal = !showEarthOptionsModal")
-                b-icon.icon-only(icon="settings")
-
-      .column
-        b-field(grouped)
-          b-select(v-model="cameraTarget", icon="camera-control")
-            option(value="earth") Focus Earth
-            option(value="sun") Focus Sun
-            option(value="meanSun") Focus Mean Sun
-          b-switch(v-model="cameraFollow")
-            | Follow Orbit
-
+    , :showSun.sync="showSun"
+    , :showMeanSun.sync="showMeanSun"
+    , :showEOTWedge.sync="showEOTWedge"
+  )
     .eot-graph(v-if="graphOpen")
       EOTGraph(:eccentricity="eccentricity", :tilt="tiltAngle * deg", :mean-anomaly="meanAnomaly")
+    template(slot="modal")
+      .column.is-two-fifths.mini-graph
+        EOTGraph(:eccentricity="eccentricity", :tilt="tiltAngle * deg", :mean-anomaly="meanAnomaly")
 
   DaySim(
     ref="sim"
@@ -138,9 +58,6 @@
     , @camera:change="meddleCamera"
   )
     .earth-label(slot="earth-label")
-      .tools
-        .icon-btn(@click="showEarthOptionsModal = true")
-          b-icon(icon="settings")
       transition(name="fade")
         label.angle-label(v-if="showDegrees") {{dayAngle.toFixed(0)}}
           span.degrees &deg;
@@ -159,8 +76,7 @@ import Copilot from 'copilot'
 import * as THREE from 'three'
 import DaySim from '@/components/entities/day-sim'
 import EOTGraph from '@/components/entities/eot-graph'
-import vueSlider from 'vue-slider-component'
-import 'vue-slider-component/theme/default.css'
+import SimControls from '@/components/sim-controls'
 import { PERHELION, VERNAL, euclideanModulo, calcEOT } from '@/lib/stellar-mechanics'
 
 const Pi2 = Math.PI * 2
@@ -227,7 +143,7 @@ export default {
   , components: {
     DaySim
     , EOTGraph
-    , vueSlider
+    , SimControls
   }
   , data: () => ({
     deg
@@ -727,12 +643,6 @@ export default {
   cursor: crosshair
   overflow: hidden
 
-.modal-options
-  padding: 1em
-
-  .mini-graph
-    max-width: 400px
-
 .tools
   position: absolute
   z-index: 1
@@ -747,48 +657,6 @@ export default {
     &:hover,
     &:active
       color: lighten($red, 10)
-
-.controls
-  position: absolute
-  z-index: 15
-  max-height: 100%
-  width: 100%
-  top: 0
-  right: 0
-  padding: 0.75rem
-  background: transparentize($background, 0.4)
-  border-radius: 0 0 0 3px
-  border: 1px solid $background
-  border-top-width: 0
-  border-right-width: 0
-
-  & > .columns
-    margin-bottom: -0.75em
-
-  .eot-graph
-    position: absolute
-    right: 0
-    margin-top: 0.75em
-    max-width: 480px
-    background: transparentize($background, 0.2)
-
-  .field
-    margin: 0
-
-  .level
-    margin-bottom: 0
-
-  .extra-fields
-    padding-top: 1rem
-
-  .extra-fields + .eot-graph
-    margin-top: 2rem
-
-  .slider
-    margin-bottom: 0.5rem
-
-  .checkbox:hover
-    color: $text
 
 .earth-label,
 .stellar-label,
