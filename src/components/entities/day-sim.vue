@@ -640,7 +640,7 @@ export default {
       return angleModulo(this.day * this.radsPerYear - PERHELION)
     }
     , dayAngle(){
-      return this.daysPerYear > 1 ? (this.day % 1) * Pi2 : 0
+      return (this.day % 1) * Pi2
     }
     , dayArcAngle(){
       return (this.day % 1) * Pi2
