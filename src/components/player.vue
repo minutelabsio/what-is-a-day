@@ -69,7 +69,7 @@ export default {
 
     const noSleep = new NoSleep()
 
-    this.$on('change:paused', isPaused => {
+    this.$watch('paused', isPaused => {
       if ( isPaused ){
         noSleep.disable()
       } else {
