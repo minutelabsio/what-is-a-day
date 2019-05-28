@@ -5,8 +5,13 @@
       b-field(grouped)
         b-field
           .control
+            .button.btn-dark(@click="showEarthOptionsModal = !showEarthOptionsModal")
+              b-icon.icon-only(icon="settings")
+
+        b-field
+          .control
             b-checkbox-button.checkbox-btn-dark(v-model="pausedVal", :disabled="!handsOff")
-              b-icon.icon-only(:icon="pausedVal ? 'orbit' : 'cancel'")
+              b-icon.icon-only(icon="orbit")
 
           .control
             b-dropdown(:mobile-modal="false", :hoverable="true")
@@ -28,10 +33,6 @@
           .control(v-if="graphOpen !== undefined")
             .button.btn-dark(@click="graphOpenVal = !graphOpenVal", :class="{ 'is-primary': graphOpenVal }")
               b-icon.icon-only(icon="chart-bell-curve")
-
-          .control
-            .button.btn-dark(@click="showEarthOptionsModal = !showEarthOptionsModal")
-              b-icon.icon-only(icon="settings")
 
     .column
       b-field(grouped)
@@ -160,44 +161,86 @@ export default {
     }
   }
   , watch: {
-    pausedVal( v ){
+    paused( v ){
+      this.pausedVal = v
+    }
+    , pausedVal( v ){
       this.$emit('update:paused', v)
+    }
+    , playRate( v ){
+      this.playRateVal = v
     }
     , playRateVal( v ){
       this.$emit('update:playRate', v)
     }
+    , graphOpen( v ){
+      this.graphOpenVal = v
+    }
     , graphOpenVal( v ){
       this.$emit('update:graphOpen', v)
+    }
+    , cameraTarget( v ){
+      this.cameraTargetVal = v
     }
     , cameraTargetVal( v ){
       this.$emit('update:cameraTarget', v)
     }
+    , cameraFollow( v ){
+      this.cameraFollowVal = v
+    }
     , cameraFollowVal( v ){
       this.$emit('update:cameraFollow', v)
+    }
+    , solarDaysPerYear( v ){
+      this.solarDaysPerYearVal = v
     }
     , solarDaysPerYearVal( v ){
       this.$emit('update:solarDaysPerYear', v)
     }
+    , eccentricity( v ){
+      this.eccentricityVal = v
+    }
     , eccentricityVal( v ){
       this.$emit('update:eccentricity', v)
+    }
+    , tiltAngle( v ){
+      this.tiltAngleVal = v
     }
     , tiltAngleVal( v ){
       this.$emit('update:tiltAngle', v)
     }
+    , showGrid( v ){
+      this.showGridVal = v
+    }
     , showGridVal( v ){
       this.$emit('update:showGrid', v)
+    }
+    , showEarthOrbits( v ){
+      this.showEarthOrbitsVal = v
     }
     , showEarthOrbitsVal( v ){
       this.$emit('update:showEarthOrbits', v)
     }
+    , showSunOrbits( v ){
+      this.showSunOrbitsVal = v
+    }
     , showSunOrbitsVal( v ){
       this.$emit('update:showSunOrbits', v)
+    }
+    , showSun( v ){
+      this.showSunVal = v
     }
     , showSunVal( v ){
       this.$emit('update:showSun', v)
     }
+    , showMeanSun( v ){
+      this.showMeanSunVal = v
+    }
     , showMeanSunVal( v ){
       this.$emit('update:showMeanSun', v)
+    }
+    , showEOTWedge( v ){
+      this.showEOTWedgeVal = v
     }
     , showEOTWedgeVal( v ){
       this.$emit('update:showEOTWedge', v)
@@ -217,7 +260,7 @@ export default {
   width: 100%
   top: 0
   right: 0
-  padding: 0.75rem
+  padding: 0.25rem
   background: transparentize($background, 0.4)
   border-radius: 0 0 0 3px
   border: 1px solid $background
@@ -233,6 +276,9 @@ export default {
     margin-top: 0.75em
     max-width: 480px
     background: transparentize($background, 0.2)
+
+  .is-grouped > .field
+    margin-bottom: 0
 
   .level
     margin-bottom: 0

@@ -580,6 +580,12 @@ export default {
     })
 
     // end copilot
+
+    const stopOrbitOnPlay = () => { this.paused = true }
+    this.player.$on('play', stopOrbitOnPlay)
+    this.$on('hook:beforeDestroy', () => {
+      this.player.$off('play', stopOrbitOnPlay)
+    })
   }
   , mounted(){
 
