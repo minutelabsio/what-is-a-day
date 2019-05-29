@@ -1,6 +1,6 @@
+;
 // Common
 // @import "~bulmaswatch/solar/_variables";
-;
 @import "./_variables";
 @import "./_fonts";
 @import "~bulma/sass/utilities/initial-variables";
@@ -111,6 +111,23 @@ a:hover {
 
   overflow-y: auto;
   max-height: 400px;
+}
+
+.dropdown.is-active .dropdown-trigger .button {
+  color: $blue;
+}
+
+.dropdown-content {
+  background: $background;
+  border: 1px solid rgba(100, 100, 100, 0.3);
+
+  .dropdown-item {
+    color: $text;
+  }
+  a.dropdown-item:hover {
+    color: $background;
+    background: $text;
+  }
 }
 
 .card.clickable {

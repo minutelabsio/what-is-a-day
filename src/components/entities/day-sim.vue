@@ -109,6 +109,8 @@
               v3-line(:to="[ timeDiffWedgeProps.x1, 0, timeDiffWedgeProps.y1 ]", :color="red")
               v3-line(:to="[ timeDiffWedgeProps.x2, 0, timeDiffWedgeProps.y2 ]", :color="yellow")
             //- mean sun path on earth (ecliptic)
+            v3-dom(v-if="showSunOrbits && showMonthLabels", v-for="(month, index) in months", :key="index", :position="[(sunDistance + 2) * Math.cos(Pi2 * index / 12), 0, -(sunDistance + 2) * Math.sin(Pi2 * index / 12)]")
+              .month-marker(:class="{ active: currentMonth === month }") {{ month }}
             Orbit(
               :visible="showMeanSun"
               , :radius="1.01"
@@ -138,8 +140,6 @@
 
             v3-group(:rotation="[0, vernalEquinoxAngle, 0]")
               v3-group(:rotation="[tiltAngle, -vernalEquinoxAngle, 0]")
-                v3-dom(v-if="showSunOrbits && showMonthLabels", v-for="(month, index) in months", :key="index", :position="[(sunDistance + 2) * Math.cos(Pi2 * index / 12), 0, -(sunDistance + 2) * Math.sin(Pi2 * index / 12)]")
-                  .month-marker(:class="{ active: currentMonth === month }") {{ month }}
                 //- solar path (celestial equator)
                 //- Orbit(
                 //-   :visible="showSun"
@@ -642,7 +642,7 @@ export default {
       return angleModulo(this.day * this.radsPerYear - PERHELION)
     }
     , currentMonth(){
-      let idx = euclideanModulo(this.day * 12 / this.daysPerYear, 12)
+      let idx = euclideanModulo(this.meanAnomaly * 12 / Pi2, 12)
       return months[ idx | 0 ]
     }
     , dayAngle(){
