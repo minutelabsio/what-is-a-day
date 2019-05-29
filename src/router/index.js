@@ -56,6 +56,17 @@ export default new Router({
             ]
           }
         }
+        , {
+          path: 'longest-day'
+          , name: 'longest-day'
+          , component: () => import('@/components/chapters/longest-day')
+          , meta: {
+            title: 'The Longest Day of the Year'
+            , audio: [
+              'https://raw.githubusercontent.com/anars/blank-audio/master/1-second-of-silence.mp3'
+            ]
+          }
+        }
       ]
     }
   ]
