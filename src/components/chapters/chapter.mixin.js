@@ -116,8 +116,21 @@ export default {
       return this.showSun || this.showEarthOrbits
     }
     , solarLabelAbove(){
-      let earthIsRight = euclideanModulo(this.orbitalPosition - 0.25, 1) < 0.5
-      return (this.eot > 0) ^ earthIsRight
+      let camAdjust = this.cameraTheta / Pi2
+      let earthIsRight = euclideanModulo(this.orbitalPosition + camAdjust, 1) < 0.5
+      let topDown = this.cameraTopDown
+      return (this.eot > 0) ^ earthIsRight ^ topDown
+    }
+    , cameraTheta(){
+      let x = this.copilotState.cameraPosition.x
+      let z = this.copilotState.cameraPosition.z
+
+      return euclideanModulo(Math.atan2( z, x ), Pi2)
+    }
+    , cameraTopDown(){
+      let y = this.copilotState.cameraPosition.y
+
+      return y >= 0
     }
     // copilot managed
     , ...meddleProps([

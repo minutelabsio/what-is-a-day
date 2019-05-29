@@ -51,11 +51,6 @@
       transition(name="fade")
         .clock(v-if="showStellarClock")
           .time {{siderealClock}}
-    .solar-label(slot="solar-label")
-      transition(name="fade")
-        .clock(v-if="showSolarClock")
-          label Solar Time
-          .time {{meanClock}}
 </template>
 
 <script>

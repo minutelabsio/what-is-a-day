@@ -61,11 +61,11 @@
       transition(name="fade")
         label.angle-label(v-if="showDegrees") {{dayAngle.toFixed(0)}}
           span.degrees &deg;
-    .mean-label(slot="mean-label", :class="{ down: (eot > 0), up: (eot <= 0) }")
+    .mean-label(slot="mean-label", :class="{ down: solarLabelAbove, up: !solarLabelAbove }")
       transition(name="fade")
         .clock(v-if="showMeanClock")
           .time {{meanClock}}
-    .solar-label(slot="solar-label", :class="{ up: (eot > 0), down: (eot <= 0) }")
+    .solar-label(slot="solar-label", :class="{ up: solarLabelAbove, down: !solarLabelAbove }")
       transition(name="fade")
         .clock(v-if="showSolarClock")
           .time {{solarClock}}
