@@ -82,7 +82,6 @@ import chapterMixin from '@/components/chapters/chapter.mixin'
 import { PERHELION, VERNAL, calcEOT } from '@/lib/stellar-mechanics'
 
 const Pi2 = Math.PI * 2
-const deg = Math.PI / 180
 
 export default {
   name: 'longest-day'

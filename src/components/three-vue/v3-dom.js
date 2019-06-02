@@ -29,6 +29,7 @@ export default {
   })
   , created(){
     this.boundingBox = new THREE.Box2()
+    // eslint-disable-next-line
     this.v3object = new THREE.CSS2DObject( dummyEl )
 
     // const vec = this.vec = new THREE.Vector3()
