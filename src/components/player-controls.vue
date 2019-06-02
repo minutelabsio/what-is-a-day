@@ -18,8 +18,8 @@
     .btn.clickable(@click="player.togglePlay")
       .playpause(v-if="!player.ended")
       b-icon.play-again(v-if="player.ended", icon="replay", size="is-large")
-    .btn.clickable(@click="player.next", :class="{ disabled: player.playIndex >= (player.playlist.length - 1) }")
-      b-icon(icon="skip-next", size="is-large")
+    .btn.clickable(@click="player.next", :class="{ disabled: isLast }")
+      b-icon(icon="skip-next", size="is-large", :class="{'pulse-text': !isLast && player.ended }")
 </template>
 
 <script>
@@ -39,6 +39,9 @@ export default {
   , computed: {
     progress(){
       return this.player.time / this.player.totalTime * 100
+    }
+    , isLast(){
+      return this.player.playIndex >= (this.player.playlist.length - 1)
     }
   }
   , methods: {

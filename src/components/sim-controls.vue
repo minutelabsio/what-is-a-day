@@ -1,12 +1,12 @@
 <template lang="pug">
 .controls.scrollbars
-  .columns
+  .columns.is-gapless
     .column
       b-field(grouped)
         b-field
           .control
             .button.btn-dark(@click="showEarthOptionsModal = !showEarthOptionsModal")
-              b-icon.icon-only(icon="settings")
+              b-icon.settings.icon-only(icon="cogs", pack="fa")
 
         b-field
           .control
@@ -33,7 +33,6 @@
           .control(v-if="graphOpen !== undefined")
             .button.btn-dark(@click="graphOpenVal = !graphOpenVal", :class="{ 'is-primary': graphOpenVal }")
               b-icon.icon-only(icon="chart-bell-curve")
-
     .column
       b-field(grouped)
         b-select(v-model="cameraTargetVal", icon="camera-control")
@@ -45,7 +44,7 @@
 
   slot
 
-  b-modal(:active.sync="showEarthOptionsModal", scroll="keep")
+  b-modal(:active.sync="showEarthOptionsModal", scroll="keep", animation="fade")
     .modal-options
       .columns
         .column
@@ -255,7 +254,7 @@ export default {
 <style scoped lang="sass">
 .controls
   position: absolute
-  z-index: 15
+  z-index: 9
   max-height: 100%
   width: 100%
   top: 0
@@ -266,6 +265,9 @@ export default {
   border: 1px solid $background
   border-top-width: 0
   border-right-width: 0
+
+  .settings
+    color: lighten($yellow, 30)
 
   & > .columns
     margin-bottom: -0.75em
@@ -279,6 +281,12 @@ export default {
 
   .is-grouped > .field
     margin-bottom: 0
+
+  .field
+    margin-bottom: 0.25rem
+
+  .columns:last-child
+    margin-bottom: -0.25rem
 
   .level
     margin-bottom: 0
