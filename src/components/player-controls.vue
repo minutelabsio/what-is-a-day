@@ -16,7 +16,8 @@
     .btn.clickable(@click="player.previous", :class="{ disabled: player.playIndex <= 0 }")
       b-icon(icon="skip-previous", size="is-large")
     .btn.clickable(@click="player.togglePlay")
-      .playpause
+      .playpause(v-if="!player.ended")
+      b-icon.play-again(v-if="player.ended", icon="replay", size="is-large")
     .btn.clickable(@click="player.next", :class="{ disabled: player.playIndex >= (player.playlist.length - 1) }")
       b-icon(icon="skip-next", size="is-large")
 </template>
@@ -113,6 +114,9 @@ export default {
 
   .dropdown
     flex: 1
+
+.play-again
+  transform: rotate(-20deg)
 
 .playpause
   $size: 26px

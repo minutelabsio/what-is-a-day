@@ -38,6 +38,7 @@ export default {
     time: 0
     , totalTime: -1
     , paused: true
+    , ended: false
     , playlistIndex: 0
     , scrubbing: false
   })
@@ -65,7 +66,11 @@ export default {
 
     this.$on('end', () => {
       this.paused = true
+      this.ended = true
     })
+
+    this.$on('seek', () => { this.ended = false })
+    this.$on('togglePause', () => { this.ended = false })
 
     const noSleep = new NoSleep()
 
@@ -174,6 +179,7 @@ export default {
     , seek( time ){
       this.time = time
       this.seekAudio()
+      this.$emit('seek')
     }
     , seekAudio: _throttle(function(){
       let vol = this.howl.volume()

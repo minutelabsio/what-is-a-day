@@ -57,6 +57,7 @@ export default {
   }
   , data: () => ({
     deg
+    , cameraZoomCorrection: 1
     , showEarthOptionsModal: false
 
     , cameraDragging: false
@@ -216,7 +217,18 @@ export default {
     })
   }
   , mounted(){
-
+    const fixZoom = () => {
+      let corr = 1
+      let w = window.innerWidth
+      if ( w <= 720 ){
+        // sqrt so it's not linear dropoff
+        corr = Math.sqrt(w / 720)
+      }
+      this.cameraZoomCorrection = corr
+    }
+    window.addEventListener('resize', fixZoom)
+    this.$on('hook:beforeDestroy', () => window.removeEventListener('resize', fixZoom))
+    fixZoom()
   }
   , methods: {
     beforeFrame(){
@@ -258,7 +270,7 @@ export default {
         this.$refs.sim.setCameraProperties({
           position: state.cameraPosition
           // , rotation: state.cameraRotation
-          , zoom: state.cameraZoom
+          , zoom: state.cameraZoom * this.cameraZoomCorrection
         })
       }
 
@@ -283,7 +295,7 @@ export default {
       if ( params ){
         state.cameraPosition = params.position.clone()
         // state.cameraRotation = params.rotation.clone()
-        state.cameraZoom = params.zoom
+        state.cameraZoom = params.zoom / this.cameraZoomCorrection
       }
 
       this.frames.meddle('camera', state, { relaxDelay: 1000, relaxDuration: 1000, freeze: this.handsOff || this.cameraDragging, easing: Copilot.Easing.Cubic.InOut })
