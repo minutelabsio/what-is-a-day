@@ -487,9 +487,9 @@ export default {
     controls.dampingFactor = 0.1
     controls.minZoom = 10
     controls.maxZoom = 500
-    // let epsilon = 0.001
-    // controls.minPolarAngle = epsilon
-    // controls.maxPolarAngle = Math.PI - epsilon
+    let epsilon = 0.001
+    controls.minPolarAngle = epsilon
+    controls.maxPolarAngle = Math.PI - epsilon
 
     let timer = null
     this.cameraInteraction = false

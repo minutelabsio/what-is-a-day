@@ -13,7 +13,7 @@ export default {
   })
   , created(){
     this.raycaster = new THREE.Raycaster()
-    this.mouse = new THREE.Vector2()
+    this.pos = new THREE.Vector2()
   }
   , mounted(){
 
@@ -48,29 +48,50 @@ export default {
     this.listen('mousemove', e => this.onMouseMove( e ))
     this.listen('mousedown', e => this.onMouseDown( e ))
     this.listen('mouseup', e => this.onMouseUp( e ))
+
+    this.listen('touchmove', e => this.onTouchMove( e ))
+    this.listen('touchstart', e => this.onTouchStart( e ), false)
+    this.listen('touchend', e => this.onTouchEnd( e ))
   }
   , render(){
     return null
   }
   , methods: {
-    listen( name, fn ){
+    listen( name, fn, flag ){
       let el = this.threeVue.renderer.domElement
 
-      el.addEventListener(name, fn, { passive: true })
+      el.addEventListener(name, fn, flag !== undefined ? flag : { passive: true })
       this.$on('hook:beforeDestroy', () => {
         el.removeEventListener(name, fn)
       })
     }
     , getMousePos( e ){
-      let mouse = this.mouse
+      let pos = this.pos
       let elOffset = this.threeVue.renderer.domElement.getBoundingClientRect()
       let x = e.clientX - elOffset.left
       let y = e.clientY - elOffset.top
 
-      mouse.x = ( x / elOffset.width ) * 2 - 1
-      mouse.y = - ( y / elOffset.height ) * 2 + 1
+      pos.x = ( x / elOffset.width ) * 2 - 1
+      pos.y = - ( y / elOffset.height ) * 2 + 1
 
-      return mouse
+      return pos
+    }
+    , getTouchPos( e ){
+      let pos = this.pos
+      let elOffset = this.threeVue.renderer.domElement.getBoundingClientRect()
+      let touch = e.touches[0]
+
+      if ( !touch ){
+        return pos
+      }
+
+      let x = touch.pageX - elOffset.left
+      let y = touch.pageY - elOffset.top
+
+      pos.x = ( x / elOffset.width ) * 2 - 1
+      pos.y = - ( y / elOffset.height ) * 2 + 1
+
+      return pos
     }
     , raycast( pos ){
       const camera = this.threeVue.camera
@@ -86,6 +107,32 @@ export default {
     }
     , onMouseDown( e ){
       let pos = this.getMousePos( e )
+      this.dragStart( pos )
+    }
+    , onMouseUp( e ){
+      let pos = this.getMousePos( e )
+      this.dragEnd( pos )
+    }
+    , onMouseMove( e ){
+      let pos = this.getMousePos( e )
+      this.drag( pos )
+    }
+    , onTouchStart( e ){
+      e.preventDefault()
+      let pos = this.getTouchPos( e )
+      this.dragStart( pos )
+    }
+    , onTouchEnd( e ){
+      let pos = this.getTouchPos( e )
+      this.dragEnd( pos )
+    }
+    , onTouchMove( e ){
+      e.preventDefault()
+      e.stopPropagation()
+      let pos = this.getTouchPos( e )
+      this.drag( pos )
+    }
+    , dragStart( pos ){
       let intersects = this.raycast( pos )
 
       if ( !intersects.length ){ return }
@@ -96,8 +143,7 @@ export default {
 
       this.$emit('dragstart', { intersects, ray })
     }
-    , onMouseUp( e ){
-      let pos = this.getMousePos( e )
+    , dragEnd( pos ){
       let intersects = this.raycast( pos )
 
       if ( !this.dragging && !intersects.length ){ return }
@@ -108,8 +154,7 @@ export default {
 
       this.$emit('dragend', { intersects, ray })
     }
-    , onMouseMove( e ){
-      let pos = this.getMousePos( e )
+    , drag( pos ){
       let intersects = this.raycast( pos )
 
       let ray = this.raycaster.ray.clone()
