@@ -5,8 +5,72 @@
       b-field(grouped)
         b-field
           .control
-            .button.btn-dark(@click="showEarthOptionsModal = !showEarthOptionsModal")
+          b-dropdown
+            .button.btn-dark(slot="trigger")
               b-icon.settings.icon-only(icon="cogs", pack="fa")
+
+            b-dropdown-item.settings-content(custom)
+              .sliders
+                label(v-if="useStellarDays") Stellar days per Year: {{ solarDaysPerYearVal + 1 }}
+                label(v-if="!useStellarDays") Standard days per Year: {{ solarDaysPerYearVal }}
+                vue-slider.slider(
+                  v-model="solarDaysPerYearVal"
+                  , tooltip-dir="left"
+                  , tooltip="none"
+                  , :max="365"
+                  , :min="0"
+                  , :interval="1"
+                  , :formatter="tooltipPrecisionFormatter(0)"
+                  , :speed="0"
+                )
+
+                template(v-if="eccentricity !== undefined")
+                  label Eccentricity: {{ eccentricityVal }}
+                  vue-slider.slider(
+                    v-model="eccentricityVal"
+                    , tooltip-dir="left"
+                    , tooltip="none"
+                    , :max="0.5"
+                    , :interval="0.01"
+                    , :formatter="tooltipPrecisionFormatter(2)"
+                    , :speed="0"
+                  )
+
+                template(v-if="tiltAngle !== undefined")
+                  label Axial Tilt: {{ tiltAngleVal }}&deg;
+                  vue-slider.slider(
+                    v-model="tiltAngleVal"
+                    , tooltip-dir="left"
+                    , tooltip="none"
+                    , :max="90"
+                    , :interval="1"
+                    , :formatter="tooltipPrecisionFormatter(0)"
+                    , :speed="0"
+                  )
+
+              h6.subtitle.is-6(v-if="hasGuides") Guides
+              .columns(v-if="hasGuides")
+                .column.is-one-third
+                  b-checkbox(v-if="showGrid !== undefined", v-model="showGridVal")
+                    span Grid
+                .column.is-one-third
+                  b-checkbox(v-if="showEarthOrbits !== undefined", v-model="showEarthOrbitsVal")
+                    span Earth Orbits
+                .column.is-one-third
+                  b-checkbox(v-if="showSunOrbits !== undefined", v-model="showSunOrbitsVal")
+                    span Solar Orbits
+
+              h6.subtitle.is-6(v-if="hasElements") Elements
+              .columns(v-if="hasElements")
+                .column.is-one-third
+                  b-checkbox(v-if="showSun !== undefined", v-model="showSunVal")
+                    span Sun
+                .column.is-one-third
+                  b-checkbox(v-if="showMeanSun !== undefined", v-model="showMeanSunVal")
+                    span Mean Sun
+                .column.is-one-third
+                  b-checkbox(v-if="showEOTWedge !== undefined", v-model="showEOTWedgeVal")
+                    span Punctuality Wedge
 
         b-field
           .control
@@ -18,7 +82,7 @@
               .button.btn-dark(slot="trigger")
                 b-icon(icon="clock-fast")
 
-              b-dropdown-item(custom)
+              b-dropdown-item.no-outline(custom)
                 label Orbit Speed
                 vue-slider.slider(
                   v-model="playRateVal"
@@ -43,67 +107,6 @@
           | Follow Orbit
 
   slot
-
-  b-modal(:active.sync="showEarthOptionsModal", scroll="keep", animation="fade")
-    .modal-options
-      .columns
-        .column
-          label(v-if="useStellarDays") Stellar days per Year: {{ solarDaysPerYearVal + 1 }}
-          label(v-if="!useStellarDays") Standard days per Year: {{ solarDaysPerYearVal }}
-          vue-slider.slider(
-            v-model="solarDaysPerYearVal"
-            , tooltip-dir="left"
-            , tooltip="none"
-            , :max="365"
-            , :min="0"
-            , :interval="1"
-            , :formatter="tooltipPrecisionFormatter(0)"
-            , :speed="0"
-          )
-
-          template(v-if="eccentricity !== undefined")
-            label Eccentricity: {{ eccentricityVal }}
-            vue-slider.slider(
-              v-model="eccentricityVal"
-              , tooltip-dir="left"
-              , tooltip="none"
-              , :max="0.5"
-              , :interval="0.01"
-              , :formatter="tooltipPrecisionFormatter(2)"
-              , :speed="0"
-            )
-
-          template(v-if="tiltAngle !== undefined")
-            label Axial Tilt: {{ tiltAngleVal }}&deg;
-            vue-slider.slider(
-              v-model="tiltAngleVal"
-              , tooltip-dir="left"
-              , tooltip="none"
-              , :max="90"
-              , :interval="1"
-              , :formatter="tooltipPrecisionFormatter(0)"
-              , :speed="0"
-            )
-
-          br/
-
-          b-field(grouped)
-            b-checkbox(v-if="showGrid !== undefined", v-model="showGridVal")
-              span Grid
-            b-checkbox(v-if="showEarthOrbits !== undefined", v-model="showEarthOrbitsVal")
-              span Earth Orbits
-            b-checkbox(v-if="showSunOrbits !== undefined", v-model="showSunOrbitsVal")
-              span Solar Orbits
-
-          b-field(grouped)
-            b-checkbox(v-if="showSun !== undefined", v-model="showSunVal")
-              span Sun
-            b-checkbox(v-if="showMeanSun !== undefined", v-model="showMeanSunVal")
-              span Mean Sun
-            b-checkbox(v-if="showEOTWedge !== undefined", v-model="showEOTWedgeVal")
-              span Punctuality Wedge
-
-        slot(name="modal")
 </template>
 
 <script>
@@ -157,6 +160,18 @@ export default {
       , showEOTWedgeVal: this.showEOTWedge
 
       , showEarthOptionsModal: false
+    }
+  }
+  , computed: {
+    hasGuides(){
+      return this.showGrid !== undefined ||
+        this.showEarthOrbits !== undefined ||
+        this.showSunOrbits !== undefined
+    }
+    , hasElements(){
+      return this.showSun !== undefined ||
+        this.showMeanSun !== undefined ||
+        this.showEOTWedge !== undefined
     }
   }
   , watch: {
@@ -266,17 +281,35 @@ export default {
   border-top-width: 0
   border-right-width: 0
 
+  .no-outline
+    outline: none
+
+  .subtitle
+    text-transform: uppercase
+    margin-bottom: 0.75em
+
+  .sliders
+    margin-bottom: 1.5em
+
   .settings
     color: lighten($yellow, 30)
 
+  .settings-content
+    @extend .no-outline
+
+    @media screen and (min-width: 720px)
+      &
+        min-width: 400px
+
   & > .columns
-    margin-bottom: -0.75em
+    margin-bottom: -0.25rem
 
   .eot-graph
     position: absolute
     right: 0
-    margin-top: 0.75em
+    margin-top: 0.35em
     max-width: 480px
+    width: 100%
     background: transparentize($background, 0.2)
 
   .is-grouped > .field
@@ -284,9 +317,6 @@ export default {
 
   .field
     margin-bottom: 0.25rem
-
-  .columns:last-child
-    margin-bottom: -0.25rem
 
   .level
     margin-bottom: 0

@@ -22,9 +22,6 @@
   )
     .eot-graph(v-if="graphOpen")
       EOTGraph(:eccentricity="eccentricity", :tilt="tiltAngle * deg", :mean-anomaly="meanAnomaly")
-    template(slot="modal")
-      .column.is-two-fifths.mini-graph
-        EOTGraph(:eccentricity="eccentricity", :tilt="tiltAngle * deg", :mean-anomaly="meanAnomaly")
 
   DaySim(
     ref="sim"

@@ -127,7 +127,6 @@ export default {
       this.dragEnd( pos )
     }
     , onTouchMove( e ){
-      e.preventDefault()
       e.stopPropagation()
       let pos = this.getTouchPos( e )
       this.drag( pos )

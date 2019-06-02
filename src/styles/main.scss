@@ -86,6 +86,10 @@ a:hover {
   -webkit-tap-highlight-color: transparent;
 }
 
+.subtitle {
+  color: mix($text, $background, 70%);
+}
+
 .no-events {
   pointer-events: none;
 }
