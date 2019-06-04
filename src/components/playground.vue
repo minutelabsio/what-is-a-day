@@ -25,6 +25,10 @@
     .eot-graph(v-if="graphOpen")
       EOTGraph(:eccentricity="eccentricity", :tilt="tiltAngle * deg", :mean-anomaly="meanAnomaly")
 
+    template(slot="nav")
+      router-link.button.btn-dark(:to="{ name: 'welcome' }")
+        span Back to Lesson
+
   DaySim(
     ref="sim"
     , :viewWidth="viewWidth"

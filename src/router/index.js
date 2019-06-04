@@ -86,5 +86,9 @@ export default new Router({
       , name: 'playground'
       , component: Playground
     }
+    , {
+      path: '*'
+      , redirect: 'welcome'
+    }
   ]
 })

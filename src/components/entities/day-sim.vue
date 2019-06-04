@@ -432,7 +432,7 @@ export default {
     })(), { immediate: true })
 
     this.$watch(() => {
-      return this.viewWidth + this.viewHeight
+      return this.viewWidth + ~this.viewHeight
     }, () => {
       this.onResize()
     })

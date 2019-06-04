@@ -1,7 +1,7 @@
 <template lang="pug">
 .controls.scrollbars
   .columns.is-gapless
-    .column
+    .column.is-narrow
       b-field(grouped)
         b-field
           .control
@@ -131,7 +131,24 @@
           .control(v-if="graphOpen !== undefined")
             .button.btn-dark(@click="graphOpenVal = !graphOpenVal", :class="{ 'is-primary': graphOpenVal }")
               b-icon.icon-only(icon="chart-bell-curve")
-    .column
+
+        b-field.is-hidden-tablet(expanded, position="is-right", grouped)
+          b-dropdown(:mobile-modal="false", position="is-bottom-left")
+            .button.btn-dark(slot="trigger")
+              b-icon(icon="dots-vertical")
+
+            b-dropdown-item.no-outline(custom)
+              b-select(v-model="cameraTargetVal", icon="camera-control")
+                option(value="earth") Focus Earth
+                option(value="sun") Focus Sun
+                option(v-if="showMeanSun !== undefined", value="meanSun") Focus Mean Sun
+            b-dropdown-item.no-outline(custom)
+              b-switch(v-model="cameraFollowVal")
+                | Follow Orbit
+            b-dropdown-item.no-outline(custom)
+              slot(name="nav")
+
+    .column.is-hidden-mobile
       b-field(grouped)
         b-select(v-model="cameraTargetVal", icon="camera-control")
           option(value="earth") Focus Earth
@@ -140,11 +157,9 @@
         b-switch(v-model="cameraFollowVal")
           | Follow Orbit
 
-    .column
+    .column.has-text-right.is-hidden-mobile
+      slot(name="nav")
 
-
-        //- b-select(v-model="preset", icon="earth")
-        //-   option(v-for="(item,name) in presets", :value="item") {{ name }}
   slot
 
   b-modal(:active.sync="presetCaveatsModal")

@@ -29,7 +29,7 @@ export default {
 
     this.cssRenderer = new CSS2DRenderer({})
 
-    this.$watch(() => this.width + this.height, () => {
+    this.$watch(() => this.width + ~this.height, () => {
       this.renderer.setSize( this.width, this.height )
       this.cssRenderer.setSize( this.width, this.height )
       this.$emit('resize')
