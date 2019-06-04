@@ -147,6 +147,9 @@
                 | Follow Orbit
             b-dropdown-item.no-outline(custom)
               slot(name="nav")
+              router-link.button.btn-dark(:to="{ name: 'about' }")
+                b-icon(icon="information")
+                span About
 
     .column.is-hidden-mobile
       b-field(grouped)
@@ -159,6 +162,9 @@
 
     .column.has-text-right.is-hidden-mobile
       slot(name="nav")
+      router-link.button.btn-dark(:to="{ name: 'about' }")
+        b-icon(icon="information")
+        span About
 
   slot
 

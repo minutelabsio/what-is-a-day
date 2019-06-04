@@ -27,7 +27,9 @@
 
     template(slot="nav")
       router-link.button.btn-dark(:to="{ name: 'welcome' }")
+        b-icon(icon="school")
         span Back to Lesson
+      span &nbsp;
 
   DaySim(
     ref="sim"
