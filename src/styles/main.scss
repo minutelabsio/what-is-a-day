@@ -17,13 +17,25 @@ html {
 }
 body {
   min-height: 100%;
-  background: white;
+  background: $background;
   margin: 0;
 }
 
 .content,
 .content .title {
+  font-family: $family-monospace;
   color: $text;
+}
+
+.content {
+  .title, .subtitle {
+    text-shadow: 1px 2px rgba(0, 0, 0);
+  }
+}
+
+.content .subtitle {
+  font-family: $family-monospace;
+  color: mix($text, $background, 60%);
 }
 
 a:hover {
@@ -163,7 +175,7 @@ a:hover {
   }
 }
 
-.btn-dark {
+.button.btn-dark {
   background: $background;
   border-color: $grey-darker;
   color: $text;
@@ -175,6 +187,7 @@ a:hover {
     border-color: $text;
   }
   &:active {
+    color: $text;
     border-color: transparent;
   }
   &.is-primary {

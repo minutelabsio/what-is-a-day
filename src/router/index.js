@@ -1,6 +1,7 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 import PlayerUI from '@/pages/player-ui'
+import About from '@/pages/about'
 import Playground from '@/components/playground'
 
 Vue.use(Router)
@@ -85,6 +86,11 @@ export default new Router({
       path: '/playground'
       , name: 'playground'
       , component: Playground
+    }
+    , {
+      path: '/about'
+      , name: 'about'
+      , component: About
     }
     , {
       path: '*'

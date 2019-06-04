@@ -1,5 +1,18 @@
 <template lang="pug">
 .chapter
+  transition(name="fade", enter)
+    .welcome-overlay(v-if="!playerLoading && showWelcome")
+      .about
+        router-link.button.btn-dark(:to="{ name: 'about' }")
+          b-icon(icon="information")
+          span About this project
+      .content.has-text-centered
+        p Press to Begin
+        p
+          button.button.btn-dark.is-gigantic(@click="player.play(); showWelcome = false")
+            b-icon(icon="play", size="is-large")
+        p or
+        router-link(:to="{ name: 'playground' }") skip to the playground
   DaySim(
     ref="sim"
     , :viewWidth="viewWidth"
@@ -53,6 +66,7 @@ export default {
   }
   , data: () => ({
     paused: false
+    , showWelcome: true
   })
   , methods: {
     initCopilot(){
@@ -113,12 +127,40 @@ export default {
         time: 1
         , duration: 1
       })
+
+      this.setQueue(500, () => {
+        this.$snackbar.open({
+          message: 'Tip: Scroll or pinch to zoom'
+          , position: 'is-top'
+        })
+      })
     }
   }
 }
 </script>
 
 <style scoped lang="sass">
+.welcome-overlay
+  position: absolute
+  top: 0
+  left: 0
+  bottom: 0
+  right: 0
+  background: rgba(0, 0, 0, 0.5)
+  z-index: 1
+
+  display: flex
+  align-items: center
+  justify-content: center
+
+  .about
+    position: absolute
+    top: 1em
+    right: 1em
+
+  .is-gigantic
+    font-size: 2.5em
+
 .chapter
   background: $background
   cursor: crosshair
