@@ -301,7 +301,7 @@ export default {
       &
         min-width: 400px
 
-  & > .columns
+  & > .columns.is-gapless
     margin-bottom: -0.25rem
 
   .eot-graph

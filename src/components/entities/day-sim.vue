@@ -346,6 +346,11 @@ export default {
       type: Object
       , default: () => new THREE.Vector3(0, 1, 0)
     }
+
+    , customCamera: {
+      type: Boolean
+      , default: true
+    }
   }
   , components: {
     v3Renderer
@@ -466,7 +471,9 @@ export default {
 
     // just to announce the controls interactions
     let renderer = this.$refs.renderer.renderer
-    let camera = new THREE.OrthographicCamera().copy(this.$refs.camera.v3object, true) // this.$refs.camera.v3object
+    let camera = this.customCamera ?
+      new THREE.OrthographicCamera().copy(this.$refs.camera.v3object, true) :
+      this.$refs.camera.v3object
 
     this.$refs.cameraGroup.v3object.add(camera)
     // var helper = new THREE.PlaneHelper( this.solarPlane, 50, 0xffff00 )

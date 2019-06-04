@@ -81,7 +81,7 @@ import { PERHELION, VERNAL, calcEOT } from '@/lib/stellar-mechanics'
 const Pi2 = Math.PI * 2
 
 export default {
-  name: 'longest-day'
+  name: 'reality'
   , mixins: [ chapterMixin ]
   , components: {
     DaySim
