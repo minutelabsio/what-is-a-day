@@ -866,6 +866,7 @@ export default {
 
 <style scoped lang="sass">
 .day-sim
+  background: black
   cursor: crosshair
 .month-marker
   font-family: $family-monospace

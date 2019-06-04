@@ -21,6 +21,11 @@ body {
   margin: 0;
 }
 
+.content,
+.content .title {
+  color: $text;
+}
+
 a:hover {
   color: $text;
 }
@@ -39,6 +44,12 @@ a:hover {
 .menu-label {
   font-family: $family-monospace;
   font-size: 1em;
+}
+
+.input {
+  background: $background;
+  color: $text;
+  border-color: $grey-darker;
 }
 
 .loading-overlay .loading-background {

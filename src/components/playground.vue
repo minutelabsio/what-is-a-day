@@ -19,6 +19,8 @@
     , :showSun.sync="showSun"
     , :showMeanSun.sync="showMeanSun"
     , :showEOTWedge.sync="showEOTWedge"
+
+    , :showPresets="true"
   )
     .eot-graph(v-if="graphOpen")
       EOTGraph(:eccentricity="eccentricity", :tilt="tiltAngle * deg", :mean-anomaly="meanAnomaly")
@@ -124,8 +126,8 @@ export default {
 
     , playRate: 0.1
     , 'orbitalPosition': 1
-    , 'eccentricity': 0.02
-    , 'tiltAngle': 27
+    , 'eccentricity': 0.0167
+    , 'tiltAngle': 23.439
     , 'cameraTarget': 'meanSun'
     , 'cameraFollow': false
     , 'solarDaysPerYear': 9
@@ -222,6 +224,9 @@ export default {
     this.$once('hook:beforeDestroy', () => {
       window.removeEventListener( 'resize', onResize )
     })
+  }
+  , mounted(){
+    this.getViewDimensions()
 
     let stop = false
     const draw = () => {
@@ -236,9 +241,6 @@ export default {
     })
 
     draw()
-  }
-  , mounted(){
-    this.getViewDimensions()
   }
   , methods: {
     onFrame(){

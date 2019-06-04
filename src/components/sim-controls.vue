@@ -5,72 +5,104 @@
       b-field(grouped)
         b-field
           .control
-          b-dropdown
-            .button.btn-dark(slot="trigger")
-              b-icon.settings.icon-only(icon="cogs", pack="fa")
+            b-dropdown
+              .button.btn-dark(slot="trigger")
+                b-icon.settings.icon-only(icon="tune")
 
-            b-dropdown-item.settings-content(custom)
-              .sliders
-                label(v-if="useStellarDays") Stellar days per Year: {{ solarDaysPerYearVal + 1 }}
-                label(v-if="!useStellarDays") Standard days per Year: {{ solarDaysPerYearVal }}
-                vue-slider.slider(
-                  v-model="solarDaysPerYearVal"
-                  , tooltip-dir="left"
-                  , tooltip="none"
-                  , :max="365"
-                  , :min="0"
-                  , :interval="1"
-                  , :formatter="tooltipPrecisionFormatter(0)"
-                  , :speed="0"
-                )
+              b-dropdown-item.settings-content(custom)
+                .presets(v-if="showPresets")
+                  b-field(grouped, position="is-right")
+                    b-dropdown
+                      .button.btn-dark.preset-btn(slot="trigger")
+                        b-icon(icon="earth")
+                        span Preset
+                        b-icon(icon="menu-down")
 
-                template(v-if="eccentricity !== undefined")
-                  label Eccentricity: {{ eccentricityVal }}
+                      b-dropdown-item.no-outline(v-for="(item,name) in presets", @click="preset = item")
+                        label {{ name }}
+                      hr.dropdown-divider
+                      b-dropdown-item.no-outline(@click="presetCaveatsModal = true")
+                        b-icon(icon="alert", size="is-small")
+                        span &nbsp;Read caveats...
+                .sliders
+                  b-field(v-if="useStellarDays", grouped)
+                    .control
+                      .button.is-static.is-small Stellar days per Year
+                    b-input.small-input(type="number", :value="solarDaysPerYear + 1", @change="solarDaysPerYear = $value - 1" size="is-small", step="any")
+                  b-field(v-if="!useStellarDays", grouped)
+                    .control
+                      .button.is-static.is-small Standard days per Year
+                    b-input.small-input(type="number", v-model="solarDaysPerYear", size="is-small", step="any")
                   vue-slider.slider(
-                    v-model="eccentricityVal"
+                    v-model="solarDaysPerYearVal"
+                    , :dotSize="19"
+                    , :height="8"
                     , tooltip-dir="left"
                     , tooltip="none"
-                    , :max="0.5"
-                    , :interval="0.01"
-                    , :formatter="tooltipPrecisionFormatter(2)"
-                    , :speed="0"
-                  )
-
-                template(v-if="tiltAngle !== undefined")
-                  label Axial Tilt: {{ tiltAngleVal }}&deg;
-                  vue-slider.slider(
-                    v-model="tiltAngleVal"
-                    , tooltip-dir="left"
-                    , tooltip="none"
-                    , :max="90"
+                    , :max="365"
+                    , :min="0"
                     , :interval="1"
                     , :formatter="tooltipPrecisionFormatter(0)"
                     , :speed="0"
                   )
 
-              h6.subtitle.is-6(v-if="hasGuides") Guides
-              .columns(v-if="hasGuides")
-                .column.is-one-third
-                  b-checkbox(v-if="showGrid !== undefined", v-model="showGridVal")
-                    span Grid
-                .column.is-one-third
-                  b-checkbox(v-if="showEarthOrbits !== undefined", v-model="showEarthOrbitsVal")
-                    span Earth Orbits
-                .column.is-one-third
-                  b-checkbox(v-if="showSunOrbits !== undefined", v-model="showSunOrbitsVal")
-                    span Solar Orbits
+                  template(v-if="eccentricity !== undefined")
+                    b-field(grouped)
+                      .control
+                        .button.is-static.is-small Eccentricity
+                      b-input.small-input(type="number", v-model="eccentricityVal", size="is-small", step="any")
+                    vue-slider.slider(
+                      v-model="eccentricityVal"
+                      , :dotSize="19"
+                      , :height="8"
+                      , tooltip-dir="left"
+                      , tooltip="none"
+                      , :max="0.5"
+                      , :interval="0.01"
+                      , :formatter="tooltipPrecisionFormatter(2)"
+                      , :speed="0"
+                    )
 
-              h6.subtitle.is-6(v-if="hasElements") Elements
-              .columns(v-if="hasElements")
-                .column.is-one-third
-                  b-checkbox(v-if="showSun !== undefined", v-model="showSunVal")
-                    span Sun
-                .column.is-one-third
-                  b-checkbox(v-if="showMeanSun !== undefined", v-model="showMeanSunVal")
-                    span Mean Sun
-                .column.is-one-third
-                  b-checkbox(v-if="showEOTWedge !== undefined", v-model="showEOTWedgeVal")
-                    span Punctuality Wedge
+                  template(v-if="tiltAngle !== undefined")
+                    b-field(grouped)
+                      .control
+                        .button.is-static.is-small Axial Tilt &deg;
+                      b-input.small-input(type="number", v-model="tiltAngleVal", size="is-small", step="any")
+                    vue-slider.slider(
+                      v-model="tiltAngleVal"
+                      , :dotSize="19"
+                      , :height="8"
+                      , tooltip-dir="left"
+                      , tooltip="none"
+                      , :max="180"
+                      , :interval="1"
+                      , :formatter="tooltipPrecisionFormatter(0)"
+                      , :speed="0"
+                    )
+
+                h6.subtitle.is-6(v-if="hasGuides") Guides
+                .columns(v-if="hasGuides")
+                  .column.is-one-third
+                    b-checkbox(v-if="showGrid !== undefined", v-model="showGridVal")
+                      span Grid
+                  .column.is-one-third
+                    b-checkbox(v-if="showEarthOrbits !== undefined", v-model="showEarthOrbitsVal")
+                      span Earth Orbits
+                  .column.is-one-third
+                    b-checkbox(v-if="showSunOrbits !== undefined", v-model="showSunOrbitsVal")
+                      span Solar Orbits
+
+                h6.subtitle.is-6(v-if="hasElements") Elements
+                .columns(v-if="hasElements")
+                  .column.is-one-third
+                    b-checkbox(v-if="showSun !== undefined", v-model="showSunVal")
+                      span Sun
+                  .column.is-one-third
+                    b-checkbox(v-if="showMeanSun !== undefined", v-model="showMeanSunVal")
+                      span Mean Sun
+                  .column.is-one-third
+                    b-checkbox(v-if="showEOTWedge !== undefined", v-model="showEOTWedgeVal")
+                      span Punctuality Wedge
 
         b-field
           .control
@@ -86,6 +118,8 @@
                 label Orbit Speed
                 vue-slider.slider(
                   v-model="playRateVal"
+                  , :dotSize="19"
+                  , :height="8"
                   , tooltip-dir="left"
                   , tooltip="none"
                   , :max="1"
@@ -106,7 +140,29 @@
         b-switch(v-model="cameraFollowVal")
           | Follow Orbit
 
+    .column
+
+
+        //- b-select(v-model="preset", icon="earth")
+        //-   option(v-for="(item,name) in presets", :value="item") {{ name }}
   slot
+
+  b-modal(:active.sync="presetCaveatsModal")
+    .preset-caveats.content
+      h4.title.is-4 A note about other planets... (and dwarf planets)
+      p.
+        The planet presets set their eccentricity and axial tilt. But
+        reality is even more complicated than we let on! You might have been
+        suspicious about the fact that we use round numbers for the "days per year".
+        Turns out, the earth is very close to 365 days per year, so we can round it off
+        for simplicity. But other planets, especially, don't have nice round numbers
+        like this... bummer &mdash; I mean, how interesting....
+      p.
+        Also, Venus, Uranus, and Pluto have axial tilts that are more than 90 degrees!
+        What does this mean? It means they actually spin in the <em>opposite</em> direction.
+        This makes things more complicated for the simulation, which wasn't designed
+        with retrograde rotation in mind... but I'm not going to stop you playing around.
+
 </template>
 
 <script>
@@ -116,6 +172,65 @@ import 'vue-slider-component/theme/default.css'
 function tooltipPrecisionFormatter( p ){
   return function( v ){
     return v && v.toFixed(p)
+  }
+}
+
+const year = 365.256
+
+const presets = {
+  Mercury: {
+    name: 'Mercury'
+    , dpy: 87.969 * 24 / 4222.6
+    , eccentricity: 0.2056
+    , tilt: 0.01
+  }
+  , Venus: {
+    name: 'Venus'
+    , dpy: 224.701 * 24 / 2802.0
+    , eccentricity: 0.0068
+    , tilt: 177.4
+  }
+  , Earth: {
+    name: 'Earth'
+    , dpy: year
+    , eccentricity: 0.0167
+    , tilt: 23.439
+  }
+  , Mars: {
+    name: 'Mars'
+    , dpy: 686.98 * 24 / 24.7
+    , eccentricity: 0.0934
+    , tilt: 25.19
+  }
+  , Jupiter: {
+    name: 'Jupiter'
+    , dpy: 11.862 * year * 24 / 9.9
+    , eccentricity: 0.0484
+    , tilt: 3.13
+  }
+  , Saturn: {
+    name: 'Saturn'
+    , dpy: 29.457 * year * 24 / 10.7
+    , eccentricity: 0.0542
+    , tilt: 26.73
+  }
+  , Uranus: {
+    name: 'Uranus'
+    , dpy: 84.011 * year * 24 / 17.2
+    , eccentricity: 0.0472
+    , tilt: 97.77
+  }
+  , Neptune: {
+    name: 'Neptune'
+    , dpy: 164.79 * year * 24 / 16.1
+    , eccentricity: 0.0086
+    , tilt: 28.32
+  }
+  , Pluto: {
+    name: 'Pluto'
+    , dpy: 247.68 * year * 24 / 153.3
+    , eccentricity: 0.2488
+    , tilt: 119.61
   }
 }
 
@@ -139,6 +254,7 @@ export default {
     , 'showEOTWedge'
 
     , 'useStellarDays'
+    , 'showPresets'
   ]
   , components: {
     vueSlider
@@ -160,6 +276,10 @@ export default {
       , showEOTWedgeVal: this.showEOTWedge
 
       , showEarthOptionsModal: false
+
+      , presetCaveatsModal: false
+      , preset: presets.Earth
+      , presets
     }
   }
   , computed: {
@@ -175,7 +295,12 @@ export default {
     }
   }
   , watch: {
-    paused( v ){
+    preset( p ){
+      this.eccentricityVal = p.eccentricity
+      this.tiltAngleVal = p.tilt
+      // this.solarDaysPerYearVal = p.dpy
+    }
+    , paused( v ){
       this.pausedVal = v
     }
     , pausedVal( v ){
@@ -332,10 +457,31 @@ export default {
 
   .checkbox:hover
     color: $text
+
+  .dropdown.is-active .preset-btn
+    color: $text
+
+  .button.is-static
+    background: $background
+    color: $text
+    border-color: transparent
+    padding-left: 0
+
+  .small-input
+    width: 5em
+
+  .presets
+    margin-bottom: 1em
+
 .modal-options
   z-index: 100
   padding: 1em
 
   .mini-graph
     max-width: 400px
+
+.preset-caveats
+  background: $background
+  padding: 3rem
+  border: 1px solid black
 </style>
