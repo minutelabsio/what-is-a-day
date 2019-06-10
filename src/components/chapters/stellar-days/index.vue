@@ -10,6 +10,7 @@
     , :solarDaysPerYear.sync="solarDaysPerYear"
 
     , :useStellarDays="true"
+    , :highlight="highlightControl"
   )
 
   DaySim(
@@ -17,6 +18,7 @@
     , :viewWidth="viewWidth"
     , :viewHeight="viewHeight"
     , :playerLoading="playerLoading"
+    , :highlight="highlight"
     , :showGrid="showGrid"
     , :cameraTarget="cameraTarget"
     , :cameraFollow="cameraFollow"
@@ -80,6 +82,18 @@ export default {
         handsOff: {
           type: Boolean
           , default: false
+          , interpolatorOpts: { threshold: 0 }
+        }
+        , highlight: {
+          type: String
+          , default: ''
+          , interpolator: Copilot.Interpolators.Step
+          , interpolatorOpts: { threshold: 0 }
+        }
+        , highlightControl: {
+          type: String
+          , default: ''
+          , interpolator: Copilot.Interpolators.Step
           , interpolatorOpts: { threshold: 0 }
         }
         , orbitalPosition: {
@@ -202,9 +216,23 @@ export default {
       })
 
       frames.add({
+        highlight: 'stellar-day-arc'
+      }, {
+        time: '29s'
+        , duration: 1
+      })
+
+      frames.add({
+        highlight: ''
+      }, {
+        time: '35s'
+        , duration: 1
+      })
+
+      frames.add({
         orbitalPosition: 8 / (solarDaysPerYear + 1)
       }, {
-        time: '38s'
+        time: '35s'
         , startTime: '19s'
       })
 
@@ -222,7 +250,7 @@ export default {
         orbitalPosition: 1
       }, {
         time: '01:00'
-        , startTime: '56s'
+        , startTime: '41s'
       })
 
       frames.add({
@@ -248,11 +276,71 @@ export default {
         , easing: Copilot.Easing.Sinusoidal.InOut
       })
 
+      frames.add({
+        highlight: 'earth'
+      }, {
+        time: '01:52'
+        , duration: 1
+      })
+
+      frames.add({
+        highlight: ''
+      }, {
+        time: '01:58'
+        , duration: 1
+      })
+
+      function controlsHighlights( list ){
+        list.forEach(hl => {
+          frames.add({
+            highlightControl: hl.name
+          }, {
+            time: hl.start
+            , duration: 1
+          })
+
+          frames.add({
+            highlightControl: ''
+          }, {
+            time: hl.end
+            , duration: 1
+          })
+        })
+      }
+
+      controlsHighlights([
+        {
+          name: 'auto-orbit'
+          , start: '01:58'
+          , end: '02:03'
+        }
+        , {
+          name: 'orbit-speed'
+          , start: '02:04'
+          , end: '02:08'
+        }
+        , {
+          name: 'camera-target'
+          , start: '02:12'
+          , end: '02:17'
+        }
+        , {
+          name: 'follow-orbit'
+          , start: '02:18'
+          , end: '02:24'
+        }
+        , {
+          name: 'settings'
+          , start: '02:31'
+          , end: '02:36'
+        }
+      ])
+
       // last frame
       frames.add({
         handsOff: true
       }, {
-        time: '03:06'
+        time: '03:08'
         , startTime: '01:29'
       })
 

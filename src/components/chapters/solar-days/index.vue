@@ -10,6 +10,9 @@
     , :cameraFollow.sync="cameraFollow"
     , :solarDaysPerYear.sync="solarDaysPerYear"
 
+    , :showSolarClock.sync="showSolarClock"
+    , :showStellarClock.sync="showStellarClock"
+
     , :useStellarDays="true"
   )
 
@@ -17,6 +20,7 @@
     ref="sim"
     , :viewWidth="viewWidth"
     , :viewHeight="viewHeight"
+    , :highlight="highlight"
     , :playerLoading="playerLoading"
     , :showGrid="showGrid"
     , :cameraTarget="cameraTarget"
@@ -95,6 +99,12 @@ export default {
           , default: false
           , interpolatorOpts: { threshold: 0 }
         }
+        , highlight: {
+          type: String
+          , default: ''
+          , interpolator: Copilot.Interpolators.Step
+          , interpolatorOpts: { threshold: 0 }
+        }
         , orbitalPosition: {
           type: Number
           , default: 0 // {0, 1}
@@ -148,6 +158,20 @@ export default {
       })
 
       frames.add({
+        highlight: 'solar-day-arc'
+      }, {
+        time: '8s'
+        , duration: 1
+      })
+
+      frames.add({
+        highlight: ''
+      }, {
+        time: '12s'
+        , duration: 1
+      })
+
+      frames.add({
         orbitalPosition: solarDaysToOrbitalPos(8)
       }, {
         time: '00:20'
@@ -172,7 +196,7 @@ export default {
         orbitalPosition: 1 / (solarDaysPerYear + 1)
       }, {
         time: '00:30'
-        , startTime: '00:27'
+        , startTime: '00:25'
       })
 
       frames.add({
@@ -191,23 +215,12 @@ export default {
       })
 
       frames.add({
-        cameraZoom: 20
-        , cameraPosition: new THREE.Vector3(0, 20, 0.1)
-        , showEarthOrbits: true
-        , showSolarClock: false
-        , showMeanSun: true
-        , showMeanDayArc: true
-      }, {
-        time: '01:15'
-        , easing: Copilot.Easing.Quadratic.InOut
-      })
-
-      frames.add({
         cameraPosition: new THREE.Vector3(0, 20, 10)
         , cameraZoom: 40
       }, {
         time: '00:52'
         , startTime: '00:50'
+        , easing: Copilot.Easing.Quadratic.InOut
       })
 
       // last frame
@@ -215,10 +228,10 @@ export default {
         handsOff: true
       }, {
         time: '01:10'
-        , startTime: '00:52'
+        , startTime: '00:50'
       })
 
-      this.setQueue('00:52', () => {
+      this.setQueue('00:50', () => {
         this.paused = false
       })
     }

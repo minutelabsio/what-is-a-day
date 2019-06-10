@@ -166,24 +166,26 @@ export default {
       })
 
       frames.add({
-        cameraTarget: 'meanSun'
-      }, {
-        time: '00:13'
-      })
-
-      frames.add({
         cameraPosition: new THREE.Vector3(0, 0, 20)
         // , cameraFollow: true
       }, {
-        time: '00:18'
-        , duration: '2s'
+        time: '00:05'
+        , duration: '4s'
         , easing: Copilot.Easing.Quadratic.InOut
       })
 
       frames.add({
         tiltAngle: 40
       }, {
-        time: '00:24'
+        time: '00:07'
+        , duration: '2s'
+        , easing: Copilot.Easing.Quadratic.InOut
+      })
+
+      frames.add({
+        cameraTarget: 'meanSun'
+      }, {
+        time: '00:20'
       })
 
       frames.add({
@@ -196,38 +198,33 @@ export default {
       frames.add({
         cameraPosition: new THREE.Vector3(0, 10, 40)
       }, {
-        time: '00:42'
+        time: '00:38'
         , duration: '2s'
         , easing: Copilot.Easing.Quadratic.InOut
       })
 
       frames.add({
-        showGrid: true
-      }, {
-        time: '00:44'
-      })
-
-      frames.add({
         orbitalPosition: 1.45
       }, {
-        time: '01:02'
-        , startTime: '00:58'
+        time: '52s'
+        , startTime: '00:50'
         , easing: Copilot.Easing.Quadratic.InOut
       })
 
       frames.add({
         orbitalPosition: 1.22
+        , showGrid: true
       }, {
-        time: '01:10'
-        , startTime: '01:08'
+        time: '01:00'
+        , duration: '2s'
         , easing: Copilot.Easing.Quadratic.InOut
       })
 
       frames.add({
         orbitalPosition: 1.72
       }, {
-        time: '01:21'
-        , startTime: '01:18'
+        time: '01:09'
+        , duration: '2s'
         , easing: Copilot.Easing.Quadratic.InOut
       })
 
@@ -237,7 +234,7 @@ export default {
         , cameraZoom: 40
         , showGrid: false
       }, {
-        time: '01:24'
+        time: '01:13'
         , duration: '2s'
         , easing: Copilot.Easing.Quadratic.InOut
       })
@@ -245,15 +242,15 @@ export default {
       frames.add({
         orbitalPosition: 2 + solarDaysToOrbitalPos( 6 )
       }, {
-        time: '01:50'
-        , startTime: '01:21'
+        time: '01:30'
+        , startTime: '01:10'
       })
 
       frames.add({
         cameraPosition: new THREE.Vector3(0, 40, 0.1)
-        , cameraZoom: 20
+        , cameraZoom: 40
       }, {
-        time: '01:56'
+        time: '01:36'
         , duration: '2s'
         , easing: Copilot.Easing.Quadratic.InOut
       })
@@ -261,27 +258,34 @@ export default {
       frames.add({
         cameraTarget: 'earth'
       }, {
-        time: '01:58'
+        time: '01:38'
+      })
+
+      frames.add({
+        orbitalPosition: 2 + solarDaysToOrbitalPos( 7 )
+      }, {
+        time: '01:46'
+        , startTime: '01:42'
       })
 
       frames.add({
         showEarthOrbits: false
         , showSunOrbits: true
       }, {
-        time: '02:12'
+        time: '01:52'
       })
 
       frames.add({
         orbitalPosition: 4
       }, {
-        time: '02:45'
-        , startTime: '02:13'
+        time: '02:25'
+        , startTime: '01:57'
       })
 
       frames.add({
-        cameraPosition: new THREE.Vector3(0, 0, 40)
+        cameraPosition: new THREE.Vector3(0, 20, 40)
       }, {
-        time: '02:27'
+        time: '02:00'
         , duration: '2s'
         , easing: Copilot.Easing.Quadratic.InOut
       })
@@ -289,7 +293,7 @@ export default {
       frames.add({
         cameraPosition: new THREE.Vector3(0, 40, 0.1)
       }, {
-        time: '02:55'
+        time: '02:31'
         , duration: '2s'
         , easing: Copilot.Easing.Quadratic.InOut
       })
@@ -297,14 +301,14 @@ export default {
       frames.add({
         orbitalPosition: 4 + 0.1
       }, {
-        time: '02:59'
-        , easing: Copilot.Easing.Quadratic.InOut
+        time: '02:35'
+        , startTime: '02:30'
       })
 
       frames.add({
         cameraPosition: new THREE.Vector3(0, 0, 40)
       }, {
-        time: '03:01'
+        time: '02:38'
         , duration: '1s'
         , easing: Copilot.Easing.Quadratic.InOut
       })
@@ -312,40 +316,39 @@ export default {
       frames.add({
         orbitalPosition: 4 + 0.3
       }, {
-        time: '03:10'
-        , startTime: '03:01'
+        time: '02:44'
+        , startTime: '02:35'
         , easing: Copilot.Easing.Quadratic.InOut
       })
 
       frames.add({
         cameraPosition: new THREE.Vector3(0, 40, 0.1)
       }, {
-        time: '03:05'
+        time: '02:44'
         , duration: '1s'
         , easing: Copilot.Easing.Quadratic.InOut
       })
 
       frames.add({
-        cameraZoom: 40
+        cameraPosition: new THREE.Vector3(0.2, 40, 0.1)
       }, {
-        time: '03:16'
-        , duration: '1s'
+        time: '02:49'
+        , duration: '3s'
         , easing: Copilot.Easing.Quadratic.InOut
       })
 
       frames.add({
         orbitalPosition: 4 + solarDaysToOrbitalPos(3, 0, 40 * deg)
       }, {
-        time: '03:20'
-        , startTime: '03:16'
+        time: '02:54'
+        , startTime: '02:49'
         , easing: Copilot.Easing.Quadratic.InOut
       })
 
       frames.add({
-        cameraPosition: new THREE.Vector3(20, 10, 40)
-        , cameraZoom: 20
+        cameraPosition: new THREE.Vector3(40, 0.1, 0.1)
       }, {
-        time: '03:28'
+        time: '03:03'
         , duration: '2s'
         , easing: Copilot.Easing.Quadratic.InOut
       })
@@ -353,16 +356,15 @@ export default {
       frames.add({
         orbitalPosition: 4 + solarDaysToOrbitalPos(5, 0, 40 * deg)
       }, {
-        time: '03:34'
-        , startTime: '03:28'
+        time: '03:10'
+        , startTime: '03:04'
         , easing: Copilot.Easing.Quadratic.InOut
       })
 
       frames.add({
-        cameraPosition: new THREE.Vector3(0.1, 40, 0.2)
-        , cameraZoom: 20
+        cameraPosition: new THREE.Vector3(0.2, 40, 0.1)
       }, {
-        time: '03:35'
+        time: '03:10'
         , duration: '2s'
         , easing: Copilot.Easing.Quadratic.InOut
       })
@@ -371,18 +373,18 @@ export default {
         showSolarClock: true
         , showMeanClock: true
       }, {
-        time: '03:42'
+        time: '03:20'
       })
 
       // last frame
       frames.add({
         handsOff: true
       }, {
-        time: '03:55'
-        , startTime: '03:45'
+        time: '03:31'
+        , startTime: '03:20'
       })
 
-      this.setQueue('03:45', () => {
+      this.setQueue('03:20', () => {
         this.paused = false
       })
     }

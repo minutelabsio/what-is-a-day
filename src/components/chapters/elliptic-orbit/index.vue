@@ -2,6 +2,7 @@
 .chapter
   SimControls(
     :handsOff="handsOff"
+    , :highlight="highlightControl"
 
     , :paused.sync="paused"
     , :playRate.sync="playRate"
@@ -26,6 +27,7 @@
     ref="sim"
     , :viewWidth="viewWidth"
     , :viewHeight="viewHeight"
+    , :highlight="highlight"
     , :playerLoading="playerLoading"
     , :showGrid="showGrid"
     , :cameraTarget="cameraTarget"
@@ -58,13 +60,13 @@
       transition(name="fade")
         label.angle-label(v-if="showDegrees") {{dayAngle.toFixed(0)}}
           span.degrees &deg;
-    .mean-label(slot="mean-label", :class="{ down: solarLabelAbove, up: !solarLabelAbove }")
+    .mean-label(slot="mean-label", :class="copilotState.disableLabelCorrection ? {} : { down: solarLabelAbove, up: !solarLabelAbove }")
       transition(name="fade")
         .clock(v-if="showMeanClock")
           .time {{meanClock}}
-    .solar-label(slot="solar-label", :class="{ up: solarLabelAbove, down: !solarLabelAbove }")
+    .solar-label(slot="solar-label", :class="copilotState.disableLabelCorrection ? {} : { up: solarLabelAbove, down: !solarLabelAbove }")
       transition(name="fade")
-        .clock(v-if="showSolarClock")
+        .clock(v-if="showSolarClock", :class="{ pulse: copilotState.highlightSolarClock }")
           .time {{solarClock}}
 </template>
 
@@ -109,6 +111,20 @@ export default {
           , default: false
           , interpolatorOpts: { threshold: 0 }
         }
+        , highlight: {
+          type: String
+          , default: ''
+          , interpolator: Copilot.Interpolators.Step
+          , interpolatorOpts: { threshold: 0 }
+        }
+        , highlightControl: {
+          type: String
+          , default: ''
+          , interpolator: Copilot.Interpolators.Step
+          , interpolatorOpts: { threshold: 0 }
+        }
+        , highlightSolarClock: Boolean
+        , disableLabelCorrection: Boolean
         , orbitalPosition: {
           type: Number
           , default: solarDaysToOrbitalPos(5) // {0, 1}
@@ -119,7 +135,7 @@ export default {
         , eccentricity: 0
         , cameraTarget: {
           type: String
-          , default: 'meanSun'
+          , default: 'sun'
           , interpolator: Copilot.Interpolators.Step
           , interpolatorOpts: { threshold: 0 }
         }
@@ -154,6 +170,24 @@ export default {
         defaultTransitionDuration: '3s'
       })
 
+      function controlsHighlights( list, prop = 'highlightControl' ){
+        list.forEach(hl => {
+          frames.add({
+            [prop]: hl.name
+          }, {
+            time: hl.start
+            , duration: 1
+          })
+
+          frames.add({
+            [prop]: ''
+          }, {
+            time: hl.end
+            , duration: 1
+          })
+        })
+      }
+
       frames.add({
         solarDaysPerYear
         , orbitalPosition: solarDaysToOrbitalPos(5)
@@ -161,6 +195,7 @@ export default {
         , showMeanSun: false
         , showMeanClock: false
         , showMeanDayArc: false
+        , disableLabelCorrection: true
       }, {
         time: 1
         , duration: 1
@@ -189,143 +224,192 @@ export default {
         , easing: Copilot.Easing.Quadratic.InOut
       })
 
-      this.setQueue('00:44', () => {
-        this.showEarthOptionsModal = true
-      })
-
-      frames.add({
-        showMeanSun: true
-        , showMeanDayArc: true
-      }, {
-        time: '00:52'
-      })
-
-      this.setQueue('00:44', () => {
-        this.showEarthOptionsModal = true
-      })
-
       frames.add({
         eccentricity: 0.4
       }, {
-        time: '00:53'
+        time: '23s'
         , duration: '1s'
         , easing: Copilot.Easing.Quadratic.InOut
-      })
-
-      this.setQueue('00:54', () => {
-        this.showEarthOptionsModal = false
       })
 
       frames.add({
         eccentricity: 0
       }, {
-        time: '01:13'
-        , duration: '2s'
+        time: '24s'
+        , duration: '1s'
         , easing: Copilot.Easing.Quadratic.InOut
       })
 
       frames.add({
-        eccentricity: 0.4
+        tiltAngle: 30
       }, {
-        time: '01:15'
-        , duration: '2s'
+        time: '25s'
+        , duration: '1s'
         , easing: Copilot.Easing.Quadratic.InOut
       })
 
       frames.add({
-        orbitalPosition: 1 + solarDaysToOrbitalPos( 2 )
+        tiltAngle: 0
       }, {
-        time: '01:36'
-        , startTime: '01:16'
+        time: '26s'
+        , duration: '1s'
+        , easing: Copilot.Easing.Quadratic.InOut
       })
 
       frames.add({
-        cameraPosition: new THREE.Vector3(0, 20, 0.1)
-        , cameraZoom: 80
+        eccentricity: 0.5
+      }, {
+        time: '00:38'
+        , duration: '2s'
+        , easing: Copilot.Easing.Quadratic.InOut
+      })
+
+      controlsHighlights([
+        {
+          name: 'settings'
+          , start: '39s'
+          , end: '44s'
+        }
+      ])
+
+      frames.add({
+        orbitalPosition: 12.15
+      }, {
+        time: '02:40'
+        , startTime: '00:43'
+      })
+
+      frames.add({
+        highlightSolarClock: true
         , cameraTarget: 'earth'
       }, {
-        time: '01:29'
-        , duration: '2s'
+        time: '01:21'
+        , duration: 1
+      })
+
+      frames.add({
+        highlightSolarClock: false
+        , showSun: false
+        , showEarthOrbits: false
+      }, {
+        time: '01:25'
+        , duration: 1
+      })
+
+      frames.add({
+        cameraZoom: 40
+      }, {
+        time: '01:30'
+        , duration: '6s'
         , easing: Copilot.Easing.Quadratic.InOut
       })
 
       frames.add({
         showMeanClock: true
+        , showMeanDayArc: true
+        , showSolarClock: false
+        , showSolarDayArc: false
       }, {
-        time: '01:37'
+        time: '02:11'
+        , duration: 1
       })
 
+      controlsHighlights([
+        {
+          name: 'mean-day-arc'
+          , start: '02:11'
+          , end: '02:15'
+        }
+      ], 'highlight')
+
       frames.add({
-        cameraZoom: 20
-        , cameraTarget: 'meanSun'
+        cameraZoom: 30
       }, {
-        time: '01:42'
-        , duration: '2s'
+        time: '02:29'
+        , duration: '6s'
         , easing: Copilot.Easing.Quadratic.InOut
       })
 
       frames.add({
-        showSun: false
-      }, {
-        time: '01:40'
-        , duration: 1
-      })
-
-      frames.add({
-        orbitalPosition: 2.25
-      }, {
-        time: '01:49'
-        , duration: '8s'
-      })
-
-      frames.add({
         showSun: true
-        , cameraTarget: 'sun'
-        , showMeanSun: false
-        , showMonthLabels: false
+        , showEarthOrbits: true
       }, {
-        time: '01:49'
+        time: '02:26'
         , duration: 1
-      })
-
-      frames.add({
-        orbitalPosition: 4 + solarDaysToOrbitalPos(7, 0.4)
-      }, {
-        time: '02:12'
-        , duration: '22s'
       })
 
       frames.add({
         showMeanSun: true
-        , cameraTarget: 'meanSun'
-        , showMonthLabels: true
+        , showSun: false
       }, {
-        time: '02:12'
+        time: '02:44'
         , duration: 1
+      })
+
+      frames.add({
+        orbitalPosition: 13 + solarDaysToOrbitalPos(0)
+      }, {
+        time: '03:02'
+        , startTime: '02:52'
+      })
+
+      frames.add({
+        showSun: true
+        , showSolarDayArc: true
+        , showSolarClock: true
+        , disableLabelCorrection: false
+      }, {
+        time: '03:02'
+        , duration: 1
+      })
+
+      frames.add({
+        eccentricity: 0
+      }, {
+        time: '03:10'
+        , duration: '1s'
+        , easing: Copilot.Easing.Quadratic.InOut
+      })
+
+      frames.add({
+        eccentricity: 0.5
+      }, {
+        time: '03:13'
+        , duration: '1s'
+        , easing: Copilot.Easing.Quadratic.InOut
+      })
+
+      frames.add({
+        orbitalPosition: 13 + solarDaysToOrbitalPos(7, 0.5)
+      }, {
+        time: '03:26'
+        , startTime: '03:13'
       })
 
       frames.add({
         showEOTWedge: true
       }, {
-        time: '02:19'
+        time: '03:27'
         , duration: 1
       })
 
       frames.add({
-        orbitalPosition: 4 + solarDaysToOrbitalPos(7)
+        orbitalPosition: 13 + solarDaysToOrbitalPos(7)
       }, {
-        time: '02:32'
-        , startTime: '02:28'
+        time: '03:39'
+        , startTime: '03:37'
       })
 
       frames.add({
-        orbitalPosition: 5 + solarDaysToOrbitalPos(1)
+        orbitalPosition: 14 + solarDaysToOrbitalPos(2)
+        , cameraZoom: 20
       }, {
-        time: '02:41'
-        , startTime: '02:39'
+        time: '03:52'
+        , startTime: '03:49'
+        , easing: Copilot.Easing.Quadratic.InOut
       })
 
-      this.setQueue('02:52', () => {
+      this.setQueue('04:03', () => {
         this.graphOpen = true
       })
 
@@ -333,11 +417,11 @@ export default {
       frames.add({
         handsOff: true
       }, {
-        time: '03:28'
-        , startTime: '03:00'
+        time: '04:38'
+        , startTime: '04:00'
       })
 
-      this.setQueue('03:00', () => {
+      this.setQueue('04:00', () => {
         this.paused = false
       })
     }
