@@ -18,6 +18,9 @@ export default {
       type: Array
       , required: true
     }
+    , music: {
+      type: Object
+    }
     , itemType: {
       type: String
       , default: 'Chapter'
@@ -41,6 +44,8 @@ export default {
     , ended: false
     , playlistIndex: 0
     , scrubbing: false
+
+    , musicVolume: 1
   })
   , created(){
     Howler.volume( 1 )
@@ -81,6 +86,12 @@ export default {
         noSleep.enable()
       }
     })
+
+    this.$once('play', () => {
+      if ( this.musicHowl ){
+        this.musicHowl.play()
+      }
+    })
   }
   , destroyed(){
     if ( this.howls ){
@@ -113,6 +124,12 @@ export default {
         oldHowls.forEach( h => h.unload() )
       }
     }
+    , musicVolume( val ){
+      let m = this.musicHowl
+      if ( !m ) return
+
+      m.volume( val * this.music.maxVolume )
+    }
   }
   , computed: {
     howls(){
@@ -127,6 +144,15 @@ export default {
     , howl(){
       if ( !this.howls.length ){ return null }
       return this.howls[ this.playIndex ]
+    }
+    , musicHowl(){
+      if ( !this.music ){ return }
+      return new Howl({
+        src: this.music.audio
+        , preload: true
+        , loop: true
+        , volume: this.music.maxVolume
+      })
     }
     , nowPlaying(){
       if ( !this.playlist ){ return { title: '' } }

@@ -144,6 +144,10 @@ a:hover {
   color: $blue;
 }
 
+.dropdown.mini .dropdown-menu {
+  min-width: 0;
+}
+
 .dropdown-content {
   background: $background;
   border: 1px solid rgba(100, 100, 100, 0.3);

@@ -13,6 +13,23 @@
     .time-elapsed {{ player.time | duration }}
 
   .controls
+    .volume
+      b-dropdown.mini(:mobile-modal="false", :hoverable="true", position="is-top-right")
+        .button.btn-dark(slot="trigger")
+          b-icon(icon="music")
+        b-dropdown-item.no-outline(custom)
+          vue-slider.slider(
+            v-model="player.musicVolume"
+            , :dotSize="19"
+            , :height="100"
+            , :width="8"
+            , direction="btt"
+            , tooltip="none"
+            , :contained="true"
+            , :max="1"
+            , :min="0"
+            , :interval="0.01"
+          )
     .btn.clickable(@click="player.previous", :class="{ disabled: player.playIndex <= 0 }")
       b-icon(icon="skip-previous", size="is-large")
     .btn.clickable(@click="player.togglePlay")
@@ -23,6 +40,8 @@
 </template>
 
 <script>
+import vueSlider from 'vue-slider-component'
+import 'vue-slider-component/theme/default.css'
 import AudioScrubber from '@/components/audio-scrubber'
 
 export default {
@@ -33,6 +52,7 @@ export default {
   }
   , components: {
     AudioScrubber
+    , vueSlider
   }
   , data: () => ({
   })
@@ -91,6 +111,10 @@ export default {
   display: flex
   flex-direction: row
   justify-content: center
+  .volume
+    position: absolute
+    left: 0.5em
+    bottom: 1.15em
   .btn
     margin: 0 12px 12px
     border-radius: 50%

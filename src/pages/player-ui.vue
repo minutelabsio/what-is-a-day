@@ -1,5 +1,5 @@
 <template lang="pug">
-Player.player(:playlist="playlist", :play-index="playIndex")
+Player.player(:playlist="playlist", :play-index="playIndex", :music="music")
   template(slot-scope="playerProps")
     .main(ref="main")
       router-view(v-if="viewWidth", :player-loading="playerProps.loading", :view-width="viewWidth", :view-height="viewHeight")
@@ -50,6 +50,10 @@ export default {
     , playIndex(){
       let title = this.$route.meta.title
       return this.playlist.findIndex( p => p.title === title )
+    }
+    , music(){
+      let playerRoute = this.$router.options.routes.find( r => r.name === 'player' )
+      return playerRoute.meta.music
     }
   }
   , methods: {

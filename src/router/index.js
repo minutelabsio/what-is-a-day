@@ -22,6 +22,14 @@ export default new Router({
       , name: 'player'
       , component: PlayerUI
       , redirect: { name: 'welcome' }
+      , meta: {
+        music: {
+          maxVolume: 0.7
+          , audio: [
+            `${CDN}/Candlepower.mp3`
+          ]
+        }
+      }
       , children: [
         {
           path: 'welcome'

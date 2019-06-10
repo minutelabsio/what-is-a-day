@@ -286,6 +286,11 @@ export default {
   height: 9/16 * 300px
   z-index: 1
 
+@media screen and (max-width: 480px)
+  .tv
+    width: 140px
+    height: 9/16 * 140px
+
 .chapter
   background: $background
   cursor: crosshair
