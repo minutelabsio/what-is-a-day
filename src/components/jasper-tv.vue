@@ -203,7 +203,7 @@ $ease-in-quint: cubic-bezier(0.755, 0.050, 0.855, 0.060)
 
 .jasper-tv
   position: relative
-  background: $black-ter
+  background: black
   border: 2px solid $grey-dark
   border-radius: 5px
   overflow: hidden
