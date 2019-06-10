@@ -1,5 +1,6 @@
 import * as THREE from 'three'
 import THREEObjectMixin from '@/components/three-vue/v3-object.mixin'
+import { RenderPass } from 'three/examples/js/postprocessing/RenderPass'
 
 const spaceBackgroundTexture = new THREE.CubeTextureLoader().load([
   require('@/assets/stars/4 - Right.png')
@@ -70,15 +71,22 @@ export default {
     skyBox.layers.set(this.layer)
 
     // stop autoclear
-    this.threeVue.renderer.autoClear = false
+    // this.threeVue.renderer.autoClear = false
+
+    let renderPass = this.renderPass = new THREE.RenderPass( this.threeVue.scene, this.spaceCam )
+    this.threeVue.insertRenderPass( renderPass, 0 )
+
+    this.$on('hook:beforeDestroy', () => {
+      this.threeVue.removeRenderPass( renderPass )
+    })
 
     this.beforeDraw(() => {
       let renderer = this.threeVue.renderer
       let camera = this.threeVue.camera
-      renderer.clear()
+      // renderer.clear()
       this.spaceCam.position.copy(camera.position)
       this.spaceCam.rotation.copy(camera.rotation)
-      renderer.render( this.threeVue.scene, this.spaceCam )
+      // renderer.render( this.threeVue.scene, this.spaceCam )
     })
 
     this.v3object = this.spaceCam

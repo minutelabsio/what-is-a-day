@@ -117,6 +117,24 @@ export default {
 
       this.$once('hook:mounted', fn)
     }
+    , checkClear(){
+      let idx = this.composer.passes.indexOf(this.renderPass)
+      this.renderPass.clear = idx === 0
+    }
+    , insertRenderPass( pass, idx ){
+      if ( this.composer.passes.indexOf( pass ) > -1 ){ return }
+      if ( idx === undefined ){
+        idx = this.composer.passes.length
+      }
+
+      this.composer.insertPass( pass, idx )
+      this.checkClear()
+    }
+    , removeRenderPass( pass ){
+      let idx = this.composer.passes.indexOf( pass )
+      if ( idx < 0 ){ return }
+      this.composer.passes.splice( idx, 1 )
+    }
     , initOutlinePass(){
       if (
         !this.outlinePass ||
@@ -137,7 +155,7 @@ export default {
         outlinePass.visibleEdgeColor.set(this.outlineColor)
         outlinePass.hiddenEdgeColor.set(this.outlineColorBehind)
 
-        this.composer.insertPass( outlinePass, 1 )
+        this.composer.addPass( outlinePass )
       }
     }
     , addOutline( v3object ){
