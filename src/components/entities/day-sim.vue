@@ -65,7 +65,8 @@
             slot(name="mean-label")
           v3-line(:visible="showMeanDayArc", :from="[1.2, 0, 0]", :to="[1.8, 0, 0]", :color="red")
           v3-ring(
-            :visible="showMeanDayArc",
+            name="mean-day-arc"
+            , :visible="showMeanDayArc"
             , :innerRadius="1.2"
             , :outerRadius="1.4"
             , :segments="40"
@@ -80,7 +81,8 @@
               slot(name="solar-label")
             v3-line(:from="[1.2, 0, 0]", :to="[1.8, 0, 0]", :color="yellow")
             v3-ring(
-              :innerRadius="1.4"
+              name="solar-day-arc"
+              , :innerRadius="1.4"
               , :outerRadius="1.6"
               , :segments="40"
               , :thetaEnd="solarDayArcAngle"
@@ -94,7 +96,8 @@
               slot(name="stellar-label")
             v3-line(:position="[0, 0, 0.002]", :from="[1, 0, 0]", :to="[1.8, 0, 0]", :color="blue")
             v3-ring(
-              :innerRadius="0.98"
+              name="stellar-day-arc"
+              , :innerRadius="0.98"
               , :outerRadius="1.2"
               , :segments="40"
               , :thetaEnd="dayArcAngle"
@@ -296,6 +299,8 @@ export default {
     viewWidth: Number
     , viewHeight: Number
     , playerLoading: Boolean
+
+    , highlight: String
 
     , showGrid: Boolean
     , showEarthOrbits: Boolean
@@ -598,6 +603,14 @@ export default {
     cameraFollow(){
       let prev = this.cameraPivot
       this.cameraOrbitSetter.start( prev )
+    }
+    , highlight( name ){
+      let renderer = this.$refs.renderer
+      let el = renderer.getObjectByName( name )
+      renderer.removeOutline()
+      if ( el ){
+        renderer.addOutline( el )
+      }
     }
   }
   , computed: {

@@ -6,7 +6,7 @@
         b-field
           .control
             b-dropdown
-              .button.btn-dark(slot="trigger")
+              .button.btn-dark(slot="trigger", :class="{ pulse: highlight === 'settings' }")
                 b-icon.settings.icon-only(icon="tune")
 
               b-dropdown-item.settings-content(custom)
@@ -18,7 +18,7 @@
                         span Preset
                         b-icon(icon="menu-down")
 
-                      b-dropdown-item.no-outline(v-for="(item,name) in presets", @click="preset = item")
+                      b-dropdown-item.no-outline(v-for="(item,name) in presets", :key="name", @click="preset = item")
                         label {{ name }}
                       hr.dropdown-divider
                       b-dropdown-item.no-outline(@click="presetCaveatsModal = true")
@@ -104,14 +104,26 @@
                     b-checkbox(v-if="showEOTWedge !== undefined", v-model="showEOTWedgeVal")
                       span Punctuality Wedge
 
+                h6.subtitle.is-6(v-if="hasClocks") Clocks
+                .columns(v-if="hasClocks")
+                  .column.is-one-third
+                    b-checkbox(v-if="showStellarClock !== undefined", v-model="showStellarClockVal")
+                      span Stellar Clock
+                  .column.is-one-third
+                    b-checkbox(v-if="showSolarClock !== undefined", v-model="showSolarClockVal")
+                      span Solar Clock
+                  .column.is-one-third
+                    b-checkbox(v-if="showMeanClock !== undefined", v-model="showMeanClockVal")
+                      span Mean Time Clock
+
         b-field
           .control
-            b-checkbox-button.checkbox-btn-dark(v-model="pausedVal", :disabled="!handsOff")
+            b-checkbox-button.checkbox-btn-dark(v-model="pausedVal", :disabled="!handsOff", , :class="{ pulse: highlight === 'auto-orbit' }")
               b-icon.icon-only(icon="orbit")
 
           .control
             b-dropdown(:mobile-modal="false", :hoverable="false")
-              .button.btn-dark(slot="trigger")
+              .button.btn-dark(slot="trigger", :class="{ pulse: highlight === 'orbit-speed' }")
                 b-icon(icon="clock-fast")
 
               b-dropdown-item.no-outline(custom)
@@ -129,21 +141,21 @@
 
         b-field
           .control(v-if="graphOpen !== undefined")
-            .button.btn-dark(@click="graphOpenVal = !graphOpenVal", :class="{ 'is-primary': graphOpenVal }")
+            .button.btn-dark(@click="graphOpenVal = !graphOpenVal", :class="{ 'is-primary': graphOpenVal, pulse: highlight === 'graph' }")
               b-icon.icon-only(icon="chart-bell-curve")
 
         b-field.is-hidden-tablet(expanded, position="is-right", grouped)
-          b-dropdown(:mobile-modal="false", position="is-bottom-left")
+          b-dropdown(:mobile-modal="false", position="is-bottom-left", ref="mobileControls")
             .button.btn-dark(slot="trigger")
               b-icon(icon="dots-vertical")
 
             b-dropdown-item.no-outline(custom)
-              b-select(v-model="cameraTargetVal", icon="camera-control")
+              b-select(v-model="cameraTargetVal", icon="camera-control", :class="{ pulse: highlight === 'camera-target' }")
                 option(value="earth") Focus Earth
                 option(value="sun") Focus Sun
                 option(v-if="showMeanSun !== undefined", value="meanSun") Focus Mean Sun
             b-dropdown-item.no-outline(custom)
-              b-switch(v-model="cameraFollowVal")
+              b-switch(v-model="cameraFollowVal", :class="{ pulse: highlight === 'follow-orbit' }")
                 | Follow Orbit
             b-dropdown-item.no-outline(custom)
               slot(name="nav")
@@ -153,11 +165,11 @@
 
     .column.is-hidden-mobile
       b-field(grouped)
-        b-select(v-model="cameraTargetVal", icon="camera-control")
+        b-select(v-model="cameraTargetVal", icon="camera-control", :class="{ pulse: highlight === 'camera-target' }")
           option(value="earth") Focus Earth
           option(value="sun") Focus Sun
           option(v-if="showMeanSun !== undefined", value="meanSun") Focus Mean Sun
-        b-switch(v-model="cameraFollowVal")
+        b-switch(v-model="cameraFollowVal", :class="{ pulse: highlight === 'follow-orbit' }")
           | Follow Orbit
 
     .column.has-text-right.is-hidden-mobile
@@ -274,8 +286,13 @@ export default {
     , 'showMeanSun'
     , 'showEOTWedge'
 
+    , 'showStellarClock'
+    , 'showSolarClock'
+    , 'showMeanClock'
+
     , 'useStellarDays'
     , 'showPresets'
+    , 'highlight'
   ]
   , components: {
     vueSlider
@@ -296,6 +313,10 @@ export default {
       , showMeanSunVal: this.showMeanSun
       , showEOTWedgeVal: this.showEOTWedge
 
+      , showStellarClockVal: this.showStellarClock
+      , showSolarClockVal: this.showSolarClock
+      , showMeanClockVal: this.showMeanClock
+
       , showEarthOptionsModal: false
 
       , presetCaveatsModal: false
@@ -314,12 +335,22 @@ export default {
         this.showMeanSun !== undefined ||
         this.showEOTWedge !== undefined
     }
+    , hasClocks(){
+      return this.showStellarClock !== undefined ||
+        this.showSolarClock !== undefined ||
+        this.showMeanClock !== undefined
+    }
   }
   , watch: {
     preset( p ){
       this.eccentricityVal = p.eccentricity
       this.tiltAngleVal = p.tilt
       // this.solarDaysPerYearVal = p.dpy
+    }
+    , highlight( name ){
+      if ( name === 'camera-target' || name === 'follow-orbit' ){
+        this.$refs.mobileControls.toggle()
+      }
     }
     , paused( v ){
       this.pausedVal = v
@@ -404,6 +435,24 @@ export default {
     }
     , showEOTWedgeVal( v ){
       this.$emit('update:showEOTWedge', v)
+    }
+    , showStellarClock( v ){
+      this.showStellarClockVal = v
+    }
+    , showStellarClockVal( v ){
+      this.$emit('update:showStellarClock', v)
+    }
+    , showSolarClock( v ){
+      this.showSolarClockVal = v
+    }
+    , showSolarClockVal( v ){
+      this.$emit('update:showSolarClock', v)
+    }
+    , showMeanClock( v ){
+      this.showMeanClockVal = v
+    }
+    , showMeanClockVal( v ){
+      this.$emit('update:showMeanClock', v)
     }
   }
   , methods: {

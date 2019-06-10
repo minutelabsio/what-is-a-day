@@ -89,7 +89,7 @@ export default {
       return this.orbitalPosition * this.daysPerYear
     }
     , dayAngle(){
-      return (this.day * 360) % 360
+      return (this.day * 360 - 1) % 360 + 1
     }
     , siderealClock(){
       const minutesPerDay = 24 * 60
@@ -136,7 +136,9 @@ export default {
     }
     // copilot managed
     , ...meddleProps([
-      'orbitalPosition'
+      'highlight'
+      , 'highlightControl'
+      , 'orbitalPosition'
       , 'eccentricity'
       , 'tiltAngle'
       , 'cameraTarget'
