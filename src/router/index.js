@@ -4,6 +4,15 @@ import PlayerUI from '@/pages/player-ui'
 import About from '@/pages/about'
 import Playground from '@/components/playground'
 
+const CDN = 'https://cdn.minutelabs.io/what-is-a-day/audio'
+
+function getTracks(name){
+  return [
+    `${CDN}/${name}.mp3`
+    , `${CDN}/${name}.ogg`
+  ]
+}
+
 Vue.use(Router)
 
 export default new Router({
@@ -20,9 +29,7 @@ export default new Router({
           , component: () => import('@/components/chapters/welcome')
           , meta: {
             title: 'Welcome'
-            , audio: [
-              'https://raw.githubusercontent.com/anars/blank-audio/master/1-second-of-silence.mp3'
-            ]
+            , audio: getTracks('welcome')
           }
         }
         , {
@@ -31,9 +38,7 @@ export default new Router({
           , component: () => import('@/components/chapters/stellar-days')
           , meta: {
             title: 'Stellar Days'
-            , audio: [
-              require('@/assets/v3/01-stellar-days.mp3')
-            ]
+            , audio: getTracks('stellar-days')
           }
         }
         , {
@@ -42,9 +47,7 @@ export default new Router({
           , component: () => import('@/components/chapters/solar-days')
           , meta: {
             title: 'Solar Days'
-            , audio: [
-              require('@/assets/v3/02-solar-days.mp3')
-            ]
+            , audio: getTracks('solar-days')
           }
         }
         , {
@@ -53,9 +56,7 @@ export default new Router({
           , component: () => import('@/components/chapters/elliptic-orbit')
           , meta: {
             title: 'Earth\'s Elliptic Orbit'
-            , audio: [
-              require('@/assets/v3/03-elliptical-orbit.mp3')
-            ]
+            , audio: getTracks('eccentric-orbit')
           }
         }
         , {
@@ -64,9 +65,7 @@ export default new Router({
           , component: () => import('@/components/chapters/axial-tilt')
           , meta: {
             title: 'Earth\'s Axial Tilt'
-            , audio: [
-              require('@/assets/v3/04-axial-tilt.mp3')
-            ]
+            , audio: getTracks('axial-tilt')
           }
         }
         , {
@@ -75,9 +74,7 @@ export default new Router({
           , component: () => import('@/components/chapters/reality')
           , meta: {
             title: 'A Realistic Picture'
-            , audio: [
-              'https://raw.githubusercontent.com/anars/blank-audio/master/1-second-of-silence.mp3'
-            ]
+            , audio: getTracks('reality')
           }
         }
       ]

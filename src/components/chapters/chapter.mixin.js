@@ -57,6 +57,7 @@ export default {
   }
   , data: () => ({
     deg
+    , pauseOnPlay: true
     , cameraZoomCorrection: 1
     , showEarthOptionsModal: false
 
@@ -210,7 +211,7 @@ export default {
 
     // end copilot
 
-    const stopOrbitOnPlay = () => { this.paused = true }
+    const stopOrbitOnPlay = () => { if ( this.pauseOnPlay ){ this.paused = true } }
     this.player.$on('play', stopOrbitOnPlay)
     this.$on('hook:beforeDestroy', () => {
       this.player.$off('play', stopOrbitOnPlay)
@@ -221,8 +222,7 @@ export default {
       let corr = 1
       let w = window.innerWidth
       if ( w <= 720 ){
-        // sqrt so it's not linear dropoff
-        corr = Math.sqrt(w / 720)
+        corr = (w / 720)
       }
       this.cameraZoomCorrection = corr
     }

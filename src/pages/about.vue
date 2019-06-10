@@ -4,29 +4,31 @@
     .section
       .content
         .has-text-centered
-          h1.title.is-1 What is a Day?
-          h2.subtitle.is-4 A MinuteLabs.io Project
-          router-link.button.btn-dark(:to="{ name: 'welcome' }")
-            b-icon(icon="arrow-left")
-            span back to the lab
+          h1.title.is-size-1 What is a Day?
+          h2.subtitle.is-size-4 A MinuteLabs.io Project
+          p
+            router-link.button.btn-dark(:to="{ name: 'welcome' }")
+              b-icon(icon="arrow-left")
+              span back to the lab
+          p More fun stuff at <a href="https://minutelabs.io" target="_blank">minutelabs.io</a>
 
-        h3.title.is-5 Credits
+        h3.title.is-size-4 Credits
         p.
-          This project was developed and concieved by Jasper Palfree.
+          This project was developed and conceived by Jasper Palfree.
 
           It wouldn't have been anywhere as visually appealing without
-          Ever Salazar and Arcadi Garcia Rius.
+          Ever Salazar and Arcadi Garcia Rius who did the amazing artwork.
 
-          And wouldn't have been built without the support of the whole
+          And this wouldn't have been built without the support of the whole
           MinuteEarth team.
 
-        h3.title.is-5 Special Thanks
+        h3.title.is-size-4 Special Thanks
         p.
           Special thanks to <a href="https://eater.net/" target="_blank">Ben Eater</a>
           for discussions and a technical insight that helped me close the seams
           between the interactivity and the "video".
 
-        h3.title.is-5 Thank you, Patreon Supporters! (so much)
+        h3.title.is-size-4 Thank you, Patreon Supporters! (so much)
         p.
           Geeks like you are the reason I build things.
 
@@ -34,18 +36,17 @@
           <img src="https://c5.patreon.com/external/logo/become_a_patron_button@2x.png" width="217" height="51">
         </a>
 
-        h3.title.is-5 Source Code
+        h3.title.is-size-4 Source Code
         p.
           As always, freely available on
           <a href="https://github.com/minutelabsio/what-is-a-day" target="_blank">github</a>.
 
-        h3.title.is-5 Bug Reports
+        h3.title.is-size-4 Bug Reports
         p.
           If you find a bug, you can post it on
           <a href="https://www.patreon.com/minutelabsio" target="_blank">patreon</a>,
           <a href="mailto:bugs@minutelabs.io">email us</a>,
           or post it on <a href="https://github.com/minutelabsio/what-is-a-day" target="_blank">github</a>.
-
 </template>
 
 <style lang="sass" scoped>
