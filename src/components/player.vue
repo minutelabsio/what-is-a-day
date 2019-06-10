@@ -116,6 +116,8 @@ export default {
         newHowl.on('play', () => { this.paused = false })
         newHowl.on('pause', () => { this.paused = true })
         newHowl.on('end', () => { this.$emit('end') })
+        // fix for dumb bug with seeking
+        newHowl.on('fade', () => { this._mlio_volume = null })
         newHowl.load().seek(0)
       }
       , immediate: true
@@ -212,10 +214,12 @@ export default {
       this.$emit('seek')
     }
     , seekAudio: _throttle(function(){
-      let vol = this.howl.volume()
-      this.howl.volume( 0 )
-      this.howl.seek( this.time / 1000 )
-      this.howl.fade( 0, vol, 100 )
+      let vol = this.howl._mlio_volume || (this.howl._mlio_volume = this.howl.volume())
+      this.howl.fade( vol, 0, 10 )
+      setTimeout( () => {
+        this.howl.seek( this.time / 1000 )
+        this.howl.fade( 0, vol, 100 )
+      }, 10)
     }, 200)
   }
 }
