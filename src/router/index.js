@@ -27,6 +27,7 @@ export default new Router({
           maxVolume: 0.7
           , audio: [
             `${CDN}/Candlepower.mp3`
+            , `${CDN}/Candlepower.ogg`
           ]
         }
       }

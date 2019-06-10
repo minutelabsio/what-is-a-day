@@ -45,6 +45,7 @@ export default {
     , playlistIndex: 0
     , scrubbing: false
 
+    , volume: 1
     , musicVolume: 1
   })
   , created(){
@@ -123,6 +124,9 @@ export default {
       if (oldHowls){
         oldHowls.forEach( h => h.unload() )
       }
+    }
+    , volume( val ){
+      Howler.volume( val )
     }
     , musicVolume( val ){
       let m = this.musicHowl

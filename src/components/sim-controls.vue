@@ -110,7 +110,7 @@
               b-icon.icon-only(icon="orbit")
 
           .control
-            b-dropdown(:mobile-modal="false", :hoverable="true")
+            b-dropdown(:mobile-modal="false", :hoverable="false")
               .button.btn-dark(slot="trigger")
                 b-icon(icon="clock-fast")
 

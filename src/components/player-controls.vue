@@ -14,22 +14,39 @@
 
   .controls
     .volume
-      b-dropdown.mini(:mobile-modal="false", :hoverable="true", position="is-top-right")
+      b-dropdown.mini(:mobile-modal="false", :hoverable="false", position="is-top-right")
         .button.btn-dark(slot="trigger")
-          b-icon(icon="music")
+          b-icon(:icon="volumeIcon")
         b-dropdown-item.no-outline(custom)
-          vue-slider.slider(
-            v-model="player.musicVolume"
-            , :dotSize="19"
-            , :height="100"
-            , :width="8"
-            , direction="btt"
-            , tooltip="none"
-            , :contained="true"
-            , :max="1"
-            , :min="0"
-            , :interval="0.01"
-          )
+          .columns.is-mobile
+            .column
+              b-icon(icon="volume-high")
+              vue-slider.slider(
+                v-model="player.volume"
+                , :dotSize="19"
+                , :height="100"
+                , :width="8"
+                , direction="btt"
+                , tooltip="none"
+                , :contained="true"
+                , :max="1"
+                , :min="0"
+                , :interval="0.01"
+              )
+            .column
+              b-icon(icon="music")
+              vue-slider.slider(
+                v-model="player.musicVolume"
+                , :dotSize="19"
+                , :height="100"
+                , :width="8"
+                , direction="btt"
+                , tooltip="none"
+                , :contained="true"
+                , :max="1"
+                , :min="0"
+                , :interval="0.01"
+              )
     .btn.clickable(@click="player.previous", :class="{ disabled: player.playIndex <= 0 }")
       b-icon(icon="skip-previous", size="is-large")
     .btn.clickable(@click="player.togglePlay")
@@ -62,6 +79,14 @@ export default {
     }
     , isLast(){
       return this.player.playIndex >= (this.player.playlist.length - 1)
+    }
+    , volumeIcon(){
+      let vol = this.player.volume
+      return vol === 0 ?
+        'volume-off' : vol < 0.3 ?
+        'volume-low' : vol < 0.7 ?
+        'volume-medium':
+        'volume-high'
     }
   }
   , methods: {

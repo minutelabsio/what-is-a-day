@@ -47,6 +47,14 @@
           <a href="https://www.patreon.com/minutelabsio" target="_blank">patreon</a>,
           <a href="mailto:bugs@minutelabs.io">email us</a>,
           or post it on <a href="https://github.com/minutelabsio/what-is-a-day" target="_blank">github</a>.
+
+        h3.title.is-size-4 Music
+        p.
+          Candlepower by Chris Zabriskie is licensed under a <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank">Creative Commons Attribution license</a>
+          <br/>
+          Source: <a href="http://chriszabriskie.com/divider/" target="_blank">chriszabriskie.com/divider/</a>
+          <br/>
+          Artist: <a href="http://chriszabriskie.com/" target="_blank">chriszabriskie.com</a>
 </template>
 
 <style lang="sass" scoped>
