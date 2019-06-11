@@ -140,7 +140,7 @@ export default {
   , computed: {
     howls(){
       if ( !this.playlist ){ return [] }
-      return this.playlist.map( entry => {
+      return this.playlist.filter( e => e.files ).map( entry => {
         return new Howl({
           src: entry.files
           , preload: false

@@ -1,7 +1,8 @@
 <template lang="pug">
 .jasper-tv
   .screen(v-show="wasOn", :class="{ on: screenOn, off: wasOn && !screenOn }")
-    img.pose(:src="poses[pose]")
+    img.pose(v-if="!img", :src="poses[pose]")
+    img.custom-image(v-if="img", :src="img")
     canvas.fuzz(ref="canvas", v-show="showFuzz")
 </template>
 
@@ -128,6 +129,7 @@ export default {
   , props: [
     'pose'
     , 'screenOn'
+    , 'img'
   ]
   , components: {
   }
@@ -226,6 +228,13 @@ $ease-in-quint: cubic-bezier(0.755, 0.050, 0.855, 0.060)
 
   .pose
     transform: scale(1.2) translate(0, 10%)
+
+  .custom-image
+    display: block
+    max-height: 100%
+    max-width: 100%
+    margin: auto
+
   .fuzz
     position: absolute
     top: 0

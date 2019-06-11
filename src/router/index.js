@@ -86,6 +86,15 @@ export default new Router({
             , audio: getTracks('reality')
           }
         }
+        , {
+          path: 'play'
+          , name: 'play'
+          , redirect: 'playground'
+          , meta: {
+            title: 'Playground'
+            , audio: false
+          }
+        }
       ]
     }
     , {
