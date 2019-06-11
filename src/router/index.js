@@ -23,13 +23,13 @@ export default new Router({
       , component: PlayerUI
       , redirect: { name: 'welcome' }
       , meta: {
-        // music: {
-        //   maxVolume: 0.7
-        //   , audio: [
-        //     `${CDN}/Candlepower.mp3`
-        //     , `${CDN}/Candlepower.ogg`
-        //   ]
-        // }
+        music: {
+          maxVolume: 0.7
+          , audio: [
+            `${CDN}/Candlepower.mp3`
+            , `${CDN}/Candlepower.ogg`
+          ]
+        }
       }
       , children: [
         {
