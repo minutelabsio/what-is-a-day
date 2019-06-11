@@ -81,7 +81,7 @@ export default {
     })
 
     this.beforeDraw(() => {
-      let renderer = this.threeVue.renderer
+      // let renderer = this.threeVue.renderer
       let camera = this.threeVue.camera
       // renderer.clear()
       this.spaceCam.position.copy(camera.position)

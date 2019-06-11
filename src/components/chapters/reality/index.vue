@@ -103,14 +103,14 @@ export default {
     initCopilot(){
       const solarDaysPerYear = 8
 
-      function solarDaysToOrbitalPos( days, e = 0, y = 0 ){
-        const dpy = solarDaysPerYear + 1
-        let eot = 0
-        if ( e || y ){
-          eot = calcEOT( days/solarDaysPerYear * Pi2 - PERHELION, e, y, PERHELION - VERNAL )
-        }
-        return (days - PERHELION/Pi2 - eot/Pi2) / (dpy - 1)
-      }
+      // function solarDaysToOrbitalPos( days, e = 0, y = 0 ){
+      //   const dpy = solarDaysPerYear + 1
+      //   let eot = 0
+      //   if ( e || y ){
+      //     eot = calcEOT( days/solarDaysPerYear * Pi2 - PERHELION, e, y, PERHELION - VERNAL )
+      //   }
+      //   return (days - PERHELION/Pi2 - eot/Pi2) / (dpy - 1)
+      // }
 
       // copilot
       let frames = this.frames = Copilot({
