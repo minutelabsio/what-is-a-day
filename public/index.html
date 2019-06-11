@@ -9,6 +9,7 @@
     <meta name="MobileOptimized" content="320">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <link rel="icon" href="<%= BASE_URL %>favicon.ico">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,300i,400,400i,600,600i,700,700i">
     <link rel="stylesheet" href="https://cdn.materialdesignicons.com/3.2.89/css/materialdesignicons.min.css">
     <link rel=stylesheet href=https://use.fontawesome.com/releases/v5.3.1/css/all.css integrity=sha384-mzrmE5qonljUremFsqc01SB46JvROS7bZs3IO2EmfFsd15uHvIt+Y8vEf7N7fWAU crossorigin=anonymous>
     <title>What is a Day | MinuteLabs.io</title>
@@ -19,5 +20,9 @@
     </noscript>
     <div id="app"></div>
     <!-- built files will be auto injected -->
+
+    <% if (process.env.NODE_ENV === 'production'){ %>
+    <script src="https://labs.minutelabs.io/assets/ga.js" async></script>
+    <% } %>
   </body>
 </html>
