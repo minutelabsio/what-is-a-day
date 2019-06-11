@@ -163,8 +163,8 @@ export default {
     ], { relaxDelay: 1000, relaxDuration: 1000, easing: meddleEasing })
   }
   , watch: {
-    handsOff(){
-      this.frames.freeze( false, true )
+    handsOff( val ){
+      this.frames.freeze( val, true )
     }
   }
   , created(){
