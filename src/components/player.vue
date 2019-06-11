@@ -9,6 +9,7 @@
 import Copilot from 'copilot'
 import { Howl, Howler } from 'howler'
 import NoSleep from 'nosleep.js'
+import * as Visibility from '@/lib/visibility'
 import _throttle from 'lodash/throttle'
 
 export default {
@@ -92,6 +93,25 @@ export default {
       if ( this.musicHowl ){
         this.musicHowl.play()
       }
+    })
+
+    const pauseOnWindowHidden = () => {
+      if ( Visibility.isHidden() ){
+        this.pause()
+
+        if ( this.musicHowl ){
+          this.musicHowl.pause()
+        }
+      } else {
+        if ( this.musicHowl ){
+          this.musicHowl.play()
+        }
+      }
+    }
+
+    Visibility.onChange( pauseOnWindowHidden )
+    this.$on('hook:beforeDestroy', () => {
+      Visibility.offChange( pauseOnWindowHidden )
     })
   }
   , destroyed(){
