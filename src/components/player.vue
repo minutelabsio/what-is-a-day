@@ -89,8 +89,10 @@ export default {
       }
     })
 
+    let wasPlayingMusic = false
     this.$once('play', () => {
       if ( this.musicHowl ){
+        wasPlayingMusic = true
         this.musicHowl.play()
       }
     })
@@ -103,7 +105,7 @@ export default {
           this.musicHowl.pause()
         }
       } else {
-        if ( this.musicHowl ){
+        if ( this.musicHowl && wasPlayingMusic ){
           this.musicHowl.play()
         }
       }
