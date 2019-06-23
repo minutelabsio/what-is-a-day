@@ -39,6 +39,8 @@ export default {
       , antialias: true
       // , canvas: this.$el
     })
+
+    this.renderer.setPixelRatio( window.devicePixelRatio )
     // this.renderer.toneMapping = THREE.ReinhardToneMapping
 
     this.cssRenderer = new CSS2DRenderer({})
