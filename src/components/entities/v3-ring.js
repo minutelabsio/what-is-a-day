@@ -66,7 +66,9 @@ export default {
   , watch: {
     geometry( geometry, oldGeometry ){
       // cleanup
-      oldGeometry.dispose()
+      if ( oldGeometry && oldGeometry !== this.dummyGeometry ){
+        oldGeometry.dispose()
+      }
 
       if ( !this.v3object || !this.visible ){ return }
       this.v3object.geometry = geometry
