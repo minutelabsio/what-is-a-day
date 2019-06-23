@@ -2,19 +2,25 @@
 .chapter
   transition(name="fade", enter)
     .welcome-overlay(v-if="!playerLoading && showWelcome")
-      .about
-        router-link.button.btn-dark.is-small.is-rounded(:to="{ name: 'about' }")
-          b-icon(icon="information", size="is-small")
-          span About this project
       .content.has-text-centered
-        h1.title.is-size-1-tablet.is-size-4 What is a Day?
+        h1.is-marginless
+          img(src="/thumbnail-transparent.png", width="480", alt="What is a Day?")
+          .is-hidden What is a Day?
         h2.subtitle.is-size-4-tablet.is-size-6 an interactive adventure
         p Begin
         p
           button.button.btn-dark.is-gigantic(@click="player.play()")
             b-icon(icon="play", size="is-large")
         p or
-        router-link(:to="{ name: 'playground' }") skip to the playground
+        p.has-text-centered.bottom-buttons
+          router-link.button.btn-dark.is-small.is-rounded(:to="{ name: 'playground' }")
+            b-icon(icon="orbit", size="is-small")
+            span go to playground
+          =' | '
+          router-link.button.btn-dark.is-small.is-rounded(:to="{ name: 'about' }")
+            b-icon(icon="information", size="is-small")
+            span about this lab
+
 
   transition(name="slide-left", appear)
     JasperTV.tv(v-if="copilotState.showTv", :screen-on="copilotState.tvOn", :pose="copilotState.tvPose")
@@ -258,9 +264,12 @@ export default {
   align-items: center
   justify-content: center
 
+  .subtitle
+    margin-top: -1em
+
   @media screen and (min-width: 768px)
     .subtitle
-      margin-bottom: 5em
+      margin-bottom: 1em
 
     .content
       margin-bottom: 10em
@@ -271,13 +280,16 @@ export default {
     .subtitle
       text-shadow: 0.05em 0.05em transparentize($blue, 0.2)
 
-  .about
-    position: absolute
-    bottom: 1em
-    right: 1em
+  // .about
+  //   position: absolute
+  //   bottom: 1em
+  //   right: 1em
 
   .is-gigantic
     font-size: 2.5em
+
+  .bottom-buttons .button
+    width: 13em
 .tv
   position: absolute
   right: 4px

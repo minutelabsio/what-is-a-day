@@ -4,7 +4,9 @@
     .section
       .content
         .has-text-centered
-          h1.title.is-size-1 What is a Day?
+          router-link(:to="{ name: 'welcome' }")
+            img(src="/thumbnail-transparent.png", width="480", alt="What is a Day?")
+          h1.title.is-size-1.is-hidden What is a Day?
           h2.subtitle.is-size-4 A MinuteLabs.io Project
           p
             router-link.button.btn-dark(:to="{ name: 'welcome' }")
