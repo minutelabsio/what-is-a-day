@@ -9,6 +9,9 @@
               .button.btn-dark(slot="trigger", :class="{ pulse: highlight === 'settings' }")
                 b-icon.settings.icon-only(icon="tune")
 
+              b-dropdown-item.close.is-hidden-tablet
+                b-icon(icon="close")
+
               b-dropdown-item.settings-content(custom)
                 .presets(v-if="showPresets")
                   b-field(grouped, position="is-right")
@@ -28,11 +31,11 @@
                   b-field(v-if="useStellarDays", grouped)
                     .control
                       .button.is-static.is-small Stellar days per Year
-                    b-input.small-input(type="number", :value="solarDaysPerYear + 1", @change="solarDaysPerYear = $value - 1" size="is-small", step="any")
+                    b-input.small-input(type="number", :value="solarDaysPerYearVal + 1", @input="updateStellarDays" size="is-small", step="1", min="1", max="366")
                   b-field(v-if="!useStellarDays", grouped)
                     .control
                       .button.is-static.is-small Standard days per Year
-                    b-input.small-input(type="number", v-model="solarDaysPerYear", size="is-small", step="any")
+                    b-input.small-input(type="number", v-model="solarDaysPerYearVal", size="is-small", step="1", min="0", max="365")
                   vue-slider.slider(
                     v-model="solarDaysPerYearVal"
                     , :dotSize="19"
@@ -50,7 +53,7 @@
                     b-field(grouped)
                       .control
                         .button.is-static.is-small Eccentricity
-                      b-input.small-input(type="number", v-model="eccentricityVal", size="is-small", step="any")
+                      b-input.small-input(type="number", v-model="eccentricityVal", size="is-small", step="any", min="0", max="0.5")
                     vue-slider.slider(
                       v-model="eccentricityVal"
                       , :dotSize="19"
@@ -67,7 +70,7 @@
                     b-field(grouped)
                       .control
                         .button.is-static.is-small Axial Tilt &deg;
-                      b-input.small-input(type="number", v-model="tiltAngleVal", size="is-small", step="any")
+                      b-input.small-input(type="number", v-model="tiltAngleVal", size="is-small", step="any", min="0", max="180")
                     vue-slider.slider(
                       v-model="tiltAngleVal"
                       , :dotSize="19"
@@ -118,7 +121,7 @@
 
         b-field
           .control
-            b-checkbox-button.checkbox-btn-dark(v-model="pausedVal", :disabled="!handsOff", , :class="{ pulse: highlight === 'auto-orbit' }")
+            b-checkbox-button.checkbox-btn-dark(v-model="pausedVal", :disabled="!handsOff", :class="{ pulse: highlight === 'auto-orbit' }")
               b-icon.icon-only(icon="orbit")
 
           .control
@@ -362,7 +365,7 @@ export default {
       this.playRateVal = v
     }
     , playRateVal( v ){
-      this.$emit('update:playRate', v)
+      this.$emit('update:playRate', +v)
     }
     , graphOpen( v ){
       this.graphOpenVal = v
@@ -386,19 +389,19 @@ export default {
       this.solarDaysPerYearVal = v
     }
     , solarDaysPerYearVal( v ){
-      this.$emit('update:solarDaysPerYear', v)
+      this.$emit('update:solarDaysPerYear', +v)
     }
     , eccentricity( v ){
       this.eccentricityVal = v
     }
     , eccentricityVal( v ){
-      this.$emit('update:eccentricity', v)
+      this.$emit('update:eccentricity', +v)
     }
     , tiltAngle( v ){
       this.tiltAngleVal = v
     }
     , tiltAngleVal( v ){
-      this.$emit('update:tiltAngle', v)
+      this.$emit('update:tiltAngle', +v)
     }
     , showGrid( v ){
       this.showGridVal = v
@@ -457,6 +460,9 @@ export default {
   }
   , methods: {
     tooltipPrecisionFormatter
+    , updateStellarDays(value){
+      this.solarDaysPerYearVal = Math.max(value - 1, 0)
+    }
   }
 }
 </script>
