@@ -138,8 +138,8 @@
                   , tooltip-dir="left"
                   , tooltip="none"
                   , :max="1"
-                  , :min="0.01"
-                  , :interval="0.01"
+                  , :min="0.001"
+                  , :interval="0.001"
                 )
 
         b-field
