@@ -480,7 +480,9 @@ export default {
       new THREE.OrthographicCamera().copy(this.$refs.camera.v3object, true) :
       this.$refs.camera.v3object
 
-    this.$refs.cameraGroup.v3object.add(camera)
+    if ( this.customCamera ){
+      this.$refs.cameraGroup.v3object.add(camera)
+    }
     // var helper = new THREE.PlaneHelper( this.solarPlane, 50, 0xffff00 )
     // this.$refs.renderer.scene.add( helper )
 
@@ -516,6 +518,10 @@ export default {
     })
     controls.addEventListener('change', () => {
       this.updateLabelRotations()
+      if ( !this.customCamera ){
+        this.setReferenceFrame()
+        camera.lookAt(this.referenceFramePosition)
+      }
       if ( !this.cameraInteraction ){ return }
       this.$emit('camera:change', {
         position: camera.position
