@@ -4,7 +4,7 @@
     .welcome-overlay(v-if="!playerLoading && showWelcome")
       .content.has-text-centered
         h1.is-marginless
-          img(src="/thumbnail-transparent.png", width="480", alt="What is a Day?")
+          img(src="@/assets/thumbnail-transparent.png", width="480", alt="What is a Day?")
           .is-hidden What is a Day?
         h2.subtitle.is-size-4-tablet.is-size-6 an interactive adventure
         p Begin
