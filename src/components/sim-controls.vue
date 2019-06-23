@@ -107,16 +107,28 @@
                     b-checkbox(v-if="showEOTWedge !== undefined", v-model="showEOTWedgeVal")
                       span Punctuality Wedge
 
+                h6.subtitle.is-6(v-if="hasArcs") Indicators
+                .columns(v-if="hasClocks")
+                  .column.is-one-third
+                    b-checkbox(v-if="showStellarArc !== undefined", v-model="showStellarArcVal")
+                      span Stellar Arg
+                  .column.is-one-third
+                    b-checkbox(v-if="showSolarArc !== undefined", v-model="showSolarArcVal")
+                      span Solar Arc
+                  .column.is-one-third
+                    b-checkbox(v-if="showMeanArc !== undefined", v-model="showMeanArcVal")
+                      span Mean Time Arc
+
                 h6.subtitle.is-6(v-if="hasClocks") Clocks
                 .columns(v-if="hasClocks")
                   .column.is-one-third
-                    b-checkbox(v-if="showStellarClock !== undefined", v-model="showStellarClockVal")
+                    b-checkbox(v-if="showStellarClock !== undefined", v-model="showStellarClockVal", :disabled="!showStellarArc")
                       span Stellar Clock
                   .column.is-one-third
-                    b-checkbox(v-if="showSolarClock !== undefined", v-model="showSolarClockVal")
+                    b-checkbox(v-if="showSolarClock !== undefined", v-model="showSolarClockVal", :disabled="!showSolarArc")
                       span Solar Clock
                   .column.is-one-third
-                    b-checkbox(v-if="showMeanClock !== undefined", v-model="showMeanClockVal")
+                    b-checkbox(v-if="showMeanClock !== undefined", v-model="showMeanClockVal", :disabled="!showMeanArc")
                       span Mean Time Clock
 
         b-field
@@ -289,6 +301,10 @@ export default {
     , 'showMeanSun'
     , 'showEOTWedge'
 
+    , 'showStellarArc'
+    , 'showSolarArc'
+    , 'showMeanArc'
+
     , 'showStellarClock'
     , 'showSolarClock'
     , 'showMeanClock'
@@ -316,6 +332,10 @@ export default {
       , showMeanSunVal: this.showMeanSun
       , showEOTWedgeVal: this.showEOTWedge
 
+      , showStellarArcVal: this.showStellarArc
+      , showSolarArcVal: this.showSolarArc
+      , showMeanArcVal: this.showMeanArc
+
       , showStellarClockVal: this.showStellarClock
       , showSolarClockVal: this.showSolarClock
       , showMeanClockVal: this.showMeanClock
@@ -337,6 +357,11 @@ export default {
       return this.showSun !== undefined ||
         this.showMeanSun !== undefined ||
         this.showEOTWedge !== undefined
+    }
+    , hasArcs(){
+      return this.showStellarArc !== undefined ||
+        this.showSolarArc !== undefined ||
+        this.showMeanArc !== undefined
     }
     , hasClocks(){
       return this.showStellarClock !== undefined ||
@@ -438,6 +463,24 @@ export default {
     }
     , showEOTWedgeVal( v ){
       this.$emit('update:showEOTWedge', v)
+    }
+    , showStellarArc( v ){
+      this.showStellarArcVal = v
+    }
+    , showStellarArcVal( v ){
+      this.$emit('update:showStellarArc', v)
+    }
+    , showSolarArc( v ){
+      this.showSolarArcVal = v
+    }
+    , showSolarArcVal( v ){
+      this.$emit('update:showSolarArc', v)
+    }
+    , showMeanArc( v ){
+      this.showMeanArcVal = v
+    }
+    , showMeanArcVal( v ){
+      this.$emit('update:showMeanArc', v)
     }
     , showStellarClock( v ){
       this.showStellarClockVal = v

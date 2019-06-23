@@ -20,6 +20,14 @@
     , :showMeanSun.sync="showMeanSun"
     , :showEOTWedge.sync="showEOTWedge"
 
+    , :showStellarArc.sync="showSiderialDayArc"
+    , :showSolarArc.sync="showSolarDayArc"
+    , :showMeanArc.sync="showMeanDayArc"
+
+    , :showStellarClock.sync="showStellarClock"
+    , :showSolarClock.sync="showSolarClock"
+    , :showMeanClock.sync="showMeanClock"
+
     , :showPresets="true"
   )
     .eot-graph(v-if="graphOpen")
@@ -73,6 +81,10 @@
       transition(name="fade")
         .clock(v-if="showSolarClock")
           .time {{solarClock}}
+    .stellar-label(slot="stellar-label")
+      transition(name="fade")
+        .clock(v-if="showStellarClock")
+          .time {{siderealClock}}
 </template>
 
 <script>
