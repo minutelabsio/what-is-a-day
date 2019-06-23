@@ -55,18 +55,20 @@ export default {
   , data: () => ({
   })
   , created(){
+    this.dummyGeometry = new THREE.Geometry()
     let geometry = this.geometry;
     let material = new THREE.MeshBasicMaterial( { transparent: true, side: THREE.DoubleSide } );
     let mesh = new THREE.Mesh( geometry, material );
 
     this.v3object = mesh
+    this.registerDisposables( this.dummyGeometry )
   }
   , watch: {
     geometry( geometry, oldGeometry ){
       // cleanup
       oldGeometry.dispose()
 
-      if ( !this.v3object ){ return }
+      if ( !this.v3object || !this.visible ){ return }
       this.v3object.geometry = geometry
 
       let start = this.thetaStart % Pi2
@@ -81,6 +83,7 @@ export default {
   }
   , computed: {
     geometry(){
+      if ( !this.visible ){ return this.dummyGeometry }
       let start = this.thetaStart % Pi2
       let end = this.thetaEnd % Pi2
 

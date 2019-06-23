@@ -48,7 +48,7 @@ export default {
     this.v3object.visible = this.visible
     return h(
       'div'
-      , this.$slots.default
+      , this.visible ? this.$slots.default : []
     )
   }
   , methods: {
