@@ -120,6 +120,9 @@ export default {
     if ( this.howls ){
       this.howls.forEach( h => h.unload() )
     }
+    if ( this.musicHowl ){
+      this.musicHowl.unload()
+    }
   }
   , watch: {
     howl: {
