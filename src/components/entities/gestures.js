@@ -60,6 +60,10 @@ export default {
     listen( name, fn, flag ){
       let el = this.threeVue.renderer.domElement
 
+      if ( name === 'mouseup' || name === 'touchend' ){
+        el = document
+      }
+
       el.addEventListener(name, fn, flag !== undefined ? flag : { passive: true })
       this.$on('hook:beforeDestroy', () => {
         el.removeEventListener(name, fn)
