@@ -18,7 +18,7 @@
                     b-dropdown
                       .button.btn-dark.preset-btn(slot="trigger")
                         b-icon(icon="earth")
-                        span Preset
+                        span Planet Preset
                         b-icon(icon="menu-down")
 
                       b-dropdown-item.no-outline(v-for="(item,name) in presets", :key="name", @click="preset = item")
@@ -181,7 +181,7 @@
     .column.is-hidden-mobile
       b-field(grouped)
         b-select(v-model="cameraTargetVal", icon="camera-control", :class="{ pulse: highlight === 'camera-target' }")
-          option(value="earth") Focus Earth
+          option(value="earth") Focus {{ preset.name || 'Earth'}}
           option(value="sun") Focus Sun
           option(v-if="showMeanSun !== undefined", value="meanSun") Focus Mean Sun
         b-switch(v-model="cameraFollowVal", :class="{ pulse: highlight === 'follow-orbit' }")
@@ -374,6 +374,7 @@ export default {
       this.eccentricityVal = p.eccentricity
       this.tiltAngleVal = p.tilt
       // this.solarDaysPerYearVal = p.dpy
+      this.$emit('update:planetSkin', p.name.toLowerCase())
     }
     , highlight( name ){
       if ( name === 'camera-target' || name === 'follow-orbit' ){

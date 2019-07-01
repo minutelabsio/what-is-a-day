@@ -28,6 +28,8 @@
     , :showSolarClock.sync="showSolarClock"
     , :showMeanClock.sync="showMeanClock"
 
+    , :planetSkin.sync="planetSkin"
+
     , :showPresets="true"
   )
     .eot-graph(v-if="graphOpen")
@@ -57,6 +59,7 @@
     , :showMeanDayArc="showMeanDayArc"
     , :showSolarDayArc="showSolarDayArc"
     , :showPM="showPM"
+    , :planetSkin="planetSkin"
 
     , :tiltAngle="tiltAngle * deg"
     , :eccentricity="eccentricity"
@@ -160,6 +163,8 @@ export default {
     , 'showSolarDayArc': true
     , 'showPM': true
     , 'showGrid': false
+
+    , 'planetSkin': 'earth'
 
     , 'showStellarClock': false
     , 'showSolarClock': true

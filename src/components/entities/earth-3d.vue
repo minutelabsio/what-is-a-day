@@ -2,9 +2,14 @@
 import * as THREE from 'three'
 import THREEObjectMixin from '@/components/three-vue/v3-object.mixin'
 
-const textureUrl = require('@/assets/earth.png')
 const TextureLoader = new THREE.TextureLoader()
 TextureLoader.crossOrigin = 'anonymous'
+
+const textures = {
+  mercury: require('@/assets/planets/mercury.png')
+  , venus: require('@/assets/planets/venus.png')
+  , earth: require('@/assets/planets/earth.png')
+}
 
 const threeProps = {
   position: {
@@ -21,20 +26,26 @@ export default {
   , props: {
     ...threeProps
     , showPM: Boolean
+    , planet: {
+      type: String
+      , default: 'earth'
+    }
   }
   , components: {
   }
   , data: () => ({
   })
   , computed: {
+    texture(){
+      return TextureLoader.load( textures[this.planet] )
+    }
   }
   , methods: {
     createObject(){
       let geometry = new THREE.SphereGeometry( 1, 32, 32 )
-      let texture = TextureLoader.load( textureUrl )
       let material = new THREE.MeshToonMaterial({
         transparent: false
-        , map: texture
+        , map: this.texture
         , shininess: 2
         , specular: 0x000000
       })
@@ -51,6 +62,7 @@ export default {
       earth.add(this.pm)
     }
     , updateObjects(){
+      this.v3object.material.map = this.texture
       this.assignProps( this.v3object, threeProps )
       this.pm.visible = this.showPM
     }

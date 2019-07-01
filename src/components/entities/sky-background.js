@@ -10,6 +10,8 @@ const spaceBackgroundTexture = new THREE.CubeTextureLoader().load([
   , require('@/assets/stars/5 - Front.png')
   , require('@/assets/stars/6 - Back.png')
 ])
+// spaceBackgroundTexture.minFilter = THREE.LinearFilter
+// spaceBackgroundTexture.minFilter = THREE.NearestFilter
 
 export default {
   name: 'SkyBackground'

@@ -49,7 +49,7 @@
 
       v3-group(:rotation="yearRotation")
         v3-group(:position="earthPosition", :rotation="[0, Math.PI, 0]")
-          Earth3D(name="earth", ref="earth", :rotation="earthRotation", :showPM="showPM")
+          Earth3D(name="earth", ref="earth", :rotation="earthRotation", :showPM="showPM", :planet="planetSkin")
           v3-group(:rotation="invYearRotation")
             v3-group(:rotation="labelUnrotation")
               v3-dom(:position="earthLabelsPosition")
@@ -345,6 +345,11 @@ export default {
     , eccentricity: {
       type: Number
       , default: 0.02
+    }
+
+    , planetSkin: {
+      type: String
+      , default: 'earth'
     }
 
     , earthLabelsPosition: {

@@ -72,6 +72,7 @@ export default {
     this.cssRenderer.domElement.style.top = '0'
     this.cssRenderer.domElement.style.left = '0'
     this.cssRenderer.domElement.style.zIndex = '1'
+    this.cssRenderer.domElement.style.userSelect = 'none'
     this.cssRenderer.domElement.className = 'no-events'
     this.$el.appendChild( this.renderer.domElement )
     this.$el.appendChild( this.cssRenderer.domElement )
