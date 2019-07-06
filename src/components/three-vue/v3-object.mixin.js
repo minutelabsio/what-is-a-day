@@ -3,7 +3,8 @@ import {
   , Vector3
   , Euler
 } from 'three'
-import _uniq from 'lodash/uniq'
+// import _uniq from 'lodash/uniq'
+import _compact from 'lodash/compact'
 
 export default {
   props: {
@@ -36,8 +37,10 @@ export default {
   , beforeDestroy(){
     this.threeVue.$emit('scene:changed', { type: 'remove', component: this, object: this.v3object })
 
-    this.registerDisposables([ this.v3object.geometry, this.v3object.material ])
-    this.disposables.forEach( thing => thing && thing.dispose && thing.dispose() )
+    this.registerDisposables([ this.v3object, this.v3object.geometry, this.v3object.material ])
+    this.disposables.forEach( thing => {
+      thing.dispose()
+    })
   }
   , render(h){
     if ( !this.v3object ){
@@ -58,13 +61,21 @@ export default {
     }
 
     , registerDisposables( thing ){
-      if ( Array.isArray( thing ) ){
-        Array.prototype.push.apply( this.disposables, thing )
-      } else {
+      if ( !thing || this.disposables.indexOf(thing) > -1 ){ return this }
+      if ( thing.dispose ){
         this.disposables.push( thing )
+
+        thing = _compact(thing)
+        Array.prototype.push.apply( this.disposables, thing )
+
+      } else if ( Array.isArray( thing ) ){
+
+        for ( let th of thing ){
+          this.registerDisposables( th )
+        }
       }
 
-      this.disposables = _uniq(this.disposables)
+      // this.disposables = _uniq(this.disposables)
       return this
     }
 

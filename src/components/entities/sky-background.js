@@ -2,14 +2,15 @@ import * as THREE from 'three'
 import THREEObjectMixin from '@/components/three-vue/v3-object.mixin'
 import { RenderPass } from 'three/examples/js/postprocessing/RenderPass'
 
-const spaceBackgroundTexture = new THREE.CubeTextureLoader().load([
+const skyUrls = [
   require('@/assets/stars/px.png')
   , require('@/assets/stars/nx.png')
   , require('@/assets/stars/py.png')
   , require('@/assets/stars/ny.png')
   , require('@/assets/stars/pz.png')
   , require('@/assets/stars/nz.png')
-])
+]
+const cubeTextureLoader = new THREE.CubeTextureLoader()
 // spaceBackgroundTexture.minFilter = THREE.LinearFilter
 // spaceBackgroundTexture.minFilter = THREE.NearestFilter
 
@@ -38,6 +39,8 @@ export default {
     this.spaceCam = new THREE.PerspectiveCamera( 45, 1, 1, 100 )
   }
   , created(){
+    const spaceBackgroundTexture = cubeTextureLoader.load(skyUrls)
+    this.registerDisposables( spaceBackgroundTexture )
     this.spaceCam.layers.set(this.layer)
 
     let skyGeometry = new THREE.BoxBufferGeometry(50, 50, 50)

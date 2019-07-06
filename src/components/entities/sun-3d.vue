@@ -63,11 +63,13 @@ export default {
       material.depthWrite = false
     } else {
       bloomColor = 0xbbaa00
+      const sunTexture = TextureLoader.load( textureUrl )
       material = new THREE.MeshBasicMaterial({
         transparent: false
-        , map: TextureLoader.load( textureUrl )
+        , map: sunTexture
         , color: 0xeeeeee
       })
+      this.registerDisposables( sunTexture )
     }
 
     let geometry = new THREE.SphereGeometry( radius, 32, 32 )

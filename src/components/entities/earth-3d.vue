@@ -40,6 +40,13 @@ export default {
   }
   , data: () => ({
   })
+  , watch: {
+    texture(newTexture, oldTexture){
+      if ( oldTexture ){
+        oldTexture.dispose()
+      }
+    }
+  }
   , computed: {
     texture(){
       return TextureLoader.load( textures[this.planet] )
