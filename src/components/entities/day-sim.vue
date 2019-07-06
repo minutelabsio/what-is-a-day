@@ -851,6 +851,7 @@ export default {
       this.$emit('drag', angle - this.meanAnomaly)
     }
     , dragEnd(){
+      if ( !this.dragTarget ){ return }
       this.dragTarget = false
       this.controls.enabled = true
       this.$emit('dragend')
