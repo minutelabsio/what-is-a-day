@@ -9,6 +9,11 @@ const textures = {
   mercury: require('@/assets/planets/mercury.png')
   , venus: require('@/assets/planets/venus.png')
   , earth: require('@/assets/planets/earth.png')
+  , mars: require('@/assets/planets/mars.png')
+  , jupiter: require('@/assets/planets/jupiter.png')
+  , saturn: require('@/assets/planets/saturn.png')
+  , neptune: require('@/assets/planets/neptune.png')
+  , uranus: require('@/assets/planets/uranus.png')
 }
 
 const threeProps = {
