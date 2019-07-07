@@ -1,3 +1,4 @@
+import _debounce from 'lodash/debounce'
 import Copilot from 'copilot'
 import { PERHELION, VERNAL, euclideanModulo, calcEOT } from '@/lib/stellar-mechanics'
 
@@ -26,6 +27,19 @@ function clockFromMinutes( n ){
   return `${hours}:${minutes}${ampm}`
 }
 
+const trackMeddle = _debounce(function(sim, prop, val){
+  if ( typeof val === 'string' ){
+    prop = prop + ':' + val
+    val = 0
+  }
+  sim.$ga.event(
+    sim.$options.name
+    , 'meddle'
+    , prop
+    , val | 0
+  )
+}, 1000)
+
 function meddleProps( props = [], meddleOptions = {} ){
   return props.reduce(( result, key ) => {
     result[key] = {
@@ -40,6 +54,9 @@ function meddleProps( props = [], meddleOptions = {} ){
           val = val.$value
         }
         this.frames.meddle({ [key]: val }, opts)
+        if (key !== 'orbitalPosition'){
+          trackMeddle(this, key, val)
+        }
       }
     }
     return result

@@ -5,7 +5,6 @@
 
     , :paused.sync="paused"
     , :playRate.sync="playRate"
-    , :graphOpen.sync="graphOpen"
     , :cameraTarget.sync="cameraTarget"
     , :cameraFollow.sync="cameraFollow"
     , :solarDaysPerYear.sync="solarDaysPerYear"

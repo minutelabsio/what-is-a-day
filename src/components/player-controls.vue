@@ -49,7 +49,7 @@
               )
     .btn.clickable(@click="player.previous", :class="{ disabled: player.playIndex <= 0 }")
       b-icon(icon="skip-previous", size="is-large")
-    .btn.clickable(@click="player.togglePlay")
+    .btn.clickable(@click="togglePlay")
       .playpause(v-if="!player.ended")
       b-icon.play-again(v-if="player.ended", icon="replay", size="is-large")
     .btn.clickable(@click="player.next", :class="{ disabled: isLast }")
@@ -57,6 +57,7 @@
 </template>
 
 <script>
+import _debounce from 'lodash/debounce'
 import vueSlider from 'vue-slider-component'
 import 'vue-slider-component/theme/default.css'
 import AudioScrubber from '@/components/audio-scrubber'
@@ -93,6 +94,25 @@ export default {
     onScrub( progress ){
       let time = progress * this.player.totalTime / 100
       this.player.seek( time )
+      this.trackScrub()
+    }
+    , trackScrub: _debounce(function(){
+      this.$ga.event(
+        'player'
+        , 'scrub'
+        , this.player.nowPlaying.title
+        , this.player.time | 0
+      )
+    }, 1000)
+    , togglePlay(){
+      let wasPaused = this.player.paused
+      this.player.togglePlay()
+      this.$ga.event(
+        'player'
+        , wasPaused ? 'play' : 'pause'
+        , this.player.nowPlaying.title
+        , this.player.time | 0
+      )
     }
   }
 }

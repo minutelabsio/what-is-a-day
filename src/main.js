@@ -1,5 +1,6 @@
 import Vue from 'vue'
 import App from '@/app'
+import VueAnalytics from 'vue-analytics'
 import router from '@/router'
 import Filters from '@/plugins/filters'
 import Gestures from '@/plugins/gestures'
@@ -20,6 +21,21 @@ Copilot.registerType({
     let v = new THREE.Vector3()
     v.copy( from )
     return v.lerp( to, t )
+  }
+})
+
+const isProduction = process.env.NODE_ENV === 'production'
+Vue.use(VueAnalytics, {
+  id: 'UA-46248430-1'
+  , router
+  , domain: 'minutelabs.io'
+  , debug: {
+    enabled: !isProduction
+    , trace: false
+    , sendHitTask: isProduction
+  }
+  , autoTracking: {
+    exception: true
   }
 })
 

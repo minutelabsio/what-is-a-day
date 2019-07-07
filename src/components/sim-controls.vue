@@ -122,13 +122,13 @@
                 h6.subtitle.is-6(v-if="hasClocks") Clocks
                 .columns(v-if="hasClocks")
                   .column.is-one-third
-                    b-checkbox(v-if="showStellarClock !== undefined", v-model="showStellarClockVal", :disabled="!showStellarArc")
+                    b-checkbox(v-if="showStellarClock !== undefined", v-model="showStellarClockVal", :disabled="showStellarArc === false")
                       span Stellar Clock
                   .column.is-one-third
-                    b-checkbox(v-if="showSolarClock !== undefined", v-model="showSolarClockVal", :disabled="!showSolarArc")
+                    b-checkbox(v-if="showSolarClock !== undefined", v-model="showSolarClockVal", :disabled="showSolarArc === false")
                       span Solar Clock
                   .column.is-one-third
-                    b-checkbox(v-if="showMeanClock !== undefined", v-model="showMeanClockVal", :disabled="!showMeanArc")
+                    b-checkbox(v-if="showMeanClock !== undefined", v-model="showMeanClockVal", :disabled="showMeanArc === false")
                       span Mean Time Clock
 
         b-field
@@ -214,8 +214,24 @@
 </template>
 
 <script>
+import _debounce from 'lodash/debounce'
 import vueSlider from 'vue-slider-component'
 import 'vue-slider-component/theme/default.css'
+
+const trackMeddle = _debounce(function(sim, prop, val){
+  if ( typeof val === 'string' ){
+    prop = prop + ':' + val
+    val = undefined
+  } else {
+    val = val | 0
+  }
+  sim.$ga.event(
+    sim.$options.name
+    , 'meddle'
+    , prop
+    , val
+  )
+}, 1000)
 
 function tooltipPrecisionFormatter( p ){
   return function( v ){
@@ -346,6 +362,19 @@ export default {
       , preset: presets.Earth
       , presets
     }
+  }
+  , created(){
+    const trackProps = [
+      'paused'
+      , 'graphOpen'
+      , 'planetSkin'
+    ]
+
+    trackProps.forEach(( key ) => {
+      this.$on('update:'+key, val => {
+        trackMeddle( this.$parent, key, val )
+      })
+    })
   }
   , computed: {
     hasGuides(){

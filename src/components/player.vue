@@ -196,6 +196,8 @@ export default {
   , methods: {
     announceError( err ){
       console.log( err ) // eslint-disable-line no-console
+      const exception = err.message || err
+      this.$ga.exception(exception)
     }
     , setTotalTime(){
       this.totalTime = this.howl.duration() * 1000
