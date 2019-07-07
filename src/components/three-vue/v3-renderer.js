@@ -1,11 +1,56 @@
 import * as THREE from 'three'
+/* eslint-disable no-unused-vars */
 import { CSS2DRenderer } from 'three/examples/js/renderers/CSS2DRenderer'
 import { EffectComposer } from 'three/examples/js/postprocessing/EffectComposer'
 import { CopyShader } from 'three/examples/js/shaders/CopyShader'
-import { FXAAShader } from 'three/examples/js/shaders/FXAAShader'
+// import { FXAAShader } from 'three/examples/js/shaders/FXAAShader'
 import { RenderPass } from 'three/examples/js/postprocessing/RenderPass'
 import { ShaderPass } from 'three/examples/js/postprocessing/ShaderPass'
 import { OutlinePass } from 'three/examples/js/postprocessing/OutlinePass'
+/* eslint-enable no-unused-vars */
+/* eslint-disable comma-style */
+// BUG fix for memory leak....
+THREE.Pass.FullScreenQuad = ( function () {
+
+	var camera = new THREE.OrthographicCamera( - 1, 1, 1, - 1, 0, 1 );
+
+	var FullScreenQuad = function ( material ) {
+    var geometry = new THREE.PlaneBufferGeometry( 2, 2 );
+
+		this._mesh = new THREE.Mesh( geometry, material );
+
+	};
+
+	Object.defineProperty( FullScreenQuad.prototype, 'material', {
+
+		get: function () {
+
+			return this._mesh.material;
+
+		},
+
+		set: function ( value ) {
+
+			this._mesh.material = value;
+
+		}
+
+	} );
+
+	Object.assign( FullScreenQuad.prototype, {
+
+		render: function ( renderer ) {
+
+			renderer.render( this._mesh, camera );
+
+		}
+
+	} );
+
+	return FullScreenQuad;
+
+} )();
+/* eslint-enable comma-style */
 
 export default {
   name: 'v3-renderer'
@@ -64,7 +109,13 @@ export default {
   }
   , beforeDestroy(){
     this.renderer.dispose()
-    this.outlinePass.dispose()
+    this.composer.renderTarget1.dispose()
+    this.composer.renderTarget2.dispose()
+    this.composer.copyPass.material.dispose()
+    this.composer.copyPass.fsQuad._mesh.geometry.dispose()
+    if ( this.outlinePass ){
+      this.outlinePass.dispose()
+    }
   }
   , mounted(){
     // append renderers
