@@ -214,24 +214,9 @@
 </template>
 
 <script>
-import _debounce from 'lodash/debounce'
 import vueSlider from 'vue-slider-component'
 import 'vue-slider-component/theme/default.css'
-
-const trackMeddle = _debounce(function(sim, prop, val){
-  if ( typeof val === 'string' ){
-    prop = prop + ':' + val
-    val = undefined
-  } else {
-    val = val | 0
-  }
-  sim.$ga.event(
-    sim.$options.name
-    , 'meddle'
-    , prop
-    , val
-  )
-}, 1000)
+import trackMeddle from '@/lib/track-meddle'
 
 function tooltipPrecisionFormatter( p ){
   return function( v ){

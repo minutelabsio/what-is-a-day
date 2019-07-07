@@ -97,9 +97,19 @@ import DaySim from '@/components/entities/day-sim'
 import EOTGraph from '@/components/entities/eot-graph'
 import SimControls from '@/components/sim-controls'
 import { PERHELION, VERNAL, euclideanModulo, calcEOT } from '@/lib/stellar-mechanics'
+import trackMeddle from '@/lib/track-meddle'
 
 const Pi2 = Math.PI * 2
 const deg = Math.PI / 180
+
+function watchTrackers( props = [] ){
+  return props.reduce(( result, key ) => {
+    result[key] = function( val ){
+      trackMeddle( this, key, val )
+    }
+    return result
+  }, {})
+}
 
 function shortestDistance( a0, a1, modulo ){
   let moduloBy2 = 0.5 * modulo
@@ -180,6 +190,29 @@ export default {
     }
     , cameraZoom: 20
   })
+  , watch: {
+    ...watchTrackers([
+      'eccentricity'
+      , 'tiltAngle'
+      , 'cameraTarget'
+      , 'cameraFollow'
+      , 'solarDaysPerYear'
+      , 'showEarthOrbits'
+      , 'showSunOrbits'
+      , 'showEOTWedge'
+      , 'showSun'
+      , 'showMeanSun'
+      , 'showMonthLabels'
+      , 'showSiderialDayArc'
+      , 'showMeanDayArc'
+      , 'showSolarDayArc'
+      , 'showGrid'
+
+      , 'showStellarClock'
+      , 'showSolarClock'
+      , 'showMeanClock'
+    ])
+  }
   , computed: {
     daysPerYear(){
       return this.solarDaysPerYear + 1

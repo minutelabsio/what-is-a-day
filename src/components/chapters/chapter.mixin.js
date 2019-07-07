@@ -1,6 +1,6 @@
-import _debounce from 'lodash/debounce'
 import Copilot from 'copilot'
 import { PERHELION, VERNAL, euclideanModulo, calcEOT } from '@/lib/stellar-mechanics'
+import trackMeddle from '@/lib/track-meddle'
 
 const Pi2 = Math.PI * 2
 const deg = Math.PI / 180
@@ -26,19 +26,6 @@ function clockFromMinutes( n ){
 
   return `${hours}:${minutes}${ampm}`
 }
-
-const trackMeddle = _debounce(function(sim, prop, val){
-  if ( typeof val === 'string' ){
-    prop = prop + ':' + val
-    val = 0
-  }
-  sim.$ga.event(
-    sim.$options.name
-    , 'meddle'
-    , prop
-    , val | 0
-  )
-}, 1000)
 
 function meddleProps( props = [], meddleOptions = {} ){
   return props.reduce(( result, key ) => {
