@@ -28,7 +28,6 @@ const isProduction = process.env.NODE_ENV === 'production'
 Vue.use(VueAnalytics, {
   id: 'UA-46248430-1'
   , router
-  , basePath: isProduction ? '/what-is-a-day/' : '/'
   , debug: {
     enabled: !isProduction
     , trace: false
@@ -36,6 +35,13 @@ Vue.use(VueAnalytics, {
   }
   , autoTracking: {
     exception: true
+    , pageviewTemplate (route) {
+      return {
+        title: route.name
+        , page: `/what-is-a-day${route.path}`
+        , location: window.location.href
+      }
+    }
   }
 })
 
