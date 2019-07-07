@@ -28,7 +28,7 @@ const isProduction = process.env.NODE_ENV === 'production'
 Vue.use(VueAnalytics, {
   id: 'UA-46248430-1'
   , router
-  , domain: 'minutelabs.io'
+  , basePath: isProduction ? '/what-is-a-day/' : '/'
   , debug: {
     enabled: !isProduction
     , trace: false
