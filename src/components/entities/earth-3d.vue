@@ -14,6 +14,7 @@ const textures = {
   , saturn: require('@/assets/planets/saturn.png')
   , neptune: require('@/assets/planets/neptune.png')
   , uranus: require('@/assets/planets/uranus.png')
+  , pluto: require('@/assets/planets/pluto.png')
 }
 
 const threeProps = {
