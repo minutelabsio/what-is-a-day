@@ -128,7 +128,6 @@ export default {
         , orbitalPosition: {
           type: Number
           , default: solarDaysToOrbitalPos(5) // {0, 1}
-          , interpolatorOpts: { modulo: 1 }
         }
         , solarDaysPerYear: solarDaysPerYear
         , tiltAngle: 0
@@ -202,7 +201,7 @@ export default {
       })
 
       frames.add({
-        orbitalPosition: PERHELION / Pi2
+        orbitalPosition: 1 + PERHELION / Pi2
       }, {
         time: '00:20'
         , startTime: 1

@@ -1,5 +1,5 @@
 <template lang="pug">
-.scrubber(v-drag="onScrub")
+.scrubber(v-drag="onScrub", :class="{ drag }")
   .nib(:style="{ transform: `translate(${progress}%)`}")
   .inner
     .progress-bar(:style="{ transform: `translate(${progress}%)`}")
@@ -14,9 +14,16 @@ export default {
   }
   , components: {}
   , data: () => ({
+    drag: false
   })
   , methods: {
     onScrub( e ){
+      if ( e.first ){
+        this.drag = true
+      } else if ( e.last ){
+        this.drag = false
+      }
+
       let x = e.layerX
       let progress = Math.round( x / this.$el.offsetWidth * 100 )
       progress = Math.min(Math.max(0, progress), 100)
@@ -58,7 +65,7 @@ $progress-color: $blue
     left: 0px
     width: 100%
     z-index: 1
-    transition: transform 0.1s ease
+    // transition: transform 0.01s ease-in
     &:after
       content: ''
       position: absolute
@@ -84,5 +91,9 @@ $progress-color: $blue
     height: 100%
     background: $progress-color
     // border-radius: 0 6px 6px 0
-    transition: transform 0.1s ease
+    // transition: transform 0.01s ease-in
+  &.drag
+    .nib,
+    .progress-bar
+      transition: transform 0.1s ease-in
 </style>

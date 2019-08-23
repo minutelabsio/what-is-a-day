@@ -107,7 +107,6 @@ export default {
         , orbitalPosition: {
           type: Number
           , default: 0 // {0, 1}
-          , interpolatorOpts: { modulo: 1 }
         }
         , solarDaysPerYear: solarDaysPerYear
         , tiltAngle: 0
@@ -192,14 +191,14 @@ export default {
       })
 
       frames.add({
-        orbitalPosition: 1 / (solarDaysPerYear + 1)
+        orbitalPosition: 1 + 1 / (solarDaysPerYear + 1)
       }, {
         time: '00:30'
         , startTime: '00:25'
       })
 
       frames.add({
-        orbitalPosition: 2 / (solarDaysPerYear + 1)
+        orbitalPosition: 1 + 2 / (solarDaysPerYear + 1)
         , cameraZoom: 60
       }, {
         time: '00:40'
@@ -207,7 +206,7 @@ export default {
       })
 
       frames.add({
-        orbitalPosition: solarDaysToOrbitalPos(2)
+        orbitalPosition: 1 + solarDaysToOrbitalPos(2)
       }, {
         time: '00:46'
         , startTime: '00:44'

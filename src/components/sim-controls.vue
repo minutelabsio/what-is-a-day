@@ -111,7 +111,7 @@
                 .columns(v-if="hasClocks")
                   .column.is-one-third
                     b-checkbox(v-if="showStellarArc !== undefined", v-model="showStellarArcVal")
-                      span Stellar Arg
+                      span Stellar Arc
                   .column.is-one-third
                     b-checkbox(v-if="showSolarArc !== undefined", v-model="showSolarArcVal")
                       span Solar Arc

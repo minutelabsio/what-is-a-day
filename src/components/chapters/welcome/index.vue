@@ -97,7 +97,6 @@ export default {
         , orbitalPosition: {
           type: Number
           , default: 0 // {0, 1}
-          , interpolatorOpts: { modulo: 1 }
         }
         , solarDaysPerYear: solarDaysPerYear
         , tiltAngle: 0
@@ -212,6 +211,13 @@ export default {
       }, {
         time: '55s'
         , duration: '1s'
+      })
+
+      frames.add({
+        orbitalPosition: 0
+      }, {
+        time: '53s'
+        , duration: 1
       })
 
       frames.add({

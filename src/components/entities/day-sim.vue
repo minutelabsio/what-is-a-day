@@ -61,14 +61,14 @@
           //- v3-light(type="spot", :intensity="0.4", :position="lightPos")
 
           //- Day arcs
-          v3-dom(:position="[2, 0, 0]")
+          v3-dom(v-if="showMeanDayArc", :position="[2, 0, 0]")
             slot(name="mean-label")
           v3-line(:visible="showMeanDayArc", :from="[1.2, 0, 0]", :to="[1.8, 0, 0]", :color="red")
           v3-ring(
             name="mean-day-arc"
             , :visible="showMeanDayArc"
-            , :innerRadius="1.2"
-            , :outerRadius="1.4"
+            , :innerRadius="0.98"
+            , :outerRadius="1.2"
             , :segments="40"
             , :thetaEnd="meanSolarDayArcAngle"
             , :color="red"
@@ -82,8 +82,8 @@
             v3-line(:from="[1.2, 0, 0]", :to="[1.8, 0, 0]", :color="yellow")
             v3-ring(
               name="solar-day-arc"
-              , :innerRadius="1.4"
-              , :outerRadius="1.6"
+              , :innerRadius="1.2"
+              , :outerRadius="1.4"
               , :segments="40"
               , :thetaEnd="solarDayArcAngle"
               , :color="yellow"
@@ -97,8 +97,8 @@
             v3-line(:position="[0, 0, 0.002]", :from="[1, 0, 0]", :to="[1.8, 0, 0]", :color="blue")
             v3-ring(
               name="stellar-day-arc"
-              , :innerRadius="0.98"
-              , :outerRadius="1.2"
+              , :innerRadius="1.4"
+              , :outerRadius="1.6"
               , :segments="40"
               , :thetaEnd="dayArcAngle"
               , :opacity="0.8"

@@ -99,7 +99,6 @@ export default {
         , orbitalPosition: {
           type: Number
           , default: 0 // {0, 1}
-          , interpolatorOpts: { modulo: 1 }
         }
         , solarDaysPerYear: solarDaysPerYear
         , tiltAngle: 0
